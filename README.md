@@ -1,5 +1,8 @@
 # neorgon-forge
 
+[![skills.sh](https://skills.sh/b/LucianoAdonis/neorgon-forge)](https://skills.sh/LucianoAdonis/neorgon-forge)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Skills for finding your way into hard work, taking it on, then explaining it, then keeping the
 result consistent.
 
@@ -26,7 +29,9 @@ of projects drifts on: how the copy reads, and how the art holds together.
 
 ## Install
 
-**To use them** — install the plugin:
+Three routes, and which one you want depends on what you are doing rather than on preference.
+
+**As a Claude Code plugin** — the whole set, updated as a unit:
 
 ```
 /plugin marketplace add LucianoAdonis/neorgon-forge
@@ -34,6 +39,18 @@ of projects drifts on: how the copy reads, and how the art holds together.
 ```
 
 Refresh with `/plugin update neorgon-forge`.
+
+**With the skills CLI** — for one skill, or for an agent other than Claude Code:
+
+```bash
+npx skills add LucianoAdonis/neorgon-forge           # all eight
+npx skills add LucianoAdonis/neorgon-forge -s atlas   # just one
+npx skills add LucianoAdonis/neorgon-forge -l         # list without installing
+```
+
+Pass `-g` for user-level rather than project-level. `npx skills` also targets Cursor, Codex and
+others, so this is the route that does not assume Claude Code — but it installs skills
+individually, so the group is no longer updated as one thing.
 
 **To author them** — clone and symlink, so edits are live with no sync step:
 
@@ -53,6 +70,11 @@ bash bin/install.sh --project ~/code/my-repo
 
 `install.sh` refuses to overwrite a real directory that shares a name with one of ours; pass
 `--force` to move it aside with a timestamped backup.
+
+**Do not mix the author route with the other two on the same machine.** `make install` symlinks
+`~/.claude/skills/<name>` back into this working tree, and both the plugin and `npx skills add`
+place their own copy at that name. Whichever lands second wins, and the failure is silent: you
+edit the clone and run the copy. Pick one route per machine.
 
 ## Commands
 
