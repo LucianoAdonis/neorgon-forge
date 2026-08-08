@@ -175,6 +175,12 @@ learned this the hard way on migration: three scripts derived their output direc
 location, which was correct only while they lived inside the project. The one legitimate use of
 `__file__` is reaching the skill's own bundled assets.
 
+**Calling a sibling skill's script is allowed.** `untangle` opens a brief with `task`'s
+`brief.sh` rather than shipping its own, and `validate.sh` resolves a `skills/<name>/scripts/…`
+reference against the skills root so the dead-reference check still applies across the boundary.
+Reach for this when two skills would otherwise maintain the same artifact; do not reach for it to
+avoid deciding which skill owns a step.
+
 `validate.sh` also greps every skill for API keys and `/Users/...` paths, because this repo is
 public and neither is recoverable by deleting it in a later commit.
 

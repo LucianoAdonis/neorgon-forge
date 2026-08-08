@@ -1,15 +1,20 @@
 # neorgon-forge
 
-Skills for taking on large work, then explaining it, then keeping the result consistent.
+Skills for finding your way into hard work, taking it on, then explaining it, then keeping the
+result consistent.
 
-Three of them share one artifact. `task` scopes a problem, splits it into workstreams that can
-be delegated, and keeps a brief on disk while the work happens. `debrief` and `writeup` read
-that brief afterwards — so the account of the work comes from a record written at the time
-rather than reconstructed from a diff at the end. The other two are about what a fleet of
-projects drifts on: how the copy reads, and how the art holds together.
+They follow the arc of a piece of work. `wayfind` and `untangle` come first, for the two things
+that stall a start: not knowing where anything lives, and not knowing the shape of the problem
+yet. `task` then scopes it, splits it into workstreams that can be delegated, and keeps a brief on
+disk while the work happens. `debrief` and `writeup` read that brief afterwards — so the account
+of the work comes from a record written at the time rather than reconstructed from a diff at the
+end. The last two are about what a fleet of projects drifts on: how the copy reads, and how the
+art holds together.
 
 | Skill | Use it when | Produces |
 |---|---|---|
+| **`wayfind`** | You do not know where a change goes | `.forge/map.md` — areas, path rules, exceptions |
+| **`untangle`** | The problem resists a plan | Evidence, or a scored decision, or a coverage map |
 | **`task`** | A problem to solve, not an edit to make | Working code, plus `.forge/brief.md` |
 | **`debrief`** | You need to present what changed | A deck (slides YAML, Marp, or Markdown) |
 | **`writeup`** | You need to publish what changed | `post/POST.md` plus diagrams that cannot drift |
@@ -86,9 +91,11 @@ alternative that lost, the number actually measured — are the three things a d
 a long session reliably forgets. `close` refuses to quietly drop unfinished workstreams; they
 belong under `## Open`.
 
-Add `.forge/` to the worked repo's `.gitignore` if you would rather not commit briefs. Committing
-them is also reasonable — a brief is a decision record, and that is the kind of thing worth
-keeping.
+`.forge/` is shared: `untangle` writes `evidence.md` beside the brief and `wayfind` writes
+`map.md`. Add the directory to the worked repo's `.gitignore` if you would rather not commit any of
+it. Committing is also reasonable, and the two are worth separating — a brief is a decision record
+about one piece of work, while a map is a standing description of the repo that gets more useful
+the longer it is kept.
 
 ## Scopes, in `task`
 
@@ -118,7 +125,27 @@ Scaffolds the directory, frontmatter, and the section headings that make a skill
 description (the part that decides whether it ever fires), progressive disclosure across the four
 tiers, and how to test that it fires when it should and not when it should not.
 
-## The other two
+## Before the work — `wayfind` and `untangle`
+
+Both exist because the expensive mistakes happen before any code is written: confident motion in
+the wrong direction, and a convention asserted from two files.
+
+**`untangle`** classifies the difficulty first, because the three kinds share almost no technique.
+`cause` narrows by refutation — every hypothesis registered with `evidence.sh` must carry the
+observation that would kill it, since a theory nothing could disprove cannot be crossed off and
+quietly becomes the assumption everything else rests on. `design` scores real options against
+criteria written *before* the options. `scale` builds a coverage map with `survey.sh` and hands
+execution to `task --scope campaign`. It also has a stop condition: three refuted hypotheses with
+nothing confirmed is a report, not a state to persist in.
+
+**`wayfind`** makes every claim about a codebase carry its basis. `map.sh rule` refuses a rule
+without one, because "it seems standard" and "census: 41 files, no exceptions" read identically
+next session and only one of them is true. `ticket` resolves a ticket's vocabulary to ranked
+candidate files, `resolve` reports which rules and recorded exceptions govern a path, and `check`
+flags rules whose glob now matches nothing — a dead rule is worse than a missing one, because a
+missing rule prompts a question and a dead one answers it wrongly.
+
+## After the work — `voicecheck` and `mascot-forge`
 
 **`voicecheck`** loads a voice before judging one. A per-project `VOICE.md` overrides a checkable
 baseline; with neither, an audit is just an opinion about someone else's writing. `audit` reports
@@ -147,6 +174,8 @@ neorgon-forge/
 ├── plugins/neorgon-forge/
 │   ├── .claude-plugin/plugin.json
 │   └── skills/
+│       ├── wayfind/      SKILL.md, scripts/{orient.sh,map.sh}, reference/tickets.md
+│       ├── untangle/     SKILL.md, scripts/{evidence.sh,survey.sh}, reference/hypotheses.md
 │       ├── task/         SKILL.md, scripts/brief.sh, reference/delegation.md
 │       ├── debrief/      SKILL.md, scripts/collect-changes.sh, reference/
 │       ├── writeup/      SKILL.md, scripts/{check-writeup.sh,diagram-kit.mjs,rasterize.mjs}

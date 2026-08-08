@@ -148,12 +148,20 @@ check_skill() {
   # Read into an array rather than piping into a while loop: a pipeline
   # runs its last stage in a subshell, so fail=1 set in there would be
   # discarded and the script would exit 0 having printed an error.
+  # A reference prefixed with skills/<name>/ belongs to a sibling skill —
+  # untangle calls task's brief.sh — so it resolves against the skills root,
+  # not against this skill's directory.
   local refs=()
   while IFS= read -r ref; do refs+=("$ref"); done < <(
-    grep -oE '(reference|scripts)/[A-Za-z0-9._-]+' "$md" | sort -u
+    grep -oE '(skills/[A-Za-z0-9._-]+/)?(reference|scripts)/[A-Za-z0-9._-]+' "$md" | sort -u
   )
   for ref in ${refs+"${refs[@]}"}; do
-    [ -e "$dir/$ref" ] || { red "  SKILL.md references missing file: $ref"; fail=1; }
+    case "$ref" in
+      skills/*) [ -e "$SRC/${ref#skills/}" ] ||
+        { red "  SKILL.md references missing file: $ref"; fail=1; } ;;
+      *) [ -e "$dir/$ref" ] ||
+        { red "  SKILL.md references missing file: $ref"; fail=1; } ;;
+    esac
   done
 }
 
