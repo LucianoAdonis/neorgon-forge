@@ -1,0 +1,19 @@
+{
+  "name": "neorgon-forge",
+  "version": "1.0.0",
+  "description": "Skills for taking on large work and then explaining it. task scopes and delegates; debrief turns the result into a deck; writeup turns it into a published post. All three read and write one shared brief, so the account of the work comes from a record written while it happened.",
+  "author": {
+    "name": "LucianoAdonis",
+    "url": "https://neorgon.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "task-decomposition",
+    "subagents",
+    "delegation",
+    "documentation",
+    "presentations",
+    "technical-writing",
+    "skill-authoring"
+  ]
+}

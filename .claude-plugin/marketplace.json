@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "neorgon-forge",
+  "description": "Skills for taking on large work and then explaining it: task (scoped execution with delegated workstreams), debrief (the work as a deck), writeup (the work as a published post).",
+  "owner": {
+    "name": "LucianoAdonis",
+    "url": "https://neorgon.com"
+  },
+  "plugins": [
+    {
+      "name": "neorgon-forge",
+      "source": "./plugins/neorgon-forge",
+      "description": "Three skills that share one artifact: task writes a brief while the work happens, debrief and writeup read it afterwards instead of reconstructing it from memory.",
+      "author": {
+        "name": "LucianoAdonis"
+      },
+      "category": "productivity",
+      "homepage": "https://github.com/LucianoAdonis/neorgon-forge"
+    }
+  ]
+}

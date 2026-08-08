@@ -1,0 +1,108 @@
+# Change-readout skeleton for slides-site.
+#
+# Copy, fill, delete what does not apply. The comments explain what each
+# slide is *for* — if you cannot fill one honestly, cut the slide rather
+# than padding it.
+#
+# Full schema and density rules: slides-site/CLAUDE.md
+
+presentation:
+  title: "<what changed, as a claim>"      # not "Sprint 12 update"
+  subtitle: "<the one-line why>"
+  author: "<name>"
+  date: "YYYY-MM"
+
+  slides:
+    # ── Open on the problem, never on the solution ──────────────
+    - type: title
+      heading: "<the change, stated as an outcome>"
+      subtitle: "<who it affects and how>"
+
+    - type: bullets
+      heading: "<the symptom, in the audience's words>"
+      bullets:
+        - "<what someone actually experienced>"
+        - "<what it cost them>"
+        - "<why it was not obvious>"
+      note: "Detail, file paths and exact numbers go here, not on the slide."
+
+    # ── The cause. Usually the most interesting slide. ──────────
+    - type: split
+      heading: "What was actually wrong"
+      left:
+        heading: "What it looked like"
+        bullets:
+          - "<the visible behaviour>"
+      right:
+        heading: "What it was"
+        bullets:
+          - "<the mechanism — this is the teaching moment>"
+
+    # ── Themes. One divider + one slide per theme, 3–4 total. ───
+    - type: divider
+      heading: "<theme one>"
+      subtitle: "<one line>"
+
+    - type: split
+      heading: "<theme one, concretely>"
+      left:
+        heading: "Before"
+        bullets:
+          - "<old behaviour>"
+      right:
+        heading: "After"
+        bullets:
+          - "<new behaviour>"
+
+    - type: code
+      heading: "<the one hunk that makes the point>"
+      language: js
+      code: |
+        // Under 15 lines. Show the point, not the file.
+      note: "Full context: <path>:<line>"
+
+    # ── Proof. Measured numbers only. ───────────────────────────
+    - type: stats
+      background: ocean
+      heading: "Measured"
+      stats:
+        - value: "<n>"
+          label: "<what was measured, and against what>"
+      note: "How each number was measured, so you can answer the question."
+
+    - type: image
+      heading: "<what the screenshot shows>"
+      src: "./<relative-path>.png"
+      alt: "<description>"
+      caption: "<what to look at>"
+
+    # ── The cost. Skipping this reads as a sales pitch. ─────────
+    - type: split
+      heading: "What it cost"
+      left:
+        heading: "Got easier"
+        bullets:
+          - "<...>"
+      right:
+        heading: "Got harder"
+        bullets:
+          - "<the trade-off you actually accepted>"
+
+    # ── The honest slide. Not optional. ─────────────────────────
+    - type: bullets
+      heading: "Still open"
+      bullets:
+        - "<deferred, and why>"
+        - "<known defect that shipped, and the reasoning>"
+        - "<decision that is the audience's to make>"
+      note: "If there is genuinely nothing open, say that in one line rather than cutting the slide — a missing caveats slide reads as an omission."
+
+    - type: qa
+      heading: "Questions?"
+      subtext: "<the question you expect, pre-answered in your notes>"
+
+    # ── One action. Not a summary. ──────────────────────────────
+    - type: cta
+      heading: "<the decision you want>"
+      action: "<the single next step>"
+      subtext: "<by when, by whom>"
