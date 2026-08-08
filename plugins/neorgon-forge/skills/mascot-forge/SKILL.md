@@ -27,7 +27,10 @@ python3 "$MF/scripts/generate.py" --prompt-file "$MF/reference/prompts/base-a-st
 # 2. cut out, align, export
 python3 "$MF/scripts/prep-frames.py" --remove-bg idle=tmp/base-01.png blink=tmp/blink.png
 
-# 3. see it move
+# 3. prove the set is consistent — exits non-zero if it is not
+python3 "$MF/scripts/verify-frames.py"
+
+# 4. see it move
 python3 "$MF/scripts/build-preview.py" && open images/mascot/preview.html
 ```
 
@@ -151,76 +154,52 @@ them; preparing one alone puts it on a different canvas and the layers stop alig
 
 ---
 
-## Step 4 — The rig
+## Step 4 — Verify the frame set before rigging it
 
-`assets/mascot.css` and `assets/mascot.js` are a working starting point. Structure:
+The rig stands on four claims about the exported files, and all four fail
+invisibly — the page renders either way, and a screenshot review passes.
 
-```html
-<div class="mascot" data-mascot>
-  <div class="mascot-poke"><div class="mascot-inner">
-    <img src="idle@512.webp" width="512" height="668" alt="">
-    <img class="layer face-blink" src="blink@512.webp" alt="" aria-hidden="true">
-    <img class="layer" data-layer="surprise" src="surprise@512.webp" alt="" aria-hidden="true">
-    <img class="mascot-bounce" data-bounce src="idle@512.webp" alt="" aria-hidden="true">
-  </div></div>
-</div>
+```bash
+python3 "$MF/scripts/verify-frames.py"
 ```
 
-**Each transform needs its own element.** Bob, physics and breathe/sway all animate
-`transform`, and one element carries one animation per property. JS owns
+| Check | The assumption | What a break looks like |
+|---|---|---|
+| `canvas` | Every layer shares one canvas | Cross-fades jump |
+| `scale` | No frame is drawn at a different size | Alignment pins at the search boundary |
+| `body` | An expression frame changed only the face | The shared idle body layer no longer matches |
+| `alpha` | Frames are cut out; `-bare` kept its alpha | A dark rectangle once composited |
+| `webp` | Every frame has its `@NNN.webp` | A broken image at runtime |
+
+It reads `prep-frames.py`'s own constants rather than restating them, so the
+4.5% scale threshold cannot drift between the exporter and the check. Exit
+status is non-zero on failure, so it can gate a commit.
+
+Run it after every reprep. It is the cheap version of the invariant at the
+bottom of this file, and the `body` check is the only mechanical test that the
+idle-reuse trick in the rig is still valid.
+
+## Step 5 — The rig
+
+`assets/mascot.css` and `assets/mascot.js` are a working starting point. Two
+structural rules decide whether the rest works at all:
+
+**Each transform needs its own element.** Bob, physics and breathe/sway all
+animate `transform`, and one element carries one animation per property. JS owns
 `.mascot-poke` outright — a CSS animation there will fight it.
 
 **Only the base frame carries dimensions.** The rest are absolutely positioned and
 inherit the box, so a reprep that changes the canvas touches one line, not eight.
 
-### Motion that does not read as a loop
-
-| Motion | How |
-|--------|-----|
-| Bob | `translateY` on the outer wrapper, ~3.1s |
-| Breathe | `scale(0.995, 1.012)` from a bottom origin, ~2.6s |
-| Sway | `rotate` ±0.9°, ~7.3s |
-| Blink | hard cut to the blink frame |
-
-Pick **mutually indivisible periods** (3.1 / 2.6 / 7.3s). The combined cycle then
-takes minutes to repeat visibly. A blink is a **hard cut, twice in quick succession**
-— people blink in pairs, and a single slow fade reads as a droop. Suspend the blink
-during any reaction or the character blinks over its own expression.
-
-### Spring physics
-
-A click injects velocity into a stiff body spring. Softer springs then *chase* the
-body rather than being kicked directly, so they inherit its motion and arrive late.
-**That lag is the entire effect** — mass arriving behind the body is what reads as
-weight, and it is felt rather than seen.
-
-| Spring | Stiffness / damping | Drives |
-|--------|--------------------|--------|
-| body | 190 / 14 | squash and stretch |
-| trail | 90 / 9 | tilt and shear |
-| bounce | 60 / 5 | secondary soft-tissue motion |
-
-Measured on one click: body peaks at 71ms and is quiet by 471ms; the secondary peaks
-at 271ms and still rings at 1555ms.
-
-**Size `IMPULSE` so one click peaks the body spring near 1.0**, then amplitude
-constants read directly as "at full deflection". Getting this wrong is silent — the
-first attempt peaked at 0.15 and produced a 0.5% squash nobody could see. Changing
-stiffness means re-tuning the impulse.
-
-Stop the loop when every spring is at rest and clear the inline transforms, so an
-idle character costs nothing. Opt out of physics under `prefers-reduced-motion` —
-but keep expression swaps, because a frame change is not motion.
-
-**Secondary motion on a flat sprite** works by masking a copy of the sprite with a
-soft elliptical falloff and transforming just that copy. The soft falloff hides the
-seam. It can reuse the `idle` frame under every expression, because the body is
-pixel-identical wherever the face is the only thing that changed — verify that
-assumption with a pixel diff rather than assuming it.
+The markup, the spring constants, the measured settling times, the
+mutually-indivisible periods that keep the idle loop from reading as a loop, and
+the placement mask are in **`reference/rig.md`**. Read it when tuning motion or
+when a reaction reads as weightless — not before, since none of it matters until
+something moves.
 
 ---
 
-## Step 5 — Outfits and costumes
+## Step 6 — Outfits and costumes
 
 Outfits are **alternate base frames, not overlays**: only `idle` exists for each, so
 hide the expression layers and stop the blink while one is on, or the character wears
@@ -245,19 +224,6 @@ a different, much younger character, which is rarely what anyone wants.
 
 ---
 
-## Placement
-
-A waist-up render ends on a hard horizontal edge. Dissolve it with a gradient mask
-rather than hiding it:
-
-```css
-mask-image: linear-gradient(to bottom, #000 80%, rgba(0,0,0,0) 97%);
-```
-
-Start the fade **below** anything characterful. At 62% it ate a folded-arms pose; 80%
-kept it. Check where the character collides with the headline and demote them to a
-low-opacity watermark below that width rather than letting them fight for the space.
-
 ## Invariants
 
 - **Every prompt restates the character's identity.** The model defends nothing you
@@ -265,5 +231,6 @@ low-opacity watermark below that width rather than letting them fight for the sp
 - **One aspect ratio for every frame in a set.** Alignment cannot fix scale.
 - **Re-prep the whole set together**, never one frame.
 - **Judge art on the real background at the real size**, never on white.
-- **Verify by driving it**, not by eyeballing a screenshot: assert which layers are
-  visible, sample the transform over time, diff frames to prove only the face moved.
+- **Run `verify-frames.py` after every reprep**, and never report a frame set as
+  done on the strength of a screenshot. The four things that break here all
+  render fine.
