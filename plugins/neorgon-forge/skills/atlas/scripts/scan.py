@@ -33,6 +33,8 @@ SKIP_DIRS = {
 
 JS_EXT = (".js", ".mjs", ".jsx", ".ts", ".tsx")
 PY_EXT = (".py",)
+HTML_EXT = (".html",)
+CSS_EXT = (".css",)
 
 # Import forms, in one pass per file. Regex rather than a parser because the
 # model tolerates a missed exotic import far better than it tolerates a
@@ -55,6 +57,26 @@ JS_IMPORT = re.compile(
 )
 PY_IMPORT = re.compile(
     r"""^\s*(?:from\s+([.\w]+)\s+import\b|import\s+([\w.]+))""", re.M
+)
+# A static page's dependencies are the tags that pull a file in. This is what
+# makes index.html an entry point in fact and not only in ENTRY_NAMES: without
+# it, the file every one of these projects boots from has no outbound edges, and
+# "distance from an entry point" is measured from whatever module happened to
+# import nothing.
+# A <link> is only a dependency for some rel values. `canonical`, `alternate`
+# and `preconnect` name a URL the page talks *about* rather than one it loads,
+# and treating those as edges puts the site's own public hostname in the model
+# beside its npm packages.
+HTML_IMPORT = re.compile(
+    r"""<script\b[^>]*\bsrc[ \t]*=[ \t]*['"]([^'"]+)['"]"""
+    r"""|<link\b(?=[^>]*\brel[ \t]*=[ \t]*['"](?:stylesheet|modulepreload|preload)['"])"""
+    r"""[^>]*\bhref[ \t]*=[ \t]*['"]([^'"]+)['"]""",
+    re.I,
+)
+# @import only. A url() points at a font or an image, which is an asset rather
+# than a module, and modelling those buries the stylesheet graph in leaf nodes.
+CSS_IMPORT = re.compile(
+    r"""@import[ \t]+(?:url\([ \t]*)?['"]([^'"]+)['"]""", re.I
 )
 
 ENTRY_NAMES = {
@@ -97,6 +119,10 @@ def classify(path: str) -> str:
     lowered = path.lower()
     if name in ENTRY_NAMES:
         return "entry"
+    if path.endswith(CSS_EXT):
+        return "style"
+    if path.endswith(HTML_EXT):
+        return "page"
     if "/data/" in lowered or lowered.endswith(".json"):
         return "data"
     if any(h in stem for h in STORE_HINTS):
@@ -127,6 +153,26 @@ def js_resolve(spec: str, importer: Path):
         if cand.is_file():
             return cand, None
     return None, None
+
+
+def asset_resolve(spec: str, importer: Path):
+    """Resolve an href/src/@import to a file in the project, or to a CDN host.
+
+    A remote stylesheet is a real dependency and belongs in the model, but it is
+    not a package: reporting `cdn.neorgon.org` under the same heading as an npm
+    import would be wrong. It comes back as a host so the caller can decide.
+    """
+    if spec.startswith(("http://", "https://", "//")):
+        host = spec.split("//", 1)[1].split("/", 1)[0]
+        return None, host
+    if spec.startswith(("data:", "#", "mailto:")):
+        return None, None
+    local = spec.split("?", 1)[0].split("#", 1)[0]
+    if not local:
+        return None, None
+    base = PROJECT if local.startswith("/") else importer.parent
+    target = (base / local.lstrip("/")).resolve()
+    return (target, None) if target.is_file() else (None, None)
 
 
 def py_resolve(spec: str, importer: Path, roots):
@@ -210,11 +256,12 @@ def main():
     forge_dir = PROJECT / option(argv, "--areas-from", ".forge")
 
     areas = read_areas(forge_dir)
-    sources = [p for p in walk(PROJECT) if p.suffix in JS_EXT + PY_EXT]
+    scanned = JS_EXT + PY_EXT + HTML_EXT + CSS_EXT
+    sources = [p for p in walk(PROJECT) if p.suffix in scanned]
     if not sources:
-        print("no JavaScript or Python sources found under the cwd", file=sys.stderr)
-        print("atlas scans .js/.mjs/.ts/.tsx/.py — for anything else, model it by hand",
-              file=sys.stderr)
+        print("no sources found under the cwd", file=sys.stderr)
+        print("atlas scans .js/.mjs/.jsx/.ts/.tsx/.py/.html/.css — for anything "
+              "else, model it by hand", file=sys.stderr)
         return 1
 
     py_roots = sorted({p.parent for p in sources if p.suffix in PY_EXT} | {PROJECT})
@@ -238,7 +285,14 @@ def main():
     for path in sources:
         key = rel(path)
         text = path.read_text(encoding="utf-8", errors="replace")
-        pattern = JS_IMPORT if path.suffix in JS_EXT else PY_IMPORT
+        if path.suffix in JS_EXT:
+            pattern = JS_IMPORT
+        elif path.suffix in PY_EXT:
+            pattern = PY_IMPORT
+        elif path.suffix in HTML_EXT:
+            pattern = HTML_IMPORT
+        else:
+            pattern = CSS_IMPORT
         for match in pattern.finditer(text):
             spec = next((g for g in match.groups() if g), None)
             if not spec:
@@ -246,8 +300,10 @@ def main():
             line = line_of(text, match.start())
             if path.suffix in JS_EXT:
                 target, package = js_resolve(spec, path)
-            else:
+            elif path.suffix in PY_EXT:
                 target, package = py_resolve(spec, path, py_roots)
+            else:
+                target, package = asset_resolve(spec, path)
 
             if target is not None:
                 dest = rel(target)

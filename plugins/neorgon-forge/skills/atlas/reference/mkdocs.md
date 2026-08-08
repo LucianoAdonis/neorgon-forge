@@ -156,3 +156,61 @@ placed in a slide deck, a Medium post, or a LinkedIn preview gets composited ont
 **white** by the host, which turns light diagram text on a dark diagram into
 light text on white — unreadable, and only discovered after publishing. Keep the
 SVG for anywhere alpha is genuinely honoured.
+
+## The visual patterns, and why each one
+
+These are the decisions that separate a diagram someone reads from one they
+scroll past. `SKILL.md` keeps the two that bite immediately; the reasoning is
+here because it matters when changing how a diagram is drawn, not when running
+the script.
+
+### Shape carries role; colour only emphasises
+
+| Shape | Kind | Mermaid |
+|---|---|---|
+| Rounded | entry point | `([...])` |
+| Cylinder | store | `[(...)]` |
+| Hexagon | config | `{{...}}` |
+| Parallelogram | data | `[/.../]` |
+| Subroutine | test | `[[...]]` |
+| Rectangle | page (`.html`) | `[...]` |
+| Double circle | style (`.css`) | `(((...)))` |
+| Circle | module | `(...)` |
+
+A shape survives a palette switch, greyscale printing, and a colourblind reader;
+a legend mapping eight hex values to eight roles survives none of them. Colour is
+used for exactly three things — the way in, the hubs, and anything structurally
+wrong.
+
+`SHAPES.get(kind, SHAPES["module"])` in `diagram.py` falls back rather than
+raising, so a model carrying a kind this table does not list still renders. That
+is deliberate: a new node kind should degrade to a plain module, not break the
+build.
+
+### The spine, not every edge
+
+A real app has roughly twice as many imports as modules. Drawing all of them
+produces a plate of spaghetti that renders, looks impressive, and answers nothing
+— rendering a 19-module project with all 41 edges was genuinely unreadable, and
+the same model as a spine was not.
+
+So `flow` draws one arrow per module (how an entry point reaches it) plus the
+edges that close an import cycle, because a cycle is the one fact a tree cannot
+express.
+
+### Every reduction is stated
+
+Elided edges and omitted modules are counted in a `%%` comment inside the
+diagram. A silently truncated diagram claims completeness it does not have.
+
+### Left-to-right for anything with fan-out
+
+A top-down spine puts every depth-1 module on one row, and a diagram wider than
+the content column gets scaled down to fit — a legible SVG becomes an unreadable
+thumbnail. Vertical overflow costs a scroll; horizontal overflow costs the
+diagram.
+
+### Arrow labels carry counts
+
+Two areas joined by one import and two joined by thirty are different facts; an
+unlabelled arrow reports them identically.

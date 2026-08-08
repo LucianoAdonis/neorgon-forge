@@ -1,6 +1,6 @@
 ---
 name: atlas
-description: "Use when an app needs documentation that stays true — architecture docs, a dependency map, diagrams of how the pieces fit, or an MkDocs site. Triggers on: 'document this app', 'diagram the architecture', 'map the dependencies', 'map the inner workings', 'set up mkdocs', 'mermaid diagrams in mkdocs', 'what depends on this file', 'what breaks if I change this', 'where is change expensive', 'is this doc still accurate'. Extracts a dependency model from the source, generates the Mermaid diagrams and MkDocs pages from that model rather than beside it, then answers questions against it with file:line citations that can be disproved — so the docs go stale loudly instead of silently. Not for Mermaid syntax questions (use mermaid-diagrams), not for choosing a C4 level (use c4-architecture), not for finding where a ticket's change goes (use wayfind)."
+description: "Use when an app needs documentation that stays true — architecture docs, a dependency map, diagrams of how the pieces fit, or an MkDocs site. Triggers on: 'document this app', 'diagram the architecture', 'map the dependencies', 'map the inner workings', 'set up mkdocs', 'mermaid diagrams in mkdocs', 'what depends on this file', 'what breaks if I change this', 'where is change expensive', 'is this doc still accurate', 'what loads this stylesheet'. Extracts a dependency model from JS, Python, HTML and CSS — so a static site's real entry point is its index.html rather than a guessed module — generates the Mermaid diagrams and MkDocs pages from that model rather than beside it, then answers questions against it with file:line citations that can be disproved — so the docs go stale loudly instead of silently. Not for Mermaid syntax questions (use mermaid-diagrams), not for choosing a C4 level (use c4-architecture), not for finding where a ticket's change goes (use wayfind)."
 argument-hint: "[scan|build|ask|render] [target]"
 user-invocable: true
 license: MIT
@@ -28,9 +28,18 @@ cd <the project>
 python3 "$FORGE/atlas/scripts/scan.py"
 ```
 
-Scans `.js/.mjs/.jsx/.ts/.tsx/.py` and writes `docs/.atlas/model.json`: modules
-with a role and an area, internal import edges each carrying the `file:line` the
-import was found on, and external packages with their importers.
+Scans `.js/.mjs/.jsx/.ts/.tsx/.py/.html/.css` and writes `docs/.atlas/model.json`:
+modules with a role and an area, internal import edges each carrying the
+`file:line` the import was found on, and external packages with their importers.
+
+**A static site's entry point is its HTML.** `index.html` is what loads the
+scripts and stylesheets, so scanning JS alone leaves the real root of the graph
+out of the model and measures "distance from an entry point" from whatever module
+happened to import nothing. `<script src>`, `<link rel=stylesheet>` and CSS
+`@import` are read as edges; `rel="canonical"`, `preconnect` and `url()` font
+references are not, because they name a URL the page talks *about* rather than one
+it loads. Remote stylesheets come back as a host rather than a package, so a CDN
+does not appear beside npm dependencies.
 
 Read the summary it prints before going on. Three lines there change what you do
 next:
@@ -145,51 +154,29 @@ Kinds: `areas` (coupling between areas, arrows labelled with the import count),
 `flow` (the dependency spine), `area-detail --area NAME`, `focus --focus PATH`
 (one module's importers above and dependencies below), `externals`.
 
-### The visual patterns, and why each one
-
-Worth understanding rather than copying, because these are the decisions that
-separate a diagram someone reads from one they scroll past:
-
-**Shape carries role; colour only emphasises.** Rounded is an entry point,
-cylinder a store, hexagon config, parallelogram data. A shape survives a palette
-switch, greyscale printing, and a colourblind reader; a legend mapping six hex
-values to six roles survives none of them. Colour is used for exactly three
-things — the way in, the hubs, and anything structurally wrong.
-
-**The spine, not every edge.** A real app has roughly twice as many imports as
-modules. Drawing all of them produces a plate of spaghetti that renders, looks
-impressive, and answers nothing — rendering a 19-module project with all 41 edges
-was genuinely unreadable, and the same model as a spine was not. So `flow` draws
-one arrow per module (how an entry point reaches it) plus the edges that close an
-import cycle, because a cycle is the one fact a tree cannot express.
-
-**Every reduction is stated.** Elided edges and omitted modules are counted in a
-`%%` comment inside the diagram. A silently truncated diagram claims completeness
-it does not have.
-
-**Left-to-right for anything with fan-out.** A top-down spine puts every
-depth-1 module on one row, and a diagram wider than the content column gets
-scaled down to fit — a legible SVG becomes an unreadable thumbnail. Vertical
-overflow costs a scroll; horizontal overflow costs the diagram.
+Two rules that bite immediately, so they stay here:
 
 **`<br/>` for line breaks, never `\n`.** Mermaid 11 renders labels through an
 HTML `foreignObject`, where a literal backslash-n is two characters of text.
 `render.sh` refuses a file containing one rather than emitting a diagram that
-looks subtly broken. This is a live regression, not a hypothetical — see
-`reference/mkdocs.md`.
+looks subtly broken. This is a live regression, not a hypothetical.
 
-**Arrow labels carry counts.** Two areas joined by one import and two joined by
-thirty are different facts; an unlabelled arrow reports them identically.
+**Shape carries role; colour only emphasises.** A shape survives a palette
+switch, greyscale printing, and a colourblind reader; a legend mapping hex values
+to roles survives none of them.
+
+The rest of the visual reasoning — why `flow` draws a spine instead of every
+edge, why fan-out goes left-to-right, why every reduction is counted in a `%%`
+comment, the full shape vocabulary, the verified Material contract, and what
+breaks with each extension missing — is in **`reference/mkdocs.md`**. Read it
+when scaffolding `mkdocs.yml` by hand, when a fence renders as a code block, or
+before changing how a diagram is drawn.
 
 For Mermaid *syntax* — sequence diagrams, class diagrams, participant
 declarations — use the `mermaid-diagrams` skill. For choosing a C4 level, use
 `c4-architecture`. Note that Material auto-themes only flowchart, sequence,
 class, state and ER; **C4 diagrams are not auto-themed**, so a C4 diagram in a
 page fence needs its own styling or belongs in `export`.
-
-Configuration details, the verified Material contract, and what breaks with each
-extension missing are in `reference/mkdocs.md`. Read it when scaffolding
-`mkdocs.yml` by hand or when a fence renders as a code block.
 
 ## Step 6 — keep it honest over time
 
