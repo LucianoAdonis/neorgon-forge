@@ -43,6 +43,7 @@ printf '\033[1mTarget:\033[0m %s\n\n' "$DEST"
 
 linked=0
 skipped=0
+names=()
 for dir in "$SRC"/*/; do
   name=$(basename "$dir")
   target="$DEST/$name"
@@ -52,6 +53,7 @@ for dir in "$SRC"/*/; do
     if [ "$current" = "$dir" ] || [ "$current" = "${dir%/}" ]; then
       dim "  = $name (already linked)"
       linked=$((linked + 1))
+      names+=("$name")
       continue
     fi
     # A symlink pointing somewhere else is safe to replace; we are not
@@ -79,6 +81,7 @@ for dir in "$SRC"/*/; do
   fi
   green "  + $name"
   linked=$((linked + 1))
+  names+=("$name")
 done
 
 printf '\n%s skill(s) linked' "$linked"
@@ -86,11 +89,10 @@ printf '\n%s skill(s) linked' "$linked"
 printf '\n'
 
 if [ "$DRY" -eq 0 ] && [ "$linked" -gt 0 ]; then
-  cat <<'EOF'
-
-Skills are read at session start — restart Claude Code, or run /doctor to confirm.
-Verify with: /task, /debrief, /writeup
-EOF
+  printf '\nSkills are read at session start — restart Claude Code, or run /doctor to confirm.\n'
+  printf 'Verify with:'
+  for name in ${names+"${names[@]}"}; do printf ' /%s' "$name"; done
+  printf '\n'
 fi
 
 [ "$skipped" -gt 0 ] && exit 1

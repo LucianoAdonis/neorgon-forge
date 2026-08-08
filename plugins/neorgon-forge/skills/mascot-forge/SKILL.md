@@ -1,0 +1,269 @@
+---
+name: mascot-forge
+description: "Use when the user wants an illustrated character, mascot, or avatar generated and then brought to life on a page — creating the art with the Gemini image API, cutting it out cleanly, and animating it with CSS and spring physics. Covers generating a character on-model across many frames, expression variants (blink, talk, surprise), alternate costumes and seasonal outfits, background removal that survives a dark page, frame alignment that stops cross-fades jumping, and a click-reaction rig. Triggers on: 'make a mascot', 'animate this character', 'generate a character for the site', 'add expressions to the mascot', 'give her different outfits', 'costume variants', 'add jiggle physics', 'make the mascot react to clicks'. Not for photo editing, 3D, or video."
+argument-hint: "[design|frames|outfits|rig|preview]"
+user-invocable: true
+license: MIT
+---
+
+# mascot-forge — generate a character, then make it alive
+
+Two halves that fail in different ways. **Generation** fails by drifting: the same
+character comes back a little different every time, and a set of frames that drift
+cannot be layered. **Animation** fails by looking pasted-on: a cut-out that ends on a
+hard edge, motion that loops visibly, a rig with no weight.
+
+Everything here exists because one of those bit.
+
+## Pipeline
+
+```bash
+MF="$FORGE/skills/mascot-forge"
+
+# 1. art
+python3 "$MF/scripts/generate.py" --prompt-file "$MF/reference/prompts/base-a-standing.txt" \
+    --ref path/to/reference.png --aspect 3:4 --count 3 --out tmp/base
+
+# 2. cut out, align, export
+python3 "$MF/scripts/prep-frames.py" --remove-bg idle=tmp/base-01.png blink=tmp/blink.png
+
+# 3. see it move
+python3 "$MF/scripts/build-preview.py" && open images/mascot/preview.html
+```
+
+Run them from the target project's root — they write relative to the cwd, not to the
+skill. They need `GEMINI_API_KEY` and, for `--remove-bg`, `REMOVE_BG_API_KEY`, taken from
+the environment or the nearest `.env` searched upward to the repo boundary. Keys are never
+printed, and `keys.py` is the only place that reads them.
+
+Image models are **paid-tier only**: the Gemini free tier reports `limit: 0` for
+every one of them. If every model returns 429 including text, the project is out of
+credit rather than the key being wrong. The API validates the request body before it
+checks quota, so a 429 at least means the call was well formed.
+
+---
+
+## Step 1 — Design the character
+
+Generate 3–4 *directions*, not 3–4 variations of one direction. Vary the axes that
+change the answer — pose, silhouette, wardrobe — and keep everything else fixed.
+Judge them **on the background they will actually sit on**, at the size they will
+actually be. A palette that sings on white can dissolve into a dark page.
+
+Two failure modes worth checking for explicitly:
+
+- **Competing with the UI.** A character wearing the site's accent colour steals
+  attention from the primary button. Check them side by side before committing.
+- **Losing the silhouette.** A dark outfit on a dark page leaves a floating head.
+
+### Framing decides whether expressions are possible
+
+A full-body figure at 7.5 heads tall has a face about a third the size of a chibi's
+at the same on-screen height. At a 300px hero width that is a ~30px head, and a blink
+will not read at all.
+
+**If the character needs expressions, frame waist-up.** Keep a full-body render as a
+separate asset for larger placements. This is not a crop preference; it decides
+whether half the work is visible.
+
+---
+
+## Step 2 — Hold the character on-model
+
+`--ref` is repeatable and is the whole game. Pass the approved base frame into every
+subsequent generation.
+
+### Changing the face
+
+Name the one thing that changes, then pin everything else:
+
+> Using this image as the exact reference, change ONLY **&lt;the change&gt;**. Keep
+> everything else pixel-identical: same pose, same body position, same arm placement,
+> same hair shape, same clothing, same scale, same framing, same position on the
+> canvas. Same illustration style, same outlines, same flat shading, identical
+> colour palette.
+
+### Changing the style
+
+The opposite framing, and it is counter-intuitive. Calling the reference an "exact
+character sheet" and asking to "change only the rendering style" reads as *keep it
+similar* — it returns near-copies. Demote the reference first:
+
+> Use the reference image only for WHO she is and how she is posed. Now REDRAW her
+> completely as **&lt;style&gt;**. Do not imitate the reference's rendering — replace
+> it entirely.
+
+Then give concrete limits: a colour count, an outline weight, "legible at 32px".
+
+### Restate identity in every prompt
+
+A style prompt that does not defend the character's identity will lose it. A flat
+vector pass flattened a character's amber irises to solid black purely because
+nothing in that prompt mentioned eyes. **Anything that makes the character
+recognisable — eye colour, a ribbon, glasses — must be named in every prompt**, not
+just the base one.
+
+### Keep every frame at one aspect ratio
+
+Changing the aspect to make room for something changes the framing *and* the figure
+scale. Alignment can fix translation; it cannot fix scale. See `reference/prompts/`
+for working examples of all three prompt shapes.
+
+---
+
+## Step 3 — Cut out and align
+
+`prep-frames.py` takes `name=path` pairs. For each render it:
+
+- **Detects the background.** Renders arrive either already cut out or flat on white;
+  both are handled.
+- **Keys white by connectivity, not colour.** Only white connected to the border is
+  background, so a white collar, teeth and eye highlights survive. Boundary pixels get
+  a feathered alpha and their colour is un-blended from the white, so edges do not
+  glow on a dark page.
+- **Splits detached islands** — floating hearts, sparkles, a sweat drop — into
+  `<name>-extras.png`, so they can animate on their own.
+- **Pads mixed sizes** onto one canvas, anchored on each frame's own content.
+- **Aligns**, then crops everything to one shared canvas and exports PNG + WebP.
+
+### The two alignment traps
+
+**Sealed background pockets.** A flood fill from the border cannot enter background
+the art closes off — between a hair strand and a jaw, say. It stays opaque and shows
+as a white patch. `--remove-bg` asks remove.bg for a subject mask and feeds the
+unreachable pockets back in.
+
+That integration is built to never spend a paid credit: the model returns a coarse
+0.25MP *region* verdict on the free tier, while the local keyer still does every edge
+at full resolution. The model only gets a vote on pixels that are **already
+background-coloured**, and a region must survive a 3px erosion, so a bad mask cannot
+eat hair — the worst case is a pocket it misses. Responses cache by content hash.
+
+**Matching on the wrong thing.** Expression frames change only the face, so the still
+lower body is the signal. Outfit frames change the whole garment, so the unchanged
+face is. The aligner scores both bands and takes the better match, which identifies
+the kind of frame for free — the log says which band won. A residual above ~4.5%
+after aligning means the frame is drawn at a different **scale**, which no amount of
+translation fixes. Regenerate it.
+
+**Always re-run every frame together.** The shared canvas is the union of all of
+them; preparing one alone puts it on a different canvas and the layers stop aligning.
+
+---
+
+## Step 4 — The rig
+
+`assets/mascot.css` and `assets/mascot.js` are a working starting point. Structure:
+
+```html
+<div class="mascot" data-mascot>
+  <div class="mascot-poke"><div class="mascot-inner">
+    <img src="idle@512.webp" width="512" height="668" alt="">
+    <img class="layer face-blink" src="blink@512.webp" alt="" aria-hidden="true">
+    <img class="layer" data-layer="surprise" src="surprise@512.webp" alt="" aria-hidden="true">
+    <img class="mascot-bounce" data-bounce src="idle@512.webp" alt="" aria-hidden="true">
+  </div></div>
+</div>
+```
+
+**Each transform needs its own element.** Bob, physics and breathe/sway all animate
+`transform`, and one element carries one animation per property. JS owns
+`.mascot-poke` outright — a CSS animation there will fight it.
+
+**Only the base frame carries dimensions.** The rest are absolutely positioned and
+inherit the box, so a reprep that changes the canvas touches one line, not eight.
+
+### Motion that does not read as a loop
+
+| Motion | How |
+|--------|-----|
+| Bob | `translateY` on the outer wrapper, ~3.1s |
+| Breathe | `scale(0.995, 1.012)` from a bottom origin, ~2.6s |
+| Sway | `rotate` ±0.9°, ~7.3s |
+| Blink | hard cut to the blink frame |
+
+Pick **mutually indivisible periods** (3.1 / 2.6 / 7.3s). The combined cycle then
+takes minutes to repeat visibly. A blink is a **hard cut, twice in quick succession**
+— people blink in pairs, and a single slow fade reads as a droop. Suspend the blink
+during any reaction or the character blinks over its own expression.
+
+### Spring physics
+
+A click injects velocity into a stiff body spring. Softer springs then *chase* the
+body rather than being kicked directly, so they inherit its motion and arrive late.
+**That lag is the entire effect** — mass arriving behind the body is what reads as
+weight, and it is felt rather than seen.
+
+| Spring | Stiffness / damping | Drives |
+|--------|--------------------|--------|
+| body | 190 / 14 | squash and stretch |
+| trail | 90 / 9 | tilt and shear |
+| bounce | 60 / 5 | secondary soft-tissue motion |
+
+Measured on one click: body peaks at 71ms and is quiet by 471ms; the secondary peaks
+at 271ms and still rings at 1555ms.
+
+**Size `IMPULSE` so one click peaks the body spring near 1.0**, then amplitude
+constants read directly as "at full deflection". Getting this wrong is silent — the
+first attempt peaked at 0.15 and produced a 0.5% squash nobody could see. Changing
+stiffness means re-tuning the impulse.
+
+Stop the loop when every spring is at rest and clear the inline transforms, so an
+idle character costs nothing. Opt out of physics under `prefers-reduced-motion` —
+but keep expression swaps, because a frame change is not motion.
+
+**Secondary motion on a flat sprite** works by masking a copy of the sprite with a
+soft elliptical falloff and transforming just that copy. The soft falloff hides the
+seam. It can reuse the `idle` frame under every expression, because the body is
+pixel-identical wherever the face is the only thing that changed — verify that
+assumption with a pixel diff rather than assuming it.
+
+---
+
+## Step 5 — Outfits and costumes
+
+Outfits are **alternate base frames, not overlays**: only `idle` exists for each, so
+hide the expression layers and stop the blink while one is on, or the character wears
+default clothes from the neck down. Load them on demand instead of shipping every
+costume to every visitor. Any layer that is a copy of the base — the bounce layer —
+has to swap with them.
+
+Cycle them off a click counter past the last reaction, and expose `?mascot=<name>`
+for screenshots and direct links.
+
+**Hats are the hard case.** At a fixed figure scale a 1:1 render leaves almost no
+headroom, so a tall hat clips. Do **not** solve this by generating at a taller aspect
+— that changes framing and scale, and alignment pins at the search boundary.
+Constrain the hat instead: a santa hat slouched to one side, a witch hat tipped back
+so its cone lies behind the head.
+
+**A chibi is a redraw, not a costume.** Different proportions cannot align with the
+main set, so give it its own canvas and its own CSS size — at a shared width it will
+render *taller* than the full-size character and the joke lands backwards. Chibify
+the character in their **existing wardrobe**; a chibi plus a school uniform reads as
+a different, much younger character, which is rarely what anyone wants.
+
+---
+
+## Placement
+
+A waist-up render ends on a hard horizontal edge. Dissolve it with a gradient mask
+rather than hiding it:
+
+```css
+mask-image: linear-gradient(to bottom, #000 80%, rgba(0,0,0,0) 97%);
+```
+
+Start the fade **below** anything characterful. At 62% it ate a folded-arms pose; 80%
+kept it. Check where the character collides with the headline and demote them to a
+low-opacity watermark below that width rather than letting them fight for the space.
+
+## Invariants
+
+- **Every prompt restates the character's identity.** The model defends nothing you
+  do not name.
+- **One aspect ratio for every frame in a set.** Alignment cannot fix scale.
+- **Re-prep the whole set together**, never one frame.
+- **Judge art on the real background at the real size**, never on white.
+- **Verify by driving it**, not by eyeballing a screenshot: assert which layers are
+  visible, sample the transform over time, diff frames to prove only the face moved.

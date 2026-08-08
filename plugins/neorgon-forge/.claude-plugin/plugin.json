@@ -1,7 +1,7 @@
 {
   "name": "neorgon-forge",
-  "version": "1.0.0",
-  "description": "Skills for taking on large work and then explaining it. task scopes and delegates; debrief turns the result into a deck; writeup turns it into a published post. All three read and write one shared brief, so the account of the work comes from a record written while it happened.",
+  "version": "1.1.0",
+  "description": "Skills for taking on large work and then explaining it. task scopes and delegates; debrief turns the result into a deck; writeup turns it into a published post; voicecheck keeps the copy consistent; mascot-forge generates a character and rigs it. The first three share one brief written during the work, so the account of it is a record rather than a recollection.",
   "author": {
     "name": "LucianoAdonis",
     "url": "https://neorgon.com"
@@ -14,6 +14,10 @@
     "documentation",
     "presentations",
     "technical-writing",
+    "copywriting",
+    "voice-and-tone",
+    "character-art",
+    "css-animation",
     "skill-authoring"
   ]
 }

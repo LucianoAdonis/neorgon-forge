@@ -25,11 +25,11 @@ head_() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 
 if [ -n "$SINCE" ]; then
   RANGE="$SINCE..HEAD"
-  DIFF_ARGS="$SINCE"
+  REV="$SINCE"
   printf '\033[1mScope:\033[0m commits in %s (%s)\n' "$RANGE" "$(pwd)"
 else
   RANGE=""
-  DIFF_ARGS="HEAD"
+  REV="HEAD"
   printf '\033[1mScope:\033[0m uncommitted work in %s\n' "$(pwd)"
 fi
 
@@ -39,13 +39,13 @@ drop_meta() { grep -v '^\.forge/' || true; }
 
 changed() {
   {
-    git diff --name-only $DIFF_ARGS 2>/dev/null
+    git diff --name-only "$REV" 2>/dev/null
     [ -z "$SINCE" ] && git ls-files --others --exclude-standard
   } | drop_meta | sort -u
 }
 
 head_ "Volume"
-git diff --shortstat $DIFF_ARGS 2>/dev/null | sed 's/^/  /' || echo "  (none)"
+git diff --shortstat "$REV" 2>/dev/null | sed 's/^/  /' || echo "  (none)"
 if [ -z "$SINCE" ]; then
   untracked=$(git ls-files --others --exclude-standard | drop_meta | wc -l | tr -d ' ')
   [ "$untracked" != "0" ] && echo "  $untracked untracked file(s)"
@@ -59,13 +59,13 @@ changed | awk -F/ '
 
 head_ "New files"
 if [ -n "$SINCE" ]; then
-  git diff --diff-filter=A --name-only $DIFF_ARGS 2>/dev/null | drop_meta | sed 's/^/  + /'
+  git diff --diff-filter=A --name-only "$REV" 2>/dev/null | drop_meta | sed 's/^/  + /'
 else
   git diff --diff-filter=A --name-only HEAD 2>/dev/null | drop_meta | sed 's/^/  + /'
   git ls-files --others --exclude-standard | drop_meta | sed 's/^/  + /'
 fi
 head_ "Deleted files"
-git diff --diff-filter=D --name-only $DIFF_ARGS 2>/dev/null | sed 's/^/  - /' || true
+git diff --diff-filter=D --name-only "$REV" 2>/dev/null | sed 's/^/  - /' || true
 
 if [ -n "$SINCE" ]; then
   head_ "Commits in range"
@@ -79,7 +79,7 @@ changed | grep -iE '(CLAUDE\.md|AGENTS\.md|README\.md|docs/.*\.md|\.agents/)' | 
   || echo "  (none — the reasoning is only in the diff and the session)"
 
 head_ "Biggest single-file changes"
-git diff --numstat $DIFF_ARGS 2>/dev/null \
+git diff --numstat "$REV" 2>/dev/null \
   | awk '{ printf "  %6s +  %6s -   %s\n", $1, $2, $3 }' \
   | sort -rn | head -12
 

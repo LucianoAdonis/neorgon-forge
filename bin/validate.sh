@@ -82,8 +82,11 @@ check_skill() {
       || { warn "  description does not say what it is NOT for (overlap risk)"; warns=$((warns + 1)); }
   fi
 
-  [ -n "$invocable" ] && green "  user-invocable: $invocable" \
-    || { warn "  no user-invocable — will not appear as /$name"; warns=$((warns + 1)); }
+  if [ -n "$invocable" ]; then
+    green "  user-invocable: $invocable"
+  else
+    warn "  no user-invocable — will not appear as /$name"; warns=$((warns + 1))
+  fi
   [ -n "$hint" ] && green "  argument-hint ok"
 
   # ── Body ────────────────────────────────────────────────────
@@ -113,7 +116,29 @@ check_skill() {
         node --check "$s" 2>/dev/null || { red "  $(basename "$s") has a syntax error"; fail=1; }
       fi
     done
+    # Python scripts are imported as modules by their siblings, so they are not
+    # required to be executable — only to parse.
+    for s in "$dir/scripts"/*.py; do
+      [ -f "$s" ] || continue
+      if command -v python3 >/dev/null 2>&1; then
+        python3 -c "import ast,sys; ast.parse(open(sys.argv[1]).read())" "$s" 2>/dev/null \
+          || { red "  $(basename "$s") has a syntax error"; fail=1; }
+      fi
+    done
     green "  scripts ok"
+  fi
+
+  # ── Secrets ─────────────────────────────────────────────────
+  # These ship publicly. A key or an absolute home path committed here is
+  # not recoverable by deleting it later.
+  # --exclude-dir keeps compiled artefacts out of it: a .pyc embeds the
+  # absolute path it was built from, which is a false positive every time.
+  local scan=(grep -rlI --exclude-dir=__pycache__ --exclude-dir=node_modules)
+  if "${scan[@]}" -E '(sk-[A-Za-z0-9]{20}|AIza[A-Za-z0-9_-]{30}|ghp_[A-Za-z0-9]{30})' "$dir" >/dev/null 2>&1; then
+    red "  looks like a committed API key"; fail=1
+  fi
+  if "${scan[@]}" '/Users/[a-z]' "$dir" >/dev/null 2>&1; then
+    red "  hardcoded home directory path"; fail=1
   fi
 
   # ── Dead references ─────────────────────────────────────────
@@ -141,12 +166,15 @@ else
   # ── Manifest consistency ──────────────────────────────────────
   head_ "Manifests"
   for f in "$REPO/.claude-plugin/marketplace.json" "$REPO/plugins/neorgon-forge/.claude-plugin/plugin.json"; do
+    rel="${f#"$REPO"/}"
     if [ ! -f "$f" ]; then
-      red "  missing: ${f#$REPO/}"; fail=1
+      red "  missing: $rel"; fail=1
     elif command -v python3 >/dev/null 2>&1; then
-      python3 -c "import json,sys; json.load(open('$f'))" 2>/dev/null \
-        && green "  ${f#$REPO/} is valid JSON" \
-        || { red "  ${f#$REPO/} is not valid JSON"; fail=1; }
+      if python3 -c "import json; json.load(open('$f'))" 2>/dev/null; then
+        green "  $rel is valid JSON"
+      else
+        red "  $rel is not valid JSON"; fail=1
+      fi
     fi
   done
 fi

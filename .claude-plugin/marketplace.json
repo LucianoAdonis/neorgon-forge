@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "neorgon-forge",
-  "description": "Skills for taking on large work and then explaining it: task (scoped execution with delegated workstreams), debrief (the work as a deck), writeup (the work as a published post).",
+  "description": "Skills for taking on large work and then explaining it: task (scoped execution with delegated workstreams), debrief (the work as a deck), writeup (the work as a published post), voicecheck (copy that stays on-voice across projects), mascot-forge (a generated character, cut out and rigged).",
   "owner": {
     "name": "LucianoAdonis",
     "url": "https://neorgon.com"
@@ -10,7 +10,7 @@
     {
       "name": "neorgon-forge",
       "source": "./plugins/neorgon-forge",
-      "description": "Three skills that share one artifact: task writes a brief while the work happens, debrief and writeup read it afterwards instead of reconstructing it from memory.",
+      "description": "Five skills, portable by default. task writes a brief while the work happens; debrief and writeup read it afterwards instead of reconstructing it from memory. voicecheck and mascot-forge cover the two things that drift fastest across a fleet of sites: how the copy reads and how the art holds together.",
       "author": {
         "name": "LucianoAdonis"
       },

@@ -76,5 +76,9 @@ else
 fi
 
 echo
-[ "$fail" -eq 0 ] && green "All mechanical checks passed." || red "Some checks flagged — see above."
+if [ "$fail" -eq 0 ]; then
+  green "All mechanical checks passed."
+else
+  red "Some checks flagged — see above."
+fi
 exit 0

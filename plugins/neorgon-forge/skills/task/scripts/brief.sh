@@ -126,7 +126,7 @@ cmd_stream() {
   case "$action" in
     add)   stream_set "$name" pending "$detail";     ok "stream added: $name" ;;
     start) stream_set "$name" active  "$detail";     ok "stream active: $name" ;;
-    done)  stream_set "$name" done    "$detail"
+    "done") stream_set "$name" "done" "$detail"
            # The outcome is what debrief reports, so it lands in the brief
            # body too — including whatever the stream got wrong.
            cmd_note "stream **$name** done — ${detail:-no outcome recorded}"

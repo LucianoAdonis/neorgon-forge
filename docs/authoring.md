@@ -116,7 +116,7 @@ it.
 
 ## Body structure
 
-What the three skills here have in common, and what `validate.sh` checks for:
+What the skills here have in common, and what `validate.sh` checks for:
 
 **Open with two sentences: what it does, and the failure mode it prevents.** The second sentence
 is why the skill exists. If you cannot write it, stop and reconsider whether you need one.
@@ -163,19 +163,34 @@ Conventions across this repo:
 - Print grouped, labelled output. The consumer is a model reading a transcript.
 - Never mutate the user's repo. Collectors collect.
 - Take the target directory as an argument, defaulting to `.`.
-- Executable (`chmod +x`) — `validate.sh` checks.
+- Executable (`chmod +x`) — `validate.sh` checks. Python modules imported by a sibling script are
+  the exception; they only have to parse.
 
 Scripts are also where anything time-dependent has to live. A model cannot read a clock, so
 `brief.sh` stamps its own timestamps with `date`.
+
+**Anchor paths on the cwd, never on `__file__`.** A skill is installed once and run against many
+projects, so `Path(__file__).parents[2]` resolves inside the install, not the work. `mascot-forge`
+learned this the hard way on migration: three scripts derived their output directory from their own
+location, which was correct only while they lived inside the project. The one legitimate use of
+`__file__` is reaching the skill's own bundled assets.
+
+`validate.sh` also greps every skill for API keys and `/Users/...` paths, because this repo is
+public and neither is recoverable by deleting it in a later commit.
 
 ## Portability
 
 The rule this repo follows: **portable core, overlay for local convention.**
 
 `SKILL.md` should work in any repo. Anything true only of one monorepo — a specific deck player,
-a brand palette, where `node_modules` lives — goes in `reference/neorgon.md`, and `SKILL.md`
+a brand palette, the suite's chrome strings — goes in `reference/neorgon.md`, and `SKILL.md`
 points at it with a detection step. `debrief` shows the pattern: it emits YAML when `slides-site/`
 exists, and falls back to Marp or plain Markdown when it does not.
+
+**Detect, do not assume.** `voicecheck`'s loader prints its overlay only when it finds the suite,
+and says `not applicable` otherwise. That line matters: an overlay printed in the wrong repo
+invents invariants the project never agreed to, and the audit then reports violations of a rule
+that does not exist there.
 
 This matters more than it looks. A skill that hardcodes one repo's assumptions is a skill you
 cannot use on your next project, and you will not notice until you are on that project.

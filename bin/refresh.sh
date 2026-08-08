@@ -27,7 +27,7 @@ warn()  { printf '\033[33m%s\033[0m\n' "$1"; }
 dim()   { printf '\033[2m%s\033[0m\n' "$1"; }
 head_() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 
-cd "$REPO"
+cd "$REPO" || { printf 'cannot enter %s\n' "$REPO" >&2; exit 1; }
 
 head_ "Source"
 if [ "$PULL" -eq 1 ] && git rev-parse --git-dir >/dev/null 2>&1; then

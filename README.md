@@ -1,17 +1,20 @@
 # neorgon-forge
 
-Skills for taking on large work and then explaining it.
+Skills for taking on large work, then explaining it, then keeping the result consistent.
 
-Three skills that share one artifact. `task` scopes a problem, splits it into workstreams that
-can be delegated, and keeps a brief on disk while the work happens. `debrief` and `writeup` read
+Three of them share one artifact. `task` scopes a problem, splits it into workstreams that can
+be delegated, and keeps a brief on disk while the work happens. `debrief` and `writeup` read
 that brief afterwards — so the account of the work comes from a record written at the time
-rather than reconstructed from a diff at the end.
+rather than reconstructed from a diff at the end. The other two are about what a fleet of
+projects drifts on: how the copy reads, and how the art holds together.
 
 | Skill | Use it when | Produces |
 |---|---|---|
 | **`task`** | A problem to solve, not an edit to make | Working code, plus `.forge/brief.md` |
 | **`debrief`** | You need to present what changed | A deck (slides YAML, Marp, or Markdown) |
 | **`writeup`** | You need to publish what changed | `post/POST.md` plus diagrams that cannot drift |
+| **`voicecheck`** | Copy needs auditing, aligning, or de-AI-ing | A `file:line` report, or the rewrite |
+| **`mascot-forge`** | A character to generate, cut out, and rig | Aligned frames plus a CSS/physics rig |
 
 ## Install
 
@@ -32,7 +35,7 @@ cd neorgon-forge
 make install          # symlinks into ~/.claude/skills
 ```
 
-Then restart Claude Code. Verify with `/task`, `/debrief`, `/writeup`.
+Then restart Claude Code. `install.sh` prints the slash command for every skill it linked.
 
 Install into one project instead of globally:
 
@@ -115,12 +118,26 @@ Scaffolds the directory, frontmatter, and the section headings that make a skill
 description (the part that decides whether it ever fires), progressive disclosure across the four
 tiers, and how to test that it fires when it should and not when it should not.
 
+## The other two
+
+**`voicecheck`** loads a voice before judging one. A per-project `VOICE.md` overrides a checkable
+baseline; with neither, an audit is just an opinion about someone else's writing. `audit` reports
+`file:line` and never writes, `align` applies the fixes, `detox` strips only the AI tells, and
+`diff` compares two projects — the one command that can see drift, since drift is invisible from
+inside a single repo.
+
+**`mascot-forge`** is two halves that fail differently. Generation fails by *drifting*, so frames
+stop layering; animation fails by looking *pasted on*. Its scripts run from the target project's
+root and write into `./images/mascot/`, so one install serves every project. Art generation needs
+`GEMINI_API_KEY`; `keys.py` is the only place that reads a key, and it never prints one.
+
 ## Portability
 
 Portable core, overlay for local convention. Each `SKILL.md` works in any repo; anything true
-only of the Neorgon monorepo — the `slides-site` deck player, the brand palette, where
-`node_modules` lives — sits in `reference/neorgon.md` behind a detection step. `debrief` emits
-slides YAML when `slides-site/` exists and falls back to Marp or Markdown when it does not.
+only of the Neorgon monorepo — the `slides-site` deck player, the brand palette, the suite chrome
+strings — sits in `reference/neorgon.md` behind a detection step. `debrief` emits slides YAML when
+`slides-site/` exists and falls back to Marp or Markdown when it does not; `voicecheck` prints its
+overlay only when it actually detects the suite.
 
 ## Layout
 
@@ -130,9 +147,11 @@ neorgon-forge/
 ├── plugins/neorgon-forge/
 │   ├── .claude-plugin/plugin.json
 │   └── skills/
-│       ├── task/       SKILL.md, scripts/brief.sh, reference/delegation.md
-│       ├── debrief/    SKILL.md, scripts/collect-changes.sh, reference/
-│       └── writeup/    SKILL.md, scripts/{check-writeup.sh,diagram-kit.mjs,rasterize.mjs}
+│       ├── task/         SKILL.md, scripts/brief.sh, reference/delegation.md
+│       ├── debrief/      SKILL.md, scripts/collect-changes.sh, reference/
+│       ├── writeup/      SKILL.md, scripts/{check-writeup.sh,diagram-kit.mjs,rasterize.mjs}
+│       ├── voicecheck/   SKILL.md, scripts/load-voice.sh, reference/voice-defaults.md
+│       └── mascot-forge/ SKILL.md, scripts/*.py, assets/, reference/prompts/
 ├── bin/{install,refresh,validate,new}.sh
 ├── docs/authoring.md
 └── Makefile
