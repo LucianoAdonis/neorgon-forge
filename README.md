@@ -5,16 +5,19 @@ result consistent.
 
 They follow the arc of a piece of work. `wayfind` and `untangle` come first, for the two things
 that stall a start: not knowing where anything lives, and not knowing the shape of the problem
-yet. `task` then scopes it, splits it into workstreams that can be delegated, and keeps a brief on
-disk while the work happens. `debrief` and `writeup` read that brief afterwards — so the account
-of the work comes from a record written at the time rather than reconstructed from a diff at the
-end. The last two are about what a fleet of projects drifts on: how the copy reads, and how the
-art holds together.
+yet. `atlas` sits alongside them when the question is about the app itself rather than one change
+— it extracts a dependency model and generates the docs and diagrams from it, so they can be
+asked questions and can report their own staleness. `task` then scopes the work, splits it into
+workstreams that can be delegated, and keeps a brief on disk while the work happens. `debrief`
+and `writeup` read that brief afterwards — so the account of the work comes from a record written
+at the time rather than reconstructed from a diff at the end. The last two are about what a fleet
+of projects drifts on: how the copy reads, and how the art holds together.
 
 | Skill | Use it when | Produces |
 |---|---|---|
 | **`wayfind`** | You do not know where a change goes | `.forge/map.md` — areas, path rules, exceptions |
 | **`untangle`** | The problem resists a plan | Evidence, or a scored decision, or a coverage map |
+| **`atlas`** | An app needs docs that can be checked | A dependency model, an MkDocs corpus, and answers |
 | **`task`** | A problem to solve, not an edit to make | Working code, plus `.forge/brief.md` |
 | **`debrief`** | You need to present what changed | A deck (slides YAML, Marp, or Markdown) |
 | **`writeup`** | You need to publish what changed | `post/POST.md` plus diagrams that cannot drift |
@@ -125,6 +128,24 @@ Scaffolds the directory, frontmatter, and the section headings that make a skill
 description (the part that decides whether it ever fires), progressive disclosure across the four
 tiers, and how to test that it fires when it should and not when it should not.
 
+## Documenting the app — `atlas`
+
+Generates every diagram and doc page from one extracted model rather than beside it, because a
+hand-drawn architecture diagram goes stale *silently* — it keeps looking authoritative, and the
+first reader to trust it after a refactor gets no warning. `scan.py` records the commit it read
+and the `file:line` of every import, so `ask impact <file>` answers "what breaks if I change
+this" with citations that can be disproved, and `ask stale` compares the model against git rather
+than against mtimes.
+
+The generated pages live under `docs/reference/` and say so in an admonition; everything else in
+`docs/` is hand-owned and never touched. Diagrams follow one rule worth stating on its own:
+**shape carries role, colour only emphasises**, and the dependency flowchart draws a spine rather
+than every edge — a real app has about twice as many imports as modules, and drawing all of them
+produces something that renders, looks impressive, and answers nothing. `reference/mkdocs.md`
+holds the verified Material contract, including the two silent failures: a missing
+`custom_fences` entry renders a diagram as a code block with no warning at all, and a literal
+`\n` in a Mermaid 11 label renders as two characters of text.
+
 ## Before the work — `wayfind` and `untangle`
 
 Both exist because the expensive mistakes happen before any code is written: confident motion in
@@ -176,6 +197,8 @@ neorgon-forge/
 │   └── skills/
 │       ├── wayfind/      SKILL.md, scripts/{orient.sh,map.sh}, reference/tickets.md
 │       ├── untangle/     SKILL.md, scripts/{evidence.sh,survey.sh}, reference/hypotheses.md
+│       ├── atlas/        SKILL.md, scripts/{scan,atlas_model,diagram,build,ask}.py + render.sh
+│       │                 reference/mkdocs.md
 │       ├── task/         SKILL.md, scripts/brief.sh, reference/delegation.md
 │       ├── debrief/      SKILL.md, scripts/collect-changes.sh, reference/
 │       ├── writeup/      SKILL.md, scripts/{check-writeup.sh,diagram-kit.mjs,rasterize.mjs}

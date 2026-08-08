@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "neorgon-forge",
-  "description": "Skills for finding your way into hard work, taking it on, and then explaining it: wayfind (a map of an unfamiliar codebase, and tickets resolved to files), untangle (a problem whose shape is not yet known), task (scoped execution with delegated workstreams), debrief (the work as a deck), writeup (the work as a published post), voicecheck (copy that stays on-voice across projects), mascot-forge (a generated character, cut out and rigged).",
+  "description": "Skills for finding your way into hard work, taking it on, and then explaining it: wayfind (a map of an unfamiliar codebase, and tickets resolved to files), untangle (a problem whose shape is not yet known), atlas (a dependency model, an MkDocs site generated from it, and answers you can check), task (scoped execution with delegated workstreams), debrief (the work as a deck), writeup (the work as a published post), voicecheck (copy that stays on-voice across projects), mascot-forge (a generated character, cut out and rigged).",
   "owner": {
     "name": "LucianoAdonis",
     "url": "https://neorgon.com"
@@ -10,7 +10,7 @@
     {
       "name": "neorgon-forge",
       "source": "./plugins/neorgon-forge",
-      "description": "Seven skills, portable by default. wayfind and untangle come before the work: one maps a codebase you do not know, the other handles a problem whose shape is not yet known. task writes a brief while the work happens; debrief and writeup read it afterwards instead of reconstructing it from memory. voicecheck and mascot-forge cover the two things that drift fastest across a fleet of sites: how the copy reads and how the art holds together.",
+      "description": "Eight skills, portable by default. wayfind and untangle come before the work: one maps a codebase you do not know, the other handles a problem whose shape is not yet known. atlas turns an app into a dependency model, then generates its diagrams and docs from that model so they go stale loudly rather than silently. task writes a brief while the work happens; debrief and writeup read it afterwards instead of reconstructing it from memory. voicecheck and mascot-forge cover the two things that drift fastest across a fleet of sites: how the copy reads and how the art holds together.",
       "author": {
         "name": "LucianoAdonis"
       },

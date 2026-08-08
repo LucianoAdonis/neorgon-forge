@@ -181,6 +181,20 @@ reference against the skills root so the dead-reference check still applies acro
 Reach for this when two skills would otherwise maintain the same artifact; do not reach for it to
 avoid deciding which skill owns a step.
 
+**When several scripts in one skill need the same derived fact, extract a module.** `atlas` has
+four entry-point scripts that all need "which modules are hubs" and "what is the import cycle",
+so those live in `atlas_model.py`, which the others import via
+`sys.path.insert(0, str(Path(__file__).resolve().parent))`. This is the one legitimate use of
+`__file__` — reaching the skill's own bundled files, not the work directory. Computing the same
+derivation in four places yields four slightly different answers with no way to tell which is
+right. Such a module is not executable and `validate.sh` exempts it from the `chmod +x` check.
+
+**A skill that generates files must declare which ones it owns.** `atlas` writes only under
+`docs/reference/` and states in every generated page that it is generated. Without that boundary a
+corpus becomes a mix of current and stale pages with nothing to distinguish them, which is worse
+than no corpus — a reader trusts it either way. If a skill writes into a directory a human also
+edits, decide the ownership split before writing the first file.
+
 `validate.sh` also greps every skill for API keys and `/Users/...` paths, because this repo is
 public and neither is recoverable by deleting it in a later commit.
 
