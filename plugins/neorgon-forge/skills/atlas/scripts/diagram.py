@@ -17,7 +17,7 @@ a palette switch, greyscale printing, and colourblind readers; a legend mapping
 six hex values to six roles does not survive any of them.
 
 Usage:
-  diagram.py <kind> [--model docs/.atlas/model.json] [--target page|export]
+  diagram.py <kind> [--model docs/atlas/model.json] [--target page|export]
              [--area NAME] [--focus PATH] [--out FILE]
 
   kind: areas | flow | area-detail | focus | externals
@@ -365,7 +365,7 @@ def main():
         return 2
 
     kind = argv[0]
-    model_path = PROJECT / am_option(argv, "--model", "docs/.atlas/model.json")
+    model_path = PROJECT / am_option(argv, "--model", "docs/atlas/model.json")
     target = am_option(argv, "--target", "page")
     if target not in ("page", "export"):
         raise SystemExit("--target must be page or export")

@@ -128,6 +128,66 @@ check_skill() {
     green "  scripts ok"
   fi
 
+  # ── Output roots ────────────────────────────────────────────
+  # Every file a skill writes must land under one of three roots, chosen by
+  # lifetime: .forge/ is ephemeral and gitignored, docs/atlas/ is regenerable
+  # and committed, post/ and images/ are shippable deliverables. See
+  # docs/authoring.md. A skill that invents a fourth root leaves a repo with no
+  # rule about which directories are safe to delete.
+  #
+  # Two shapes are checked, because those are the two ways a root gets created:
+  # a literal mkdir target, and a directory constant a script later writes into.
+  # Literals only — a path taken from an argument or an env var is the caller's
+  # choice and cannot be judged from here. A path a script only *reads* is also
+  # out of scope: build-preview.py loads the project's own js/mascot.js, which is
+  # not this skill claiming a root.
+  if [ -d "$dir/scripts" ]; then
+    local roots='^(\.forge|docs/atlas|post|images)(/|$)'
+    local bad=()
+    while IFS= read -r hit; do bad+=("$hit"); done < <(
+      # mkdir -p <literal>, mkdirSync('<literal>'), Path("<literal>").mkdir()
+      grep -rhoE "mkdir -p +['\"]?[A-Za-z_.][^\"' )\$]*" "$dir/scripts" 2>/dev/null \
+        | sed -E "s/mkdir -p +['\"]?//"
+      grep -rhoE "mkdirSync\( *['\"][A-Za-z_.][^\"']*" "$dir/scripts" 2>/dev/null \
+        | sed -E "s/mkdirSync\( *['\"]//"
+      # A module-level directory constant: OUT_DIR = PROJECT / "images" / "mascot"
+      grep -rhoE '^[A-Z][A-Z0-9_]* *= *(PROJECT|ROOT) */ *"[A-Za-z_.][^"]*"( */ *"[^"]*")*' \
+        "$dir/scripts" 2>/dev/null \
+        | sed -E 's/^.*(PROJECT|ROOT) *\/ *//; s/" *\/ *"/\//g; s/"//g'
+      # The shell equivalent, bare or with an env override supplying the default:
+      #   DIR="docs/atlas/diagrams"      FORGE_DIR="${FORGE_BRIEF_DIR:-.forge}"
+      grep -rhoE '^[A-Z][A-Z0-9_]*="[A-Za-z_.][^"$]*"' "$dir/scripts" 2>/dev/null \
+        | sed -E 's/^[^=]*="//; s/"$//'
+      grep -rhoE '^[A-Z][A-Z0-9_]*="\$\{[A-Za-z_][A-Za-z0-9_]*:-[A-Za-z_.][^}"]*\}"' \
+        "$dir/scripts" 2>/dev/null | sed -E 's/^.*:-//; s/\}"$//'
+      # An output path a script defaults to when the caller does not pass one.
+      # This is where atlas declares its roots, so missing it would exempt the
+      # one skill with the most generated output. `--docs` is deliberately not
+      # here: it names the docs base that a skill's own root is joined *under*,
+      # so `docs` is a correct value for it and a wrong one for a write target.
+      grep -rhoE '(option|am_option)\([^)]*"--(out|model)", *"[A-Za-z_.][^"]*"' \
+        "$dir/scripts" 2>/dev/null | sed -E 's/^.*, *"//; s/"$//'
+    )
+    local stray=()
+    for target in ${bad+"${bad[@]}"}; do
+      # A bare filename or a "." is not a new root; only a rooted path is.
+      case "$target" in
+        .|./|""|*[\$\{\*]*) continue ;;
+      esac
+      grep -qE "$roots" <<<"$target" && continue
+      stray+=("$target")
+    done
+    if [ ${#stray[@]} -gt 0 ]; then
+      for target in "${stray[@]}"; do
+        red "  writes outside the sanctioned roots: $target"
+      done
+      red "  allowed: .forge/ (ephemeral) · docs/atlas/ (regenerable) · post/, images/ (shipped)"
+      fail=1
+    else
+      green "  output roots ok"
+    fi
+  fi
+
   # ── Secrets ─────────────────────────────────────────────────
   # These ship publicly. A key or an absolute home path committed here is
   # not recoverable by deleting it later.

@@ -189,14 +189,39 @@ so those live in `atlas_model.py`, which the others import via
 derivation in four places yields four slightly different answers with no way to tell which is
 right. Such a module is not executable and `validate.sh` exempts it from the `chmod +x` check.
 
-**A skill that generates files must declare which ones it owns.** `atlas` writes only under
-`docs/reference/` and states in every generated page that it is generated. Without that boundary a
-corpus becomes a mix of current and stale pages with nothing to distinguish them, which is worse
-than no corpus — a reader trusts it either way. If a skill writes into a directory a human also
-edits, decide the ownership split before writing the first file.
-
 `validate.sh` also greps every skill for API keys and `/Users/...` paths, because this repo is
 public and neither is recoverable by deleting it in a later commit.
+
+## Where output goes
+
+**Every file a skill writes lands under one of three roots, and the root is chosen by lifetime.**
+
+| Root | Lifetime | Committed? | Written by |
+|---|---|---|---|
+| `.forge/` | Ephemeral working state — true while the work happens, meaningless after | No, gitignored | `task`, `wayfind`, `untangle`, audits |
+| `docs/atlas/` | Regenerable and checkable — derived from the source, rebuilt on demand | Yes | `atlas` only |
+| `post/`, `images/` | A shippable deliverable — the thing the work was for | Yes | `writeup`, `mascot-forge` |
+
+Lifetime is the axis because it is the axis that already decides everything else about a file. An
+ephemeral artifact must not be committed, or every branch carries someone else's half-finished
+reasoning. A regenerable one must be committed *and* must be safe to delete wholesale, which only
+holds if nothing hand-written is mixed in with it. A deliverable is reviewed and shipped, so it
+cannot sit in a directory that gets wiped. Sort by anything else — by which skill wrote it, by
+file type, by "docs" versus "assets" — and you get roots that mix the three, and then there is no
+answer to "is it safe to delete this directory".
+
+Two failure modes this prevents, both observed. A skill that scatters its output invents a new
+top-level directory per feature, and a repo that has used four skills has eleven directories with
+no rule about which are safe to remove. And a skill that writes generated pages into a directory a
+human also edits produces a corpus where some pages are current and some are stale with nothing to
+distinguish them — worse than no corpus, because a reader trusts it either way. `atlas` collapsed
+three output directories into `docs/atlas/` for exactly that reason: the boundary between generated
+and hand-owned is only useful if it is one line a person can hold in their head.
+
+So: **declare the root in the SKILL.md, write inside it, and never create a new one.** If your
+skill genuinely needs a fourth root, that is a change to this rule and to `bin/validate.sh`, which
+greps every skill's scripts for directory targets and fails on anything outside the three. Argue
+for it here rather than working around the check locally.
 
 ## Portability
 
@@ -204,13 +229,28 @@ The rule this repo follows: **portable core, overlay for local convention.**
 
 `SKILL.md` should work in any repo. Anything true only of one monorepo — a specific deck player,
 a brand palette, the suite's chrome strings — goes in `reference/neorgon.md`, and `SKILL.md`
-points at it with a detection step. `debrief` shows the pattern: it emits YAML when `slides-site/`
-exists, and falls back to Marp or plain Markdown when it does not.
+points at it with a detection step. `debrief` shows the pattern: it emits YAML when it finds the
+slides player, and falls back to Marp or plain Markdown when it does not.
 
 **Detect, do not assume.** `voicecheck`'s loader prints its overlay only when it finds the suite,
 and says `not applicable` otherwise. That line matters: an overlay printed in the wrong repo
 invents invariants the project never agreed to, and the audit then reports violations of a rule
 that does not exist there.
+
+**A detection gate must name every layout it supports, and it must be tested in each.** These
+gates fail *closed*: when the test misses, the skill takes the fallback path and nothing errors.
+That is the right behaviour and it is also what makes a broken gate invisible. `debrief` checked
+`[ -d slides-site ]`; the monorepo later moved its sites under `projects/`, the test stopped
+matching, and the skill silently dropped to plain Markdown — no warning, no failure, just a
+feature that had quietly stopped existing. The fix is both paths, never a swap:
+
+```bash
+{ [ -d projects/slides-site ] || [ -d slides-site ]; } && echo "player available"
+```
+
+Swapping one hardcoded path for another only moves which repo is broken. Prefer keying on a
+marker that does not move — `voicecheck` tests for `PROJECTS.md` in the project or its parent,
+which is why the same reorganisation left it working.
 
 This matters more than it looks. A skill that hardcodes one repo's assumptions is a skill you
 cannot use on your next project, and you will not notice until you are on that project.

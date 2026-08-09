@@ -10,7 +10,7 @@ answer reports the commit the model was built at, because an answer from a stale
 model is worse than no answer — it is indistinguishable from a current one.
 
 Usage:
-  ask.py <question> [--model docs/.atlas/model.json]
+  ask.py <question> [--model docs/atlas/model.json]
 
   where <question> is one of:
     impact <path>       what depends on this, transitively
@@ -273,7 +273,7 @@ def main():
         return 2
 
     question = argv[0]
-    model = am.load(PROJECT / am_option(argv, "--model", "docs/.atlas/model.json"))
+    model = am.load(PROJECT / am_option(argv, "--model", "docs/atlas/model.json"))
     needs_arg = ("impact", "needs", "where")
 
     if question in needs_arg:

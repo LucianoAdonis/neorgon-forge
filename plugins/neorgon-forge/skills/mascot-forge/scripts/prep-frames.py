@@ -36,7 +36,10 @@ from keys import read_key
 # and run from whichever project owns the mascot.
 PROJECT = Path.cwd().resolve()
 OUT_DIR = PROJECT / "images" / "mascot"
-CACHE_DIR = PROJECT / ".cache" / "removebg"
+# Ephemeral working state, so it goes under .forge/ with every other skill's
+# scratch rather than inventing a root of its own — .forge/ is the gitignored
+# one, and an API response cache must never be committed.
+CACHE_DIR = PROJECT / ".forge" / "removebg"
 
 REMOVEBG_ENDPOINT = "https://api.remove.bg/v1.0/removebg"
 # The free tier only returns a 0.25MP preview. That is useless as a final

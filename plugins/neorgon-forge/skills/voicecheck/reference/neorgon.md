@@ -5,11 +5,26 @@ Everything here is local convention, not part of the portable skill.
 
 ## Detecting the overlay
 
+`scripts/load-voice.sh` walks up from the target directory looking for `PROJECTS.md`, and this
+doc must keep describing exactly that — a doc claiming a different gate than the loader applies
+invites someone to "fix" whichever one they read second:
+
 ```bash
-[ -f PROJECTS.md ] && [ -d neorgon-site ] && echo "Neorgon monorepo"
+probe="$PWD"
+while [ "$probe" != "/" ]; do
+  [ -f "$probe/PROJECTS.md" ] && { echo "Neorgon monorepo"; break; }
+  probe="$(dirname "$probe")"
+done
 ```
 
-If that is false, the baseline in `voice-defaults.md` is complete and nothing below applies.
+Walking up rather than testing a fixed depth, because the depth changed. `PROJECTS.md` sat one
+level above a project until the sites moved under `projects/`, which made it two — and the old
+`[ -f ../PROJECTS.md ]` test then silently stopped finding the suite whenever the loader was
+pointed at a project directory, which is the normal way to call it. Nothing errored; the overlay
+just quietly stopped being applied, exactly like `debrief`'s dead `[ -d slides-site ]`. A gate
+that fails closed hides its own breakage, so prefer one with no depth to get wrong.
+
+If nothing is found, the baseline in `voice-defaults.md` is complete and nothing below applies.
 
 ## Chrome invariants (blocker, non-overridable)
 

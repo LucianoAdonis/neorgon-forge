@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-"""Write the MkDocs corpus from the model, into docs/ beside it.
+"""Write the MkDocs corpus from the model, into docs/atlas/ beside it.
 
 Generated pages carry a provenance line naming the model commit they were built
-from, and land under docs/reference/ which is declared generated. That boundary
-is the entire discipline: hand-written pages elsewhere in docs/ are never touched,
-and a generated page is never edited by hand, because the next build overwrites it.
+from, and land under docs/atlas/reference/. Everything this skill writes lives
+under the one docs/atlas/ root: the model, the pages generated from it, and the
+exported diagrams. That single boundary is the entire discipline — hand-written
+pages elsewhere in docs/ are never touched, and a generated page is never edited
+by hand, because the next build overwrites it.
 
 Without the boundary the corpus becomes a place where some pages are true and some
 are stale and nothing distinguishes them, which is worse than no corpus at all —
-a reader trusts it either way.
+a reader trusts it either way. One root rather than three is what makes the
+boundary memorable enough to hold: a rule with three exceptions to recall is a
+rule someone eventually edits across.
 
 Usage:
-  build.py [--model docs/.atlas/model.json] [--docs docs] [--scaffold]
+  build.py [--model docs/atlas/model.json] [--docs docs] [--scaffold]
 
   --scaffold  also write mkdocs.yml and the hand-owned page stubs, if absent.
               Never overwrites either.
@@ -24,7 +28,11 @@ import atlas_model as am
 import diagram
 
 PROJECT = Path.cwd().resolve()
-GENERATED = "reference"
+# Everything atlas owns hangs off one root inside docs/, so "what does this skill
+# write" has a single answer. Pages are the part MkDocs navigates; the model and
+# the exported diagrams sit beside them under the same root.
+ATLAS_ROOT = "atlas"
+GENERATED = f"{ATLAS_ROOT}/reference"
 
 MKDOCS_YML = """site_name: {name}
 theme:
@@ -73,7 +81,7 @@ INDEX_STUB = """# {name}
 
 Hand-written. This page is yours; `atlas` never overwrites it.
 
-Start with [the architecture overview](reference/architecture.md), which is
+Start with [the architecture overview](atlas/reference/architecture.md), which is
 generated from the source and carries the commit it was built from.
 
 ## What this is
@@ -279,7 +287,7 @@ def slug(area):
 
 def main():
     argv = sys.argv[1:]
-    model_path = PROJECT / diagram.am_option(argv, "--model", "docs/.atlas/model.json")
+    model_path = PROJECT / diagram.am_option(argv, "--model", "docs/atlas/model.json")
     docs = PROJECT / diagram.am_option(argv, "--docs", "docs")
     model = am.load(model_path)
 
@@ -326,8 +334,9 @@ def main():
     for path in written:
         print(f"  {path}")
     print(f"{plural(len(written), 'file')} written")
-    print(f"generated pages live under {(ref.relative_to(PROJECT)).as_posix()}/ — "
-          "never edit them, rerun instead")
+    print(f"everything atlas owns lives under "
+          f"{(docs / ATLAS_ROOT).relative_to(PROJECT).as_posix()}/ — "
+          "never edit it, rerun instead")
     if model.get("dirty"):
         print("model was built from a dirty tree, so provenance names a commit "
               "the pages do not exactly match")

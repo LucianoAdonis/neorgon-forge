@@ -5,13 +5,20 @@ Everything here is a local convention, not part of the portable skill.
 
 ## Detecting the overlay
 
-The overlay applies when `slides-site/` exists in the monorepo root. Check before assuming it:
+The overlay applies when the `slides-site` player is reachable. Check before assuming it:
 
 ```bash
-[ -d slides-site ] && echo "slides-site available"
+{ [ -d projects/slides-site ] || [ -d slides-site ]; } && echo "slides-site available"
 ```
 
-If it is not there, fall back to `--format marp` or `--format md`. Emitting slides-site YAML
+Both paths, deliberately. The monorepo keeps its sites under `projects/`, but this skill also
+runs from inside a single project and ships to repos that have no `projects/` at all — so a test
+for one path only is a test that silently stops matching the day the layout changes. It did:
+the earlier `[ -d slides-site ]` went dead when the sites moved, and because the gate fails
+closed, `debrief` quietly dropped to plain Markdown and stopped emitting YAML entirely. Nothing
+errored, which is why it went unnoticed. Prefer a gate that names every layout it supports.
+
+If neither is there, fall back to `--format marp` or `--format md`. Emitting slides-site YAML
 into a repo with no player produces a file nobody can open.
 
 ## Format

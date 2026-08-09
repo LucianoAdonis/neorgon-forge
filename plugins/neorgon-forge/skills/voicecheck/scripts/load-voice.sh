@@ -36,7 +36,21 @@ echo
 # The overlay carries suite chrome rules that hold in one monorepo and nowhere
 # else. Detected rather than assumed: printing it elsewhere would invent
 # invariants the project never agreed to.
-if [ -f "$PROJECT_DIR/PROJECTS.md" ] || [ -f "$PROJECT_DIR/../PROJECTS.md" ]; then
+#
+# Walk up rather than testing a fixed number of levels. The suite marker was one
+# level above a project until the sites moved under projects/, at which point it
+# became two and a two-level test would have gone quietly dead the same way — the
+# gate fails closed, so a miss prints "not applicable" and looks like a correct
+# answer in an unrelated repo. Walking up has no such version to get wrong.
+suite=""
+probe="$(cd "$PROJECT_DIR" 2>/dev/null && pwd)"
+while [ -n "$probe" ] && [ "$probe" != "/" ]; do
+  if [ -f "$probe/PROJECTS.md" ]; then suite="$probe"; break; fi
+  probe="$(dirname "$probe")"
+done
+
+if [ -n "$suite" ]; then
+  echo "suite detected at: $suite/PROJECTS.md"
   if [ -f "$OVERLAY" ]; then
     echo "----- LOCAL OVERLAY ($OVERLAY) [chrome invariants, non-overridable] -----"
     cat "$OVERLAY"

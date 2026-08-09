@@ -13,11 +13,11 @@
 #     rather than producing a diagram that looks subtly broken.
 #
 # Usage: render.sh [DIR] [--png] [--scale N]
-#   DIR defaults to docs/diagrams. Writes beside each .mmd.
+#   DIR defaults to docs/atlas/diagrams. Writes beside each .mmd.
 
 set -uo pipefail
 
-DIR="docs/diagrams"
+DIR="docs/atlas/diagrams"
 WANT_PNG=0
 SCALE=2
 BG="#040714"

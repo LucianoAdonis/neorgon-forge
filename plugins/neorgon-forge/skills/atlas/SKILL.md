@@ -17,8 +17,14 @@ because the model records the commit it was built from and `ask stale` compares
 that against the tree.
 
 Everything here reads one file. Diagrams, pages, and answers all derive from
-`docs/.atlas/model.json`, so they cannot disagree with each other — only,
+`docs/atlas/model.json`, so they cannot disagree with each other — only,
 together and visibly, with the code.
+
+Everything it *writes* goes under one directory, `docs/atlas/`. That is a
+deliberate constraint rather than a filing preference: the boundary between
+generated and hand-owned pages is only useful if a person can hold it in their
+head, and a boundary spread over three directories is one somebody eventually
+edits across without noticing they have.
 
 ## Step 1 — build the model
 
@@ -28,7 +34,7 @@ cd <the project>
 python3 "$FORGE/atlas/scripts/scan.py"
 ```
 
-Scans `.js/.mjs/.jsx/.ts/.tsx/.py/.html/.css` and writes `docs/.atlas/model.json`:
+Scans `.js/.mjs/.jsx/.ts/.tsx/.py/.html/.css` and writes `docs/atlas/model.json`:
 modules with a role and an area, internal import edges each carrying the
 `file:line` the import was found on, and external packages with their importers.
 
@@ -78,22 +84,33 @@ hand-written for exactly that reason.
 python3 "$FORGE/atlas/scripts/build.py" --scaffold
 ```
 
-Writes into `docs/reference/`: `architecture.md`, `dependencies.md`,
+Writes into `docs/atlas/reference/`: `architecture.md`, `dependencies.md`,
 `modules.md`, and one `area-*.md` per area. With `--scaffold` it also writes
 `mkdocs.yml` and a `docs/index.md` stub — and it never overwrites either if they
 exist.
 
-The `docs/reference/` boundary is the whole discipline:
+The `docs/atlas/` boundary is the whole discipline:
 
 | Location | Owner | Rule |
 |---|---|---|
-| `docs/reference/*` | `atlas` | Never edit. Rerun `build.py`. Every page says so in an admonition |
+| `docs/atlas/` | `atlas` | Everything under here is generated. Never edit — rerun `scan.py` then `build.py` |
+| `docs/atlas/model.json` | `scan.py` | The single source every page, diagram and answer derives from |
+| `docs/atlas/reference/*` | `build.py` | The MkDocs pages. Every one says it is generated in an admonition |
+| `docs/atlas/diagrams/*` | `diagram.py` | Export-target `.mmd` and whatever `render.sh` produced beside it |
 | `docs/index.md`, everything else in `docs/` | You | `atlas` never touches it |
-| `docs/.atlas/model.json` | `scan.py` | The single source every page derives from |
 
-Without that split the corpus becomes a place where some pages are current and
-some are stale with nothing to tell them apart, which is worse than having no
-corpus — a reader trusts it either way.
+One root, not three. The line a reader has to keep straight is "inside
+`docs/atlas/` is generated, outside it is yours" — and a line that simple gets
+respected, where "generated pages live in one place, the model in a second, the
+diagrams in a third" is a rule someone edits across while believing they are
+inside it. Without the split the corpus becomes a place where some pages are
+current and some are stale with nothing to tell them apart, which is worse than
+having no corpus — a reader trusts it either way.
+
+**`model.json` is not hidden, so MkDocs copies it into the built site.** That is
+intended. The whole claim this skill makes is that its assertions can be checked,
+and a reader who wants to check one should be able to fetch the model the page
+was generated from rather than be told it exists somewhere in the repo.
 
 Verify it builds, if MkDocs is available:
 
@@ -142,9 +159,9 @@ is not a syntax question — it is a theming one.
 ```bash
 D="$FORGE/atlas/scripts/diagram.py"
 python3 "$D" areas   --target page                       # fences: build.py embeds these
-python3 "$D" flow    --target export --out docs/diagrams/flow.mmd
-python3 "$D" focus   --focus state --target export --out docs/diagrams/state.mmd
-bash "$FORGE/atlas/scripts/render.sh" docs/diagrams --png
+python3 "$D" flow    --target export --out docs/atlas/diagrams/flow.mmd
+python3 "$D" focus   --focus state --target export --out docs/atlas/diagrams/state.mmd
+bash "$FORGE/atlas/scripts/render.sh" docs/atlas/diagrams --png
 ```
 
 `build.py` already embeds the page-target fences, so generate `export` diagrams
@@ -209,8 +226,9 @@ that is neither.
 
 ## Invariants
 
-- **Never hand-edit a file under `docs/reference/`.** It is overwritten on the
-  next build, and an edit there is a fact that exists only until someone reruns.
+- **Never hand-edit anything under `docs/atlas/`.** It is overwritten on the next
+  build, and an edit there is a fact that exists only until someone reruns.
+  Nothing outside that root is ever written by this skill.
 - **Never point mermaid-cli at a Markdown page.** It rewrites the file in place,
   replacing every fence with an image link. Only ever `.mmd`.
 - **No theme frontmatter in a page fence, always one in an export.** Getting this

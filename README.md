@@ -159,8 +159,10 @@ and the `file:line` of every import, so `ask impact <file>` answers "what breaks
 this" with citations that can be disproved, and `ask stale` compares the model against git rather
 than against mtimes.
 
-The generated pages live under `docs/reference/` and say so in an admonition; everything else in
-`docs/` is hand-owned and never touched. Diagrams follow one rule worth stating on its own:
+Everything it writes lives under one root, `docs/atlas/` — the model, the generated pages, the
+exported diagrams — and every page says so in an admonition; everything else in `docs/` is
+hand-owned and never touched. One root rather than three because the boundary is only worth
+having if a person can hold it in their head. Diagrams follow one rule worth stating on its own:
 **shape carries role, colour only emphasises**, and the dependency flowchart draws a spine rather
 than every edge — a real app has about twice as many imports as modules, and drawing all of them
 produces something that renders, looks impressive, and answers nothing. `reference/mkdocs.md`
@@ -206,8 +208,12 @@ root and write into `./images/mascot/`, so one install serves every project. Art
 Portable core, overlay for local convention. Each `SKILL.md` works in any repo; anything true
 only of the Neorgon monorepo — the `slides-site` deck player, the brand palette, the suite chrome
 strings — sits in `reference/neorgon.md` behind a detection step. `debrief` emits slides YAML when
-`slides-site/` exists and falls back to Marp or Markdown when it does not; `voicecheck` prints its
-overlay only when it actually detects the suite.
+it finds the player at `projects/slides-site/` **or** `slides-site/`, and falls back to Marp or
+Markdown when it does not; `voicecheck` prints its overlay only when it actually detects the suite.
+
+A detection step is tested against every layout it claims to support, because these gates fail
+closed: when the monorepo moved its sites under `projects/`, `debrief`'s single-path test stopped
+matching and the skill silently degraded to plain Markdown without erroring once.
 
 ## Layout
 

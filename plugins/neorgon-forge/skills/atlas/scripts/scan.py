@@ -15,7 +15,7 @@ each of its claims can be checked in seconds.
 Anchored on the cwd: run it from the root of the project being mapped.
 
 Usage:
-  scan.py [--root .] [--out docs/.atlas/model.json] [--areas-from .forge]
+  scan.py [--root .] [--out docs/atlas/model.json] [--areas-from .forge]
 """
 import json
 import os
@@ -28,7 +28,7 @@ PROJECT = Path.cwd().resolve()
 
 SKIP_DIRS = {
     ".git", "node_modules", "__pycache__", "dist", "build", ".next", "vendor",
-    ".venv", "venv", "coverage", ".cache", ".atlas", "site", ".forge", "png",
+    ".venv", "venv", "coverage", ".cache", "site", ".forge", "png",
 }
 
 JS_EXT = (".js", ".mjs", ".jsx", ".ts", ".tsx")
@@ -252,7 +252,7 @@ def option(argv, flag, default):
 
 def main():
     argv = sys.argv[1:]
-    out_path = PROJECT / option(argv, "--out", "docs/.atlas/model.json")
+    out_path = PROJECT / option(argv, "--out", "docs/atlas/model.json")
     forge_dir = PROJECT / option(argv, "--areas-from", ".forge")
 
     areas = read_areas(forge_dir)
