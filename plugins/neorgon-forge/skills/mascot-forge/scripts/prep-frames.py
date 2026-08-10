@@ -32,16 +32,18 @@ from scipy import ndimage
 
 from keys import read_key
 
-REPO = Path(__file__).resolve().parents[2]
+# Resolved from the cwd, not from this file: the script is run from the target
+# project's root, and may live in a skill install somewhere else entirely.
+PROJECT = Path.cwd().resolve()
 # What the page serves.
-OUT_DIR = REPO / "images" / "mascot"
+OUT_DIR = PROJECT / "images" / "mascot"
 # Full-resolution masters, kept out of the served directory so they are not
 # deploy weight. Lossless WebP rather than PNG: ~40% smaller, with an identical
 # alpha channel and identical colour everywhere alpha > 0. It does discard the
 # colour under fully transparent pixels, which is invisible but does mean the
 # files are not byte-for-byte reproducible from the PNGs.
-MASTER_DIR = REPO / "scripts" / "mascot" / "masters"
-CACHE_DIR = REPO / ".cache" / "removebg"
+MASTER_DIR = PROJECT / "scripts" / "mascot" / "masters"
+CACHE_DIR = PROJECT / ".cache" / "removebg"
 
 REMOVEBG_ENDPOINT = "https://api.remove.bg/v1.0/removebg"
 # The free tier only returns a 0.25MP preview. That is useless as a final
@@ -381,7 +383,7 @@ def export(image, name):
     for path in written:
         with Image.open(path) as opened:
             dimensions = f"{opened.width}x{opened.height}"
-        print(f"  {path.relative_to(REPO)}  {dimensions}  {path.stat().st_size / 1024:.0f} KB")
+        print(f"  {path.relative_to(PROJECT)}  {dimensions}  {path.stat().st_size / 1024:.0f} KB")
 
 
 def main(argv):

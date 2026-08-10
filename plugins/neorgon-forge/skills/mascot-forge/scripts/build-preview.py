@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """Build the mascot motion preview from the prepared frames.
 
-    python3 build-preview.py            # ./images/mascot/preview.html
-    python3 build-preview.py --inline out.html
+    python3 scripts/mascot/build-preview.py            # images/mascot/preview.html
+    python3 scripts/mascot/build-preview.py --inline out.html
 
-Run from the target project's root. The default writes a page next to the frames
-that loads them by relative path, so it always reflects whatever prep-frames.py
-last produced. `--inline` embeds the frames as data URIs instead, for a page that
-travels on its own.
+The default writes a page next to the frames that loads them by relative path,
+so it always reflects whatever prep-frames.py last produced. `--inline` embeds
+the frames as data URIs instead, for a page that travels on its own.
 """
 
 import base64
@@ -16,11 +15,8 @@ from pathlib import Path
 
 from PIL import Image
 
-# Anchored on the cwd, not on this file: the script is installed once as a skill
-# and run from whichever project owns the mascot.
-PROJECT = Path.cwd().resolve()
-FRAME_DIR = PROJECT / "images" / "mascot"
-SKILL_ASSETS = Path(__file__).resolve().parent.parent / "assets"
+REPO = Path(__file__).resolve().parents[2]
+FRAME_DIR = REPO / "images" / "mascot"
 
 # Frame name -> the file the page loads for it.
 FRAMES = {
@@ -60,7 +56,7 @@ HTML = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mascot — motion preview</title>
+<title>Sekilist mascot — motion preview</title>
 <style>
   :root {
     --color-bg: #0f1018;
@@ -97,79 +93,7 @@ HTML = """<!doctype html>
   .stage-note { flex: 1 1 240px; min-width: 220px; color: var(--color-text-secondary); font-size: 14px; }
   .stage-note strong { color: var(--color-text-primary); font-weight: 600; }
 
-  /* ---- the rig ---- */
-  .mascot {
-    position: relative;
-    flex: none;
-    line-height: 0;
-    cursor: pointer;
-    transform-origin: 50% 100%;
-    animation: mascot-bob 3.1s ease-in-out infinite;
-  }
-  /* Its own element because bob, physics and breathe/sway all animate
-     transform, and one element carries one animation per property. JS owns this
-     element's transform outright — no CSS animation here, or they would fight. */
-  .mascot-poke { transform-origin: 50% 92%; will-change: transform; }
-  .mascot-inner {
-    position: relative;
-    transform-origin: 50% 100%;
-    animation: mascot-breathe 2.6s ease-in-out infinite,
-               mascot-sway 7.3s ease-in-out infinite;
-  }
-  .mascot img {
-    display: block;
-    width: 100%;
-    height: auto;
-    -webkit-user-drag: none;
-    user-select: none;
-  }
-  .mascot .layer { position: absolute; inset: 0; opacity: 0; }
-  .mascot .layer.is-visible { opacity: 1; }
-  /* Secondary chest motion: a masked copy of the sprite springing a beat behind
-     the body. The chest is pixel-identical across every expression frame, so a
-     single copy of `idle` composites seamlessly under all of them. The mask
-     falls off softly, which is what hides the seam at these tiny amplitudes. */
-  .mascot-bounce {
-    position: absolute; inset: 0;
-    transform-origin: 47% 47%;
-    will-change: transform;
-    -webkit-mask-image: radial-gradient(ellipse 34% 11% at 46% 59%, #000 50%, rgba(0,0,0,0) 82%);
-    mask-image: radial-gradient(ellipse 34% 11% at 46% 59%, #000 50%, rgba(0,0,0,0) 82%);
-  }
-  /* A blink is a hard cut, not a fade: two states, no in-between. */
-  .mascot .face-blink { animation: mascot-blink 4.5s steps(1, end) infinite; }
-  /* She must not blink over a reaction. */
-  .mascot.is-reacting .face-blink { animation: none; }
-
-  @keyframes mascot-bob {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-9px); }
-  }
-  @keyframes mascot-breathe {
-    0%, 100% { transform: scale(1, 1); }
-    50%      { transform: scale(0.995, 1.012); }
-  }
-  @keyframes mascot-sway {
-    0%, 100% { rotate: -0.9deg; }
-    50%      { rotate: 0.9deg; }
-  }
-  /* ~110ms closed, then again shortly after — people blink in pairs. */
-  @keyframes mascot-blink {
-    0%, 92.4%     { opacity: 0; }
-    92.5%, 94.9%  { opacity: 1; }
-    95%, 96.9%    { opacity: 0; }
-    97%, 98.9%    { opacity: 1; }
-    99%, 100%     { opacity: 0; }
-  }
-  /* Reactions still swap frames under reduced motion — a frame change is not
-     motion. Only the movement stops. The physics opts out in JS. */
-  @media (prefers-reduced-motion: reduce) {
-    .mascot, .mascot-inner, .mascot .layer { animation: none; }
-  }
-
-  .size-340 { width: 340px; }
-  .size-180 { width: 180px; }
-  .size-96  { width: 96px; }
+__RIG_CSS__
 
   /* ---- controls ---- */
   .toggles { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 24px;
@@ -182,6 +106,8 @@ HTML = """<!doctype html>
   body.no-sway    .mascot-inner { animation-name: mascot-breathe; }
   body.no-breathe.no-sway .mascot-inner { animation: none; }
   body.no-blink   .face-blink   { animation: none; }
+  body.no-dance   .mascot-poke,
+  body.no-dance   .mascot-bounce { animation: none; }
 
   /* ---- frame inventory ---- */
   .frames { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
@@ -225,7 +151,7 @@ HTML = """<!doctype html>
 </head>
 <body>
 <div class="wrap">
-  <h1>Mascot — motion preview</h1>
+  <h1>Sekilist mascot — motion preview</h1>
   <p class="sub">One base render plus six expression frames. All movement is CSS on those frames.
   <strong style="color:var(--color-accent-gold)">Click her &mdash; and keep clicking.</strong></p>
 
@@ -240,7 +166,9 @@ HTML = """<!doctype html>
         <strong>Sway</strong> — &plusmn;0.9&deg; on a 7.3s period, so it never lines up with the bob
         and the idle never reads as a loop.<br>
         <strong>Blink</strong> — a hard cut to the blink frame, ~110ms, twice in quick
-        succession every 4.5s. People blink in pairs; a single slow fade reads as a droop.</p>
+        succession every 4.5s. People blink in pairs; a single slow fade reads as a droop.<br>
+        <strong>Dance</strong> — the torso shifts &plusmn;2.2% laterally on a 2.9s period, and
+        the chest runs the same period a third of a second behind, so it arrives late.</p>
         <p>Turn them off to feel what each one adds.</p>
       </div>
     </div>
@@ -249,6 +177,7 @@ HTML = """<!doctype html>
       <label><input type="checkbox" data-cls="no-breathe" checked> Breathe</label>
       <label><input type="checkbox" data-cls="no-sway" checked> Sway</label>
       <label><input type="checkbox" data-cls="no-blink" checked> Blink</label>
+      <label><input type="checkbox" data-cls="no-dance" checked> Dance</label>
     </div>
   </div>
 
@@ -330,13 +259,13 @@ HTML = """<!doctype html>
     </div>
   </div>
 
-  <h2>In context — page hero</h2>
+  <h2>In context — landing hero</h2>
   <div class="mock">
-    <span class="kicker">Your kicker here</span>
-    <h3>Your headline.<br>Two lines.</h3>
+    <span class="kicker">190+ companies indexed</span>
+    <h3>Every doll company.<br>One place.</h3>
     <div class="btns">
-      <span class="btn">Primary action</span>
-      <span class="btn ghost">Secondary</span>
+      <span class="btn">Browse Companies</span>
+      <span class="btn ghost">Discover Products</span>
     </div>
     __RIG:__
   </div>
@@ -383,7 +312,7 @@ def main(argv):
         parts = [
             f'<div class="{classes}" data-mascot>',
             '<div class="mascot-poke"><div class="mascot-inner">',
-            f'<img data-frame="idle" width="{width}" height="{height}" alt="Mascot">',
+            f'<img data-frame="idle" width="{width}" height="{height}" alt="Sekilist mascot">',
         ]
         for frame, layer, extra in LAYERS:
             css = f"layer {extra}".strip()
@@ -401,15 +330,15 @@ def main(argv):
     mapping = "{" + ", ".join(f'"{k}": "{source(v)}"' for k, v in FRAMES.items()) + "}"
 
     # One source of truth for the behaviour: the module the site will import,
-    # inlined here so the preview stays a single self-contained file. Before the
-    # site has vendored it, fall back to the skill's own copy — otherwise the
-    # first preview of a new mascot cannot be built at all.
-    behaviour_module = PROJECT / "js" / "mascot.js"
-    if not behaviour_module.exists():
-        behaviour_module = SKILL_ASSETS / "mascot.js"
-    behaviour = behaviour_module.read_text().replace("export function", "function")
+    # inlined here so the preview stays a single self-contained file.
+    behaviour = (REPO / "js" / "mascot.js").read_text().replace("export function", "function")
+    # The rig CSS is inlined from the shipped stylesheet for the same reason
+    # the behaviour is: a second copy here drifts the first time either moves.
+    rig_css = (REPO / "css" / "mascot.css").read_text()
 
-    html = HTML.replace("__FRAMES__", mapping).replace("__BEHAVIOUR__", behaviour)
+    html = (HTML.replace("__FRAMES__", mapping)
+            .replace("__BEHAVIOUR__", behaviour)
+            .replace("__RIG_CSS__", rig_css))
     html = html.replace('width="512" height="889"', f'width="{width}" height="{height}"')
     for size_class in ("size-340", "size-180", "size-96", ""):
         html = html.replace(f"__RIG:{size_class}__", rig(size_class))

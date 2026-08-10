@@ -61,11 +61,26 @@ def rgb_of(path):
     return np.asarray(image, dtype=np.int16)[:, :, :3]
 
 
+def master_dir(prep):
+    """Where the full-resolution masters live.
+
+    They moved out of images/ so they are not deploy weight, and became lossless
+    WebP on the way. Borrow the exporter's own constant rather than restating the
+    path; fall back to the served directory for older sets that still keep PNG
+    masters beside the derivatives.
+    """
+    configured = getattr(prep, "MASTER_DIR", None)
+    if configured and Path(configured).is_dir() and frames_in(Path(configured)):
+        return Path(configured)
+    return FRAME_DIR
+
+
 def frames_in(directory):
     """Base frames only: the @NNN.webp files and -extras are derived."""
     return sorted(
-        p for p in directory.glob("*.png")
-        if "@" not in p.stem and not p.stem.endswith("-extras")
+        p for p in directory.iterdir()
+        if p.suffix in (".png", ".webp")
+        and "@" not in p.stem and not p.stem.endswith("-extras")
     )
 
 
@@ -100,7 +115,7 @@ def check_canvas(report, frames):
     return False
 
 
-def check_scale(report, prep, reference, others):
+def check_scale(report, prep, reference, others, pinned=()):
     """Alignment reads the alpha silhouette, so it only means something on a
     frame that has one. A flattened frame is a fully-opaque rectangle and would
     report a large residual for a reason that has nothing to do with scale —
@@ -109,6 +124,9 @@ def check_scale(report, prep, reference, others):
     ref_alpha = alpha_of(reference)
     worst = 0.0
     for path in others:
+        if path.stem in pinned:
+            report.note(f"{path.stem} pinned — no shared silhouette to score")
+            continue
         alpha = alpha_of(path)
         if alpha.shape != ref_alpha.shape or alpha.min() > 0.99:
             continue
@@ -137,10 +155,17 @@ def check_body(report, prep, reference, others):
     """
     top_frac, bottom_frac = prep.ALIGN_BANDS["body"]
     ref_alpha, ref_rgb = alpha_of(reference), rgb_of(reference)
-    height = ref_alpha.shape[0]
-    top, bottom = int(height * top_frac), int(height * bottom_frac)
+    # Figure-relative, matching the exporter: the canvas grows when a wider
+    # frame joins, which would slide a canvas-relative band off the body.
+    rows = np.where((ref_alpha > 0.02).any(axis=1))[0]
+    origin, span = rows.min(), rows.max() - rows.min()
+    top, bottom = origin + int(span * top_frac), origin + int(span * bottom_frac)
     clean, compared = True, 0
     for path in others:
+        # An outfit is supposed to differ below the neck. Only expression
+        # frames carry the promise this check exists to enforce.
+        if path.stem.startswith("outfit-"):
+            continue
         alpha, rgb = alpha_of(path), rgb_of(path)
         if alpha.shape != ref_alpha.shape or alpha.min() > 0.99:
             continue
@@ -192,6 +217,19 @@ def check_derivatives(report, frames):
 
 def main():
     argv = sys.argv[1:]
+    # A frame can be on its own canvas on purpose — a chibi redraw is a different
+    # shape, not a costume, and gets its own CSS size. Without a way to say so,
+    # this check fails forever and stops being read.
+    pinned = set()
+    if "--pinned" in argv:
+        index = argv.index("--pinned") + 1
+        if index < len(argv):
+            pinned.update(argv[index].split(","))
+    separate = set()
+    if "--separate" in argv:
+        index = argv.index("--separate") + 1
+        if index < len(argv):
+            separate.update(argv[index].split(","))
     wanted = None
     if "--reference" in argv:
         index = argv.index("--reference") + 1
@@ -203,9 +241,12 @@ def main():
               file=sys.stderr)
         return 1
 
-    frames = frames_in(FRAME_DIR)
+    source = master_dir(load_prep())
+    frames = [p for p in frames_in(source) if p.stem not in separate]
+    if separate:
+        print(f"excluding {', '.join(sorted(separate))} — declared separate\n")
     if not frames:
-        print(f"no frames in {FRAME_DIR.relative_to(PROJECT)}", file=sys.stderr)
+        print(f"no frames in {source.relative_to(PROJECT)}", file=sys.stderr)
         return 1
 
     reference = next((p for p in frames if p.stem == (wanted or "idle")), None)
@@ -214,7 +255,7 @@ def main():
         print(f"no {wanted or 'idle'} frame — comparing against {reference.stem}")
 
     others = [p for p in frames if p != reference]
-    print(f"{len(frames)} frame(s) in {FRAME_DIR.relative_to(PROJECT)}, "
+    print(f"{len(frames)} frame(s) in {source.relative_to(PROJECT)}, "
           f"reference {reference.stem}\n")
 
     report = Report()
@@ -223,7 +264,7 @@ def main():
     check_derivatives(report, frames)
     if aligned and others:
         prep = load_prep()
-        check_scale(report, prep, reference, others)
+        check_scale(report, prep, reference, others, pinned)
         check_body(report, prep, reference, others)
     elif not aligned:
         report.note("skipping scale and body checks — canvases disagree first")
