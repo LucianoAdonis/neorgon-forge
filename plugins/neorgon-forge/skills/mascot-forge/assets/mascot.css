@@ -76,6 +76,15 @@
   mask-image: radial-gradient(ellipse 34% 11% at 46% 59%, #000 50%, rgba(0, 0, 0, 0) 82%);
 }
 
+/* The bikini frame is the one outfit that changes the pose, not just the
+   clothes. Arms overhead lift the chest and shift it right of where the folded
+   -arms pose puts it, so the default ellipse lands on her ribs. */
+.mascot[data-outfit="bikini"] .mascot-bounce {
+  transform-origin: 51% 45%;
+  -webkit-mask-image: radial-gradient(ellipse 28% 10% at 51% 55%, #000 50%, rgba(0, 0, 0, 0) 82%);
+  mask-image: radial-gradient(ellipse 28% 10% at 51% 55%, #000 50%, rgba(0, 0, 0, 0) 82%);
+}
+
 /* The art is cropped at the waist, so left alone it ends on a hard horizontal
    edge. Dissolving the bottom lets her sit in a hero corner without reading as
    a cut-out pasted on top. --mascot-fade is where the dissolve starts. */
@@ -144,7 +153,7 @@
 
 /* Down to ~700px the headline still clears her. Below that they collide, so she
    drops behind it as a watermark rather than fighting for the space. */
-@media (max-width: 700px) {
+@media (max-width: 768px) {
   .landing-mascot {
     right: -24px;
     width: 190px;

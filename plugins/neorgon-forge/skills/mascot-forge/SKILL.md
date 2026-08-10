@@ -149,6 +149,37 @@ the kind of frame for free — the log says which band won. A residual above ~4.
 after aligning means the frame is drawn at a different **scale**, which no amount of
 translation fixes. Regenerate it.
 
+### When alignment cannot help
+
+Alignment needs something unchanged to match on. A frame that changes the pose
+*and* the clothing offers nothing — the body differs and limbs move into rows the
+reference leaves empty — and the search will confidently return a wrong answer.
+Pin it and trust the padding, which is exact when the render was told to hold its
+scale and head position:
+
+```bash
+python3 scripts/prep-frames.py --remove-bg --pin=outfit-bikini idle=... outfit-bikini=...
+```
+
+`--search=N` widens the window instead, for a frame that is merely displaced
+rather than unmatchable. Cost is quadratic, so it stays opt-in.
+
+Verify alignment by a landmark rather than by eye: every frame's crown row should
+match, bar deliberate exceptions like headwear.
+
+Three bugs worth not rediscovering, all fixed in the shipped script:
+
+- **Padding can break frames that were already aligned.** Anchoring each frame on
+  its own content is right for mixed-size sources and wrong for re-prepping an
+  existing set — a hat's content centre is not where the body's is. Frames
+  matching the reference's size inherit the reference's offset instead.
+- **Alignment bands must be fractions of the figure, not the canvas.** The canvas
+  grows whenever a wider frame joins, sliding a band off the body part it was
+  chosen for.
+- **Bands must be clipped to where the reference has content.** A full-width band
+  compares raised arms against empty background beside the reference's head and
+  scores terribly for reasons unrelated to the face.
+
 **Always re-run every frame together.** The shared canvas is the union of all of
 them; preparing one alone puts it on a different canvas and the layers stop aligning.
 

@@ -11,11 +11,11 @@ cut. This script fixes both problems:
   4. crops all frames to one shared canvas and exports PNG + WebP
 
 Usage:
-    python3 prep-frames.py idle=path/to/a.png wink=path/to/b.png
+    python3 scripts/mascot/prep-frames.py idle=path/to/a.png wink=path/to/b.png
 
-Run from the target project's root. The first frame listed is the alignment
-reference. Output lands in ./images/mascot/ as <name>.png plus <name>@512.webp /
-<name>@256.webp, and any detached islands as <name>-extras.png.
+The first frame listed is the alignment reference. Output lands in
+images/mascot/ as <name>.png plus <name>@512.webp / <name>@256.webp, and any
+detached islands as <name>-extras.png.
 """
 
 import base64
@@ -32,14 +32,16 @@ from scipy import ndimage
 
 from keys import read_key
 
-# Anchored on the cwd, not on this file: the script is installed once as a skill
-# and run from whichever project owns the mascot.
-PROJECT = Path.cwd().resolve()
-OUT_DIR = PROJECT / "images" / "mascot"
-# Ephemeral working state, so it goes under .forge/ with every other skill's
-# scratch rather than inventing a root of its own — .forge/ is the gitignored
-# one, and an API response cache must never be committed.
-CACHE_DIR = PROJECT / ".forge" / "removebg"
+REPO = Path(__file__).resolve().parents[2]
+# What the page serves.
+OUT_DIR = REPO / "images" / "mascot"
+# Full-resolution masters, kept out of the served directory so they are not
+# deploy weight. Lossless WebP rather than PNG: ~40% smaller, with an identical
+# alpha channel and identical colour everywhere alpha > 0. It does discard the
+# colour under fully transparent pixels, which is invisible but does mean the
+# files are not byte-for-byte reproducible from the PNGs.
+MASTER_DIR = REPO / "scripts" / "mascot" / "masters"
+CACHE_DIR = REPO / ".cache" / "removebg"
 
 REMOVEBG_ENDPOINT = "https://api.remove.bg/v1.0/removebg"
 # The free tier only returns a 0.25MP preview. That is useless as a final
@@ -64,10 +66,12 @@ ISLAND_RATIO = 0.05
 MIN_ISLAND_PX = 24
 # Half-width of the alignment search window, in pixels.
 SEARCH = 24
-# Rows (as a fraction of height) available for alignment. An expression frame
-# changes only the face, so its still lower body is the signal. An outfit frame
-# changes the whole garment, so its unchanged face is. Both are tried and the
-# better match wins, which identifies the kind of frame for free.
+# Rows available for alignment, as fractions of the REFERENCE FIGURE — not of
+# the canvas. The canvas grows whenever a wider frame joins the set, and a band
+# pinned to canvas height would then slide off the body part it was chosen for.
+# An expression frame changes only the face, so its still lower body is the
+# signal. An outfit frame changes the whole garment, so its unchanged face is.
+# Both are tried and the better match wins, identifying the kind of frame free.
 ALIGN_BANDS = {"body": (0.58, 0.98), "face": (0.24, 0.46)}
 # Residual mismatch in the winning band, above which the frame is probably drawn
 # at a different scale — something no amount of translation can fix.
@@ -242,23 +246,33 @@ def shift(array, dy, dx):
     return out
 
 
-def pad_to_canvas(frame, height, width):
-    """Grow one frame onto a common canvas, anchored on its own content.
+def pad_to_canvas(frame, height, width, offset=None):
+    """Grow one frame onto a common canvas. Returns the offset applied.
 
     Renders do not all come back the same size — a taller aspect ratio is the
     only way to fit a hat above her head without shrinking her. Landing each
     frame's content bottom on the canvas bottom, and its horizontal centre on
     the canvas centre, leaves the aligner only a few pixels to absorb.
+
+    Pass `offset` to shift a frame by a known amount instead. Frames that
+    already share a canvas are already aligned to each other, and anchoring each
+    on its own content would pull them apart — a witch hat's content centre is
+    not where the body's is.
     """
     height_before, width_before = frame["alpha"].shape
-    if (height_before, width_before) == (height, width):
-        return
+    if (height_before, width_before) == (height, width) and offset is None:
+        return (0, 0)
 
-    solid = frame["alpha"] > 0.02
-    rows = np.where(solid.any(axis=1))[0]
-    cols = np.where(solid.any(axis=0))[0]
-    dy = (height - 1) - rows.max()
-    dx = width // 2 - (cols.min() + cols.max()) // 2
+    if offset is not None:
+        dy, dx = offset
+    else:
+        solid = frame["alpha"] > 0.02
+        rows = np.where(solid.any(axis=1))[0]
+        cols = np.where(solid.any(axis=0))[0]
+        dy = (height - 1) - rows.max()
+        dx = width // 2 - (cols.min() + cols.max()) // 2
+    if (dy, dx) == (0, 0) and (height_before, width_before) == (height, width):
+        return (0, 0)
 
     def place(array):
         out = np.zeros((height, width) + array.shape[2:], dtype=array.dtype)
@@ -274,19 +288,36 @@ def pad_to_canvas(frame, height, width):
     frame["alpha"] = place(frame["alpha"])
     if frame["extras"] is not None:
         frame["extras"] = place(frame["extras"])
+    return (dy, dx)
 
 
 def _best_in_band(ref_alpha, alpha, band):
-    """Lowest mismatch (as a fraction of band area) and the offset achieving it."""
-    height = ref_alpha.shape[0]
-    top, bottom = int(height * band[0]), int(height * band[1])
-    ref_band = ref_alpha[top:bottom] > 0.5
+    """Lowest mismatch (as a fraction of band area) and the offset achieving it.
 
+    The window is clipped horizontally to where the reference actually has
+    content in these rows, plus a search margin. Without that, a pose that puts
+    limbs out to the sides is compared against empty background beside the
+    reference and the band scores terribly for reasons unrelated to the body
+    part it was chosen for.
+    """
+    rows = np.where((ref_alpha > 0.02).any(axis=1))[0]
+    origin, span = rows.min(), rows.max() - rows.min()
+    top = origin + int(span * band[0])
+    bottom = origin + int(span * band[1])
+
+    strip = ref_alpha[top:bottom] > 0.5
+    columns = np.where(strip.any(axis=0))[0]
+    if not len(columns):
+        return 1.0, (0, 0)
+    left = max(columns.min() - SEARCH, 0)
+    right = min(columns.max() + SEARCH + 1, ref_alpha.shape[1])
+
+    ref_band = strip[:, left:right]
     best, best_offset = None, (0, 0)
     for dy in range(-SEARCH, SEARCH + 1):
         moved_y = shift(alpha, dy, 0)
         for dx in range(-SEARCH, SEARCH + 1):
-            candidate = shift(moved_y, 0, dx)[top:bottom] > 0.5
+            candidate = shift(moved_y, 0, dx)[top:bottom, left:right] > 0.5
             score = np.count_nonzero(ref_band ^ candidate)
             if best is None or score < best:
                 best, best_offset = score, (dy, dx)
@@ -335,9 +366,10 @@ def resize_premultiplied(image, width):
 
 def export(image, name):
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    png_path = OUT_DIR / f"{name}.png"
-    image.save(png_path, optimize=True)
-    written = [png_path]
+    MASTER_DIR.mkdir(parents=True, exist_ok=True)
+    master_path = MASTER_DIR / f"{name}.webp"
+    image.save(master_path, "WEBP", lossless=True, method=6)
+    written = [master_path]
 
     for width in (512, 256):
         if width >= image.width:
@@ -349,12 +381,30 @@ def export(image, name):
     for path in written:
         with Image.open(path) as opened:
             dimensions = f"{opened.width}x{opened.height}"
-        print(f"  {path.relative_to(PROJECT)}  {dimensions}  {path.stat().st_size / 1024:.0f} KB")
+        print(f"  {path.relative_to(REPO)}  {dimensions}  {path.stat().st_size / 1024:.0f} KB")
 
 
 def main(argv):
+    global SEARCH
     use_removebg = "--remove-bg" in argv
     argv = [a for a in argv if a != "--remove-bg"]
+
+    # A pose change can move the content anchor further than the default window
+    # reaches — elbows out to the sides drag the bounding box centre away from
+    # the body's. Widening costs time quadratically, so it stays opt-in.
+    pinned = set()
+    for arg in list(argv):
+        if arg.startswith("--search="):
+            SEARCH = int(arg.split("=", 1)[1])
+            argv.remove(arg)
+        # Alignment is a heuristic and it needs something unchanged to match on.
+        # A frame that changes the pose AND the clothing offers nothing: the
+        # body differs and limbs move into rows the reference leaves empty. Pin
+        # such a frame and trust the padding, which is exact when the render was
+        # asked to hold its scale and head position.
+        elif arg.startswith("--pin="):
+            pinned.update(arg.split("=", 1)[1].split(","))
+            argv.remove(arg)
 
     pairs = []
     for arg in argv:
@@ -377,12 +427,21 @@ def main(argv):
 
     canvas_height = max(f["alpha"].shape[0] for f in frames)
     canvas_width = max(f["alpha"].shape[1] for f in frames)
-    for frame in frames:
-        pad_to_canvas(frame, canvas_height, canvas_width)
+    # Frames the same size as the reference are presumed already aligned to it —
+    # re-prepping an existing set is the common case — so they get the
+    # reference's own offset rather than being re-anchored individually.
+    reference_shape = frames[0]["alpha"].shape
+    reference_offset = pad_to_canvas(frames[0], canvas_height, canvas_width)
+    for frame in frames[1:]:
+        shared = frame["alpha"].shape == reference_shape
+        pad_to_canvas(frame, canvas_height, canvas_width, reference_offset if shared else None)
 
     # Align every frame onto the first.
     reference = frames[0]["alpha"]
     for frame in frames[1:]:
+        if frame["name"] in pinned:
+            print(f"pinned {frame['name']}: left where the padding put it")
+            continue
         (dy, dx), band, residual = find_offset(reference, frame["alpha"])
         if (dy, dx) != (0, 0):
             frame["rgb"] = shift(frame["rgb"], dy, dx)
