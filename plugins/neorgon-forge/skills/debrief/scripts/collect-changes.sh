@@ -46,6 +46,17 @@ changed() {
 
 head_ "Volume"
 git diff --shortstat "$REV" 2>/dev/null | sed 's/^/  /' || echo "  (none)"
+# Near-balanced large counts are usually a formatting or sweep pass (an em-dash
+# sweep once reported 2572+/2374- for what was one line of substance). Say so
+# here, because the number above is exactly the kind that gets quoted onto a slide.
+git diff --shortstat "$REV" 2>/dev/null | awk '
+  { for (i = 1; i <= NF; i++) { if ($(i+1) ~ /^insertion/) ins = $i; if ($(i+1) ~ /^deletion/) del = $i } }
+  END {
+    if (ins > 500 && del > 500 && ins / del < 1.5 && del / ins < 1.5) {
+      print "  note: insertions and deletions are large and near-balanced — often a"
+      print "  formatting or rename sweep, not that much substance. Check before quoting."
+    }
+  }'
 if [ -z "$SINCE" ]; then
   untracked=$(git ls-files --others --exclude-standard | drop_meta | wc -l | tr -d ' ')
   [ "$untracked" != "0" ] && echo "  $untracked untracked file(s)"

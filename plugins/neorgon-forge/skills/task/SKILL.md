@@ -106,6 +106,11 @@ Work the plan. The invariants:
 - **Record decisions as they happen.** `brief.sh note "…"` when you reject an approach, hit a
   constraint, or discover the problem is not what it looked like. This is the material the
   downstream skills cannot get anywhere else.
+- **When a recorded note turns out wrong, supersede it — never leave it standing.**
+  `brief.sh correct "<fragment of the wrong note>" "<what is actually true>"` strikes the old
+  claim where it stands and appends the correction. Being wrong then right is the normal shape
+  of a long campaign; a reader going top to bottom must not meet the wrong claim first and
+  stop there.
 
 When you find a second problem mid-task: finish the first, then name the second. Do not
 silently expand scope, and do not silently drop what you found.
@@ -131,8 +136,17 @@ Each subagent prompt must carry, because it inherits none of your context:
 3. The return contract — what to report back, in what shape
 4. Explicitly: **report what you could not do**, rather than working around it
 
+A session- or project-level rule about subagents outranks this step: if the environment says
+not to spawn, do the work inline and say so — the skill suggests delegation, it does not
+license overriding a standing instruction.
+
 Run independent streams concurrently in one message. Then **verify on return** — this is the
-step that makes delegation safe, and skipping it is what gives delegation its bad reputation:
+step that makes delegation safe, and skipping it is what gives delegation its bad reputation.
+Both halves of this arrangement have earned their place in a single run: one review subagent
+found a live credential leak the author had missed and had already reported as fixed — and the
+same review also proposed, with equal confidence, a pattern change that production data showed
+would have redacted ordinary config blobs. The subagent sees what you cannot; its output still
+needs verifying, not applying. Neither half is a formality:
 
 - Read the actual diff, not the summary. A subagent reporting success is evidence, not proof.
 - Spot-check the claim. If it says 34 files, count them.
@@ -149,7 +163,15 @@ Run whatever the project actually has — tests, linter, build, the page in a br
 you ran and what it said. "Should work" is not verification, and neither is a passing test for
 code you did not exercise.
 
-Two verification rules that sound pedantic until they catch something:
+**If you added a guard, a check, or a refusal, write the test that trips it.** A guard you
+cannot make fail is not a guard — and one that always says "fine" is worse than none, because
+it gets quoted. Two shipped in a single session, both freshly written to make things safer: a
+retry classifier whose regex did not match the abort message it existed to catch, and a
+coverage check comparing against a field that did not exist, so every merge reported full
+coverage. Both passed review and tests; only tripping them would have caught either. This
+includes retry classifiers, coverage checks, and validation that runs in a dry-run path.
+
+Two more verification rules that sound pedantic until they catch something:
 
 - **Never report a test count without a run log.** A suite that was written but never
   executed is not coverage; quote the runner's own output, and check a new test file's

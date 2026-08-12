@@ -12,6 +12,7 @@
 # Usage:
 #   brief.sh init "<problem>"              start a brief (idempotent)
 #   brief.sh note "<what you learned>"     append a timestamped decision
+#   brief.sh correct "<old claim>" "<truth>"  supersede a wrong note in place
 #   brief.sh stream add "<name>" "<goal>"  register a workstream
 #   brief.sh stream start "<name>"         mark it in progress
 #   brief.sh stream done "<name>" "<outcome>"
@@ -126,6 +127,37 @@ cmd_note() {
   ok "noted"
 }
 
+# Being wrong then right is the normal shape of a long campaign, and the brief
+# should model it rather than flatten it: a reader going top to bottom must not
+# meet the wrong claim first and stop there. `correct` strikes the superseded
+# note where it stands and appends the correction as a new decision.
+cmd_correct() {
+  need_brief
+  local old="${1:-}" new="${2:-}"
+  [ -n "$old" ] && [ -n "$new" ] ||
+    die 'usage: brief.sh correct "<fragment of the wrong note>" "<what is actually true>"'
+
+  local lineno
+  lineno=$(awk -v s="$old" '
+    /^## Decisions$/ { inside = 1; next }
+    /^## /           { inside = 0 }
+    inside && /^- / && index($0, s) { n = NR }
+    END { if (n) print n }
+  ' "$BRIEF")
+  [ -n "$lineno" ] ||
+    die "no decision containing \"$old\" — quote a fragment of the note being superseded"
+
+  local tmp
+  tmp=$(mktemp)
+  awk -v n="$lineno" -v ts="$(now)" '
+    NR == n { body = $0; sub(/^- /, "", body); print "- ~~" body "~~ · superseded " ts ", see correction below"; next }
+    { print }
+  ' "$BRIEF" >"$tmp" && mv "$tmp" "$BRIEF"
+
+  cmd_note "CORRECTION of the struck note above: $new"
+  ok "superseded — the wrong claim is struck where it stands, not silently rewritten"
+}
+
 stream_field() { awk -F'\t' -v n="$1" '$1 == n { print $2 }' "$STREAMS" 2>/dev/null | tail -1; }
 
 stream_set() {
@@ -213,8 +245,9 @@ cmd_close() {
 }
 
 case "${1:-}" in
-  init)   shift; cmd_init "$@" ;;
-  note)   shift; cmd_note "$@" ;;
+  init)    shift; cmd_init "$@" ;;
+  note)    shift; cmd_note "$@" ;;
+  correct) shift; cmd_correct "$@" ;;
   stream) shift; cmd_stream "$@" ;;
   status) cmd_status ;;
   close)  cmd_close ;;

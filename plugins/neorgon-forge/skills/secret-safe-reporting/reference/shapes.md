@@ -28,6 +28,12 @@ Entropy heuristics earn their keep on `opaque-long` only. Everything above it is
 pattern; prefer the fixed pattern wherever one exists, because an entropy check has a
 false-positive rate and a pattern does not.
 
+**Keep the `jwt` pattern anchored.** Unanchoring it to catch tokens embedded mid-string looks
+like a safe widening and is not: `eyJ` is simply base64 for `{"`, so any base64-encoded JSON —
+config blobs, serialized state — starts with it. A field probe of real production data showed
+the unanchored version would have started redacting ordinary configuration. Probe before
+widening any pattern; a confident theoretical improvement is still theoretical.
+
 ## PII vocabulary, for the analytics/error-reporting domains
 
 Same architecture, different table: email (`@` + TLD shape), phone (E.164 and local
