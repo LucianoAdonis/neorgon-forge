@@ -118,7 +118,21 @@ Slide types worth reaching for in a change deck:
 | quote | A user complaint or a review finding, verbatim |
 | divider | Between themes |
 
-Reference images by relative path from the deck file, and confirm each one exists.
+**If the change is visible in a browser, show it — a screenshot demo beats describing a UI.**
+When the work touched something a page renders, capture it and put it on `image` slides:
+
+- Launch the project's own preview and screenshot the changed feature in its real state, not a
+  mockup. For a new feature, one shot of it working; for a visual change, before/after on a
+  `split`-adjacent pair of `image` slides — the old state is usually still reachable via the
+  live site or the previous commit.
+- **Reuse assets that already exist before capturing new ones.** A verification screenshot
+  from the session that built the change, an OG image, generated art — if the work produced
+  an asset worth sharing, the deck is where it gets seen.
+- Skip it honestly when the work is not visual: a screenshot of a terminal proves less than
+  the `code` slide showing the diff hunk, and a decorative screenshot dilutes the deck.
+
+Reference images by relative path from the deck file — or by public URL when the deck will
+travel — and confirm each one resolves.
 
 Put the detail you cut from a slide into its speaker note. File paths, exact numbers, and the
 caveat you would say out loud belong there — it keeps slides sparse without losing the

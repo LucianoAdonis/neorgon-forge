@@ -72,7 +72,19 @@ Slack, and people who will never click a link. Two routes:
 Say which slides carry `pattern:` textures if the PDF route is Marp: Marp and PPTX render flat
 theme/brand colors, so the PDF from Reveal is the one that keeps the textures.
 
-## Backgrounds
+## Screenshots and demo assets
+
+Capturing here is cheap — every site has a dev server (`make serve P=<project>`, ports in the
+root CLAUDE.md) and the harness can screenshot it. For before/after: the **live site** still
+serves the old state until the change deploys, and localhost serves the new one — capture both
+while that window is open, it closes at push.
+
+Where they go: save captures beside the deck as `docs/debrief-<YYYY-MM>-img/<name>.png` and
+reference them relatively. For a deck that leaves the repo (published, PDF, shared YAML),
+prefer **live-site URLs** instead — the sites are public, so
+`https://<site>.neorgon.com/images/…` renders wherever the YAML travels, which no relative
+path does. Assets that already exist (OG images at `png/` or `images/og-*`, mascot art under
+`images/mascot/`) are linked, never copied.
 
 `stats` and `divider` slides accept a `background` — `ocean` is the safe default for a measured-
 numbers slide. Check the schema (local `slides-site/CLAUDE.md` or the published URL above) for
