@@ -34,6 +34,15 @@ Escalate mid-flight when a `standard` task turns out to touch nine files — say
 brief rather than pressing on. Never silently downgrade a `campaign`; if it is smaller than it
 looked, say that too.
 
+One environment check before any mode: if the working tree lives inside a cloud-sync
+folder — iCloud's `Mobile Documents`, Dropbox, OneDrive, Google Drive — stop and say so
+before editing anything. Sync daemons fork concurrently-written files into silent
+`name 2.ext` copies; a session that ignored this lost an entire source tree. `brief.sh
+init` warns when it sees such a path. This and the other ways an environment destroys
+finished work — rebase-abort deletions, stale artifacts posing as results, a shell that
+drops PATH in loops — live in `reference/hazards.md`; read it when any of its symptoms
+appears.
+
 `quick` skips to Step 3. The rest of this applies to `standard` and `campaign`.
 
 ## Step 1 — Resolve ambiguity, once
@@ -139,6 +148,30 @@ value at the end is largely in knowing which parts were verified and which were 
 Run whatever the project actually has — tests, linter, build, the page in a browser. State what
 you ran and what it said. "Should work" is not verification, and neither is a passing test for
 code you did not exercise.
+
+Two verification rules that sound pedantic until they catch something:
+
+- **Never report a test count without a run log.** A suite that was written but never
+  executed is not coverage; quote the runner's own output, and check a new test file's
+  path actually matches the project's test glob before writing it.
+- **A test count that decreases is a defect, not a green result.** "28 passed, 0 failed"
+  after a run that said 29 means something deleted a test — and if you did not, a file
+  has been truncated or forked under you (`reference/hazards.md`).
+
+And when a number goes in the brief's Measured section, **name the unit of value before
+measuring**. "Per item returned" and "per item that mattered" can point in opposite
+directions: a filter that is slower per batch was 4.4× faster per useful document, and
+nearly got reported as a regression.
+
+If the task ends with a repo's **first push to a new remote**, run the
+`secret-safe-reporting` sweep over history first:
+
+```bash
+bash "$FORGE/skills/secret-safe-reporting/scripts/sweep.sh" . --history
+```
+
+A credential found in an unpushed history is a squash; found after the push, it is a
+rotation. The thirty seconds are cheap against that asymmetry.
 
 Then close the brief:
 

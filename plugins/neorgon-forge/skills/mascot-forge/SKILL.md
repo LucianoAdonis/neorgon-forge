@@ -22,7 +22,7 @@ MF="$FORGE/skills/mascot-forge"
 
 # 1. art
 python3 "$MF/scripts/generate.py" --prompt-file "$MF/reference/prompts/base-a-standing.txt" \
-    --ref path/to/reference.png --aspect 3:4 --count 3 --out tmp/base
+    --ref path/to/reference.png --aspect 3:4 --count 3 --out .forge/mascot/base
 
 # 2. cut out, align, export
 python3 "$MF/scripts/prep-frames.py" --remove-bg idle=tmp/base-01.png blink=tmp/blink.png
@@ -38,6 +38,12 @@ Run them from the target project's root — they write relative to the cwd, not 
 skill. They need `GEMINI_API_KEY` and, for `--remove-bg`, `REMOVE_BG_API_KEY`, taken from
 the environment or the nearest `.env` searched upward to the repo boundary. Keys are never
 printed, and `keys.py` is the only place that reads them.
+
+Where output lands, by lifetime: served frames and the preview in `images/mascot/`
+(shipped); full-resolution masters in `scripts/mascot/masters/` (committed, never served —
+the one argued exception to the three output roots, see the forge's `docs/authoring.md`);
+raw generations and the remove.bg response cache under `.forge/` (ephemeral, safe to
+delete).
 
 Image models are **paid-tier only**: the Gemini free tier reports `limit: 0` for
 every one of them. If every model returns 429 including text, the project is out of

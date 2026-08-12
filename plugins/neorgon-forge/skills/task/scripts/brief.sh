@@ -6,6 +6,9 @@
 # recalled at the end of a long session has already lost the alternative
 # it beat, which is the part worth reporting.
 #
+# If tools here fail with "command not found": some harness shells drop PATH
+# inside loop bodies — run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
+#
 # Usage:
 #   brief.sh init "<problem>"              start a brief (idempotent)
 #   brief.sh note "<what you learned>"     append a timestamped decision
@@ -34,9 +37,26 @@ need_brief() {
   [ -f "$BRIEF" ] || die "no brief at $BRIEF — run: brief.sh init \"<problem>\""
 }
 
+# A git tree inside a cloud-sync folder loses work silently: the sync daemon
+# forks concurrently-written files into "name 2.ext" copies and reports
+# nothing. Checked at init because that is the moment before dozens of edits.
+# A warning, not a refusal — but the right response is to move the repo, not
+# to proceed carefully. Details and recovery: reference/hazards.md.
+warn_cloud_sync() {
+  case "$PWD" in
+    *"/Mobile Documents/"*|*"/Dropbox/"*|*"/Dropbox"|*"/OneDrive"*|*"/Google Drive/"*|*"/My Drive/"*)
+      printf '\033[31mWARNING: this directory is inside a cloud-sync folder.\033[0m\n' >&2
+      printf '\033[31m  git and sync daemons both assume they own the tree. Concurrent writes\033[0m\n' >&2
+      printf '\033[31m  fork files into "name 2.ext" copies silently — observed losses include\033[0m\n' >&2
+      printf '\033[31m  whole source trees. Move the repo to an unsynced path before continuing.\033[0m\n' >&2
+      ;;
+  esac
+}
+
 cmd_init() {
   local problem="${1:-}"
   [ -n "$problem" ] || die 'usage: brief.sh init "<one-line problem>"'
+  warn_cloud_sync
   mkdir -p "$FORGE_DIR"
 
   if [ -f "$BRIEF" ]; then
@@ -199,5 +219,5 @@ case "${1:-}" in
   status) cmd_status ;;
   close)  cmd_close ;;
   path)   echo "$BRIEF" ;;
-  *)      sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *)      awk 'NR > 1 { if (!/^#/) exit; line = $0; sub(/^# ?/, "", line); print line }' "$0" ;;
 esac

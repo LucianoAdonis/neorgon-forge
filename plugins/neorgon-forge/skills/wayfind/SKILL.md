@@ -1,6 +1,6 @@
 ---
 name: wayfind
-description: "Use when working in an application whose layout you do not yet know, or when a ticket has to be resolved to actual files before anything can be changed. Triggers on: 'where does this go', 'where is this handled', 'I don't know this codebase', 'which file owns the checkout total', 'what are the conventions here', 'I keep guessing wrong about where things live'. Builds a durable map in .forge/map.md — navigable areas in the user's words, path rules saying where each kind of file belongs and how that was established, and the exceptions practice turns up — then resolves a ticket's vocabulary to candidate files and the rules governing them. Not for finding one known symbol (grep it), not for diagnosing a bug (use untangle), not for executing the change once the location is known (use task)."
+description: "Use when working in an application whose layout you do not yet know, or when a ticket has to be resolved to actual files before anything can be changed. Triggers on: 'where does this go', 'where is this handled', 'I don't know this codebase', 'which file owns the checkout total', 'what are the conventions here', 'I keep guessing wrong about where things live'. Builds a durable map in .forge/map.md — navigable areas in the user's words, path rules saying where each kind of file belongs and how that was established, and the exceptions practice turns up — then resolves a ticket's vocabulary to candidate files and the rules governing them. A submodule hub or multi-repo workspace gets one map per child plus a cross-repo index that flags concerns two repos share. Not for finding one known symbol (grep it), not for diagnosing a bug (use untangle), not for executing the change once the location is known (use task)."
 argument-hint: "[ticket or question] [--map] [--check]"
 user-invocable: true
 license: MIT
@@ -32,6 +32,13 @@ bash "$FORGE/skills/wayfind/scripts/orient.sh" [dir]
 Reports the routing model, the entry points, an extension census per directory, and the naming
 patterns with their counts. Counts, not conclusions: forty `.tsx` files in one directory are
 evidence for a rule, and one is not.
+
+It also enumerates **infra manifests** — SAM/CloudFormation `template.yaml`,
+`serverless.yml`, Terraform — because in an infra-heavy repo the real entry points and the
+real topology live there, not in the code census: Step Functions, cron schedules, queues,
+and functions with no obvious handler file are all invisible to a file count. Reconcile
+the manifest's function list against the handler files; the function that exists only in
+the manifest is the one that slips review.
 
 Then read the convention documents it found. **A stated convention outranks a census.** If
 `CONTRIBUTING.md` says tests go beside the source and the census shows a `tests/` directory, that
@@ -80,6 +87,22 @@ bash "$FORGE/skills/wayfind/scripts/map.sh" rule 'tests/*.spec.ts' test \
 
 The last two are the ones that feel like knowledge. A framework's convention tells you what the
 authors probably intended, which is a different claim from what they did.
+
+Two refinements on stated conventions. First, proximity: a repo's **own** `CLAUDE.md` is
+stronger evidence than a generic one at a parent or hub root — it is practically the
+authors telling you this repo's layout, where the parent file describes the family. When
+they disagree, the nearer file wins. Second, staleness: a stated convention is strong
+evidence of *intent*, and intent goes stale without the file changing. Before betting on
+a claim like "PRs target `develop`", spend the thirty seconds of corroboration — where
+`origin/HEAD` points, relative commit counts, whether the file you are changing even
+exists on the claimed branch. A `develop` that is 47 commits behind `main` is a doc bug
+to report, not a convention to follow.
+
+One boundary worth naming: **intent, history, and ownership are not repo-derivable.** A
+census reads current structure; it cannot see that a migration is mid-flight, which team
+owns what, or the impact level of a dependency. When a question is of that kind, say so
+and ask for the document that holds it — a map that guesses at intent is fiction with a
+basis column.
 
 ### When the census disagrees with itself
 
@@ -141,6 +164,27 @@ would have mattered.
 Then re-read your rules. If a lesson contradicts one, **correct the rule too**: the map is read as
 current, so a stale rule sitting above its own exception gets believed.
 
+## Submodule hubs — one map per repo, one index over them
+
+A hub of submodules (or a monorepo of independent repos) gets a map per child, which is
+right — and structurally blind. The same collection, field, or concern touched by two
+repos is invisible when each map is read alone, and that blindness is exactly where a
+duplicated job hides: two repos both marking `isStale` on the same collection look fine
+from inside either one.
+
+```bash
+bash "$FORGE/skills/wayfind/scripts/map.sh" index          # from the hub root
+```
+
+Aggregates every child `.forge/map.md` into the parent's `.forge/map-index.md` and flags
+**shared concerns** — vocabulary that two or more child maps both use, drawn from their
+areas and lessons. Each flagged term is a question, not a verdict: same concern seen from
+two sides, or the same job done twice? Resolving that still takes reading, but the index
+turns what used to be an unaskable question into a listed one.
+
+The index is only as good as the child maps feed it. A child with no areas and no
+lessons contributes nothing; map the children first, index second.
+
 ## Step 6 — Check for drift
 
 ```bash
@@ -163,6 +207,11 @@ wrongly, with full confidence.
 | You know where it goes, and need it done well | `task` |
 | You know where it is and not why it breaks | `untangle` |
 | The population of files is the problem, not the layout | `untangle --kind scale` |
+| "What breaks if I change this" / data-flow between modules | `atlas` |
+
+The map records where things live; it does not model dependencies. Questions like "which
+job writes this collection and who reads it" are `atlas`'s ground — its model carries the
+`file:line` of every edge, which a map's prose cannot.
 
 `wayfind` and `untangle --kind scale` both enumerate; the difference is what the output is for.
 `survey.sh` builds a population to edit once. `map.sh` builds a map to consult repeatedly. On a

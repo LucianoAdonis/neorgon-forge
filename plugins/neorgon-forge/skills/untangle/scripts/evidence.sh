@@ -10,6 +10,9 @@
 # each, so the next step is always the cheapest discriminating check rather
 # than whichever theory feels warmest.
 #
+# If tools here fail with "command not found": some harness shells drop PATH
+# inside loop bodies — run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
+#
 # Usage:
 #   evidence.sh init "<symptom>"                    start a log
 #   evidence.sh hypothesis "<theory>" "<what would refute it>"

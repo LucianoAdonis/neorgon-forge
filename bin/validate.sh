@@ -141,8 +141,13 @@ check_skill() {
   # choice and cannot be judged from here. A path a script only *reads* is also
   # out of scope: build-preview.py loads the project's own js/mascot.js, which is
   # not this skill claiming a root.
+  # One argued exception: scripts/mascot/masters holds mascot-forge's
+  # full-resolution masters — paid generation plus hand curation, so not
+  # ephemeral; not derivable from source, so not regenerable; deliberately
+  # unshipped, so not a deliverable. The argument lives in docs/authoring.md;
+  # a new exception goes there first, never just here.
   if [ -d "$dir/scripts" ]; then
-    local roots='^(\.forge|docs/atlas|post|images)(/|$)'
+    local roots='^(\.forge|docs/atlas|post|images|scripts/mascot/masters)(/|$)'
     local bad=()
     while IFS= read -r hit; do bad+=("$hit"); done < <(
       # mkdir -p <literal>, mkdirSync('<literal>'), Path("<literal>").mkdir()
@@ -182,6 +187,7 @@ check_skill() {
         red "  writes outside the sanctioned roots: $target"
       done
       red "  allowed: .forge/ (ephemeral) · docs/atlas/ (regenerable) · post/, images/ (shipped)"
+      red "  (plus one argued exception: scripts/mascot/masters — see docs/authoring.md)"
       fail=1
     else
       green "  output roots ok"
@@ -219,6 +225,10 @@ check_skill() {
     case "$ref" in
       skills/*) [ -e "$SRC/${ref#skills/}" ] ||
         { red "  SKILL.md references missing file: $ref"; fail=1; } ;;
+      # The argued output root from the roots check above: a path the skill
+      # writes into the *worked project*, so it can never exist in the install
+      # and is not a reference to skill guidance at all.
+      scripts/mascot|scripts/mascot/*) : ;;
       *) [ -e "$dir/$ref" ] ||
         { red "  SKILL.md references missing file: $ref"; fail=1; } ;;
     esac

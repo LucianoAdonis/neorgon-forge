@@ -14,8 +14,10 @@ never salesy. Lead with what the user gets, not how it is built.
 
 ## Blocker rules (never ship a violation)
 
-- **No em dashes (—) or en dashes (–).** Use a comma, or restructure. This is the single
-  loudest AI tell in shipped copy.
+- **No em dashes (—) or en dashes (–) in prose.** Use a comma, or restructure. This is
+  the single loudest AI tell in shipped copy. The rule is about sentences: a `—` standing
+  alone as a null placeholder in a data table, or an en dash in a numeric range (`2–4`),
+  is glyph use — typographic convention, not prose — and is not a finding.
 - **Banned words:** powerful, seamless, seamlessly, leverage(s), leveraging, robust,
   utilize, utilise, unlock, unleash, elevate, supercharge, revolutionize, game-changing,
   cutting-edge, effortless(ly), delve, tapestry, testament, realm, landscape (figurative),

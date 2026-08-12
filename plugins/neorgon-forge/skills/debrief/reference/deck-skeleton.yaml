@@ -11,6 +11,9 @@ presentation:
   subtitle: "<the one-line why>"
   author: "<name>"
   date: "YYYY-MM"
+  # theme: <name>       # deck-wide look, only if the player supports it — set from
+  #                     # --theme or the project's stated default; names are colors,
+  #                     # never clients (the YAML travels with the deck)
 
   slides:
     # ── Open on the problem, never on the solution ──────────────

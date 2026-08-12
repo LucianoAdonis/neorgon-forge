@@ -1,7 +1,7 @@
 ---
 name: debrief
 description: "Use at the END of a piece of work for a deck, slides, or a presentation of what changed and why. Triggers on: 'make a deck about this', 'slides for the demo', 'presentation of what we did', 'build me a readout', 'deck for the sprint review', 'I need to present these changes', 'so I can show what I did', 'use debrief', 'debrief and writeup'. Fits a demo, standup, sprint review, stakeholder update or retro. Reads the actual git diff and the task brief so the deck reports facts rather than a flattering summary, then emits whichever format the project supports. Also offer it unprompted after a large multi-file change lands. Often wanted together with writeup — a deck and a post from one body of work; run both when the user asks for docs about finished work without naming a format. Not for a blog post alone (use writeup) or a git commit message (use commit-work)."
-argument-hint: "[project] [--audience eng|stakeholder|mixed] [--since <ref>] [--format auto|yaml|marp|md]"
+argument-hint: "[project] [--audience eng|stakeholder|mixed] [--since <ref>] [--format auto|yaml|marp|md] [--theme <name>]"
 user-invocable: true
 license: MIT
 ---
@@ -92,6 +92,12 @@ of these that applies.
 | `yaml` | A deck player expects it (see `reference/neorgon.md` for slides-site) | `docs/debrief-<YYYY-MM>.yaml` |
 | `marp` | The repo has Marp, or the user wants PDF/PPTX export | `docs/debrief-<YYYY-MM>.md` |
 | `md` | Neither — plain Markdown, one `##` per slide, `---` between | `docs/debrief-<YYYY-MM>.md` |
+
+If the format supports a deck-level look (a `theme:` key, a Marp theme), set it only when a
+preference exists: `--theme` wins, else a deck theme the project's own docs state, else leave it
+unset and the player's default applies. Valid names live in the player's docs, not here. Theme
+names are **colors, never clients or companies** — the value ships inside the deck file, and a
+deck that names a customer in its metadata cannot be reshared outside that room.
 
 Density rules hold in every format, and they are the difference between a deck and a document:
 

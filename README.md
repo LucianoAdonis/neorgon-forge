@@ -13,8 +13,10 @@ yet. `atlas` sits alongside them when the question is about the app itself rathe
 asked questions and can report their own staleness. `task` then scopes the work, splits it into
 workstreams that can be delegated, and keeps a brief on disk while the work happens. `debrief`
 and `writeup` read that brief afterwards — so the account of the work comes from a record written
-at the time rather than reconstructed from a diff at the end. The last two are about what a fleet
-of projects drifts on: how the copy reads, and how the art holds together.
+at the time rather than reconstructed from a diff at the end. The next two are about what a fleet
+of projects drifts on: how the copy reads, and how the art holds together. And one sits across
+the whole arc rather than at a point on it: `secret-safe-reporting`, for any work that reads
+sensitive data and produces output other people will see.
 
 | Skill | Use it when | Produces |
 |---|---|---|
@@ -26,6 +28,7 @@ of projects drifts on: how the copy reads, and how the art holds together.
 | **`writeup`** | You need to publish what changed | `post/POST.md` plus diagrams that cannot drift |
 | **`voicecheck`** | Copy needs auditing, aligning, or de-AI-ing | A `file:line` report, or the rewrite |
 | **`mascot-forge`** | A character to generate, cut out, and rig | Aligned frames plus a CSS/physics rig |
+| **`secret-safe-reporting`** | A scanner, report, or test suite touches sensitive data | A boundary design, synthetic fixtures, a pre-push sweep |
 
 ## Install
 
@@ -43,7 +46,7 @@ Refresh with `/plugin update neorgon-forge`.
 **With the skills CLI** — for one skill, or for an agent other than Claude Code:
 
 ```bash
-npx skills add LucianoAdonis/neorgon-forge           # all eight
+npx skills add LucianoAdonis/neorgon-forge           # all nine
 npx skills add LucianoAdonis/neorgon-forge -s atlas   # just one
 npx skills add LucianoAdonis/neorgon-forge -l         # list without installing
 ```
@@ -76,6 +79,11 @@ bash bin/install.sh --project ~/code/my-repo
 place their own copy at that name. Whichever lands second wins, and the failure is silent: you
 edit the clone and run the copy. Pick one route per machine.
 
+**If a skill is listed but `/name` says "Unknown skill"** (observed once with `voicecheck` on a
+plugin install): the plugin cache is holding a stale or partial copy. `/plugin update
+neorgon-forge`, restart, and if it persists, remove and reinstall the plugin. The skill's
+`SKILL.md` being readable in the cache does not prove it registered — invocation is the test.
+
 ## Commands
 
 ```bash
@@ -102,13 +110,13 @@ make status       # what is installed, and from where
 Maintained through a script so the mechanical parts are not the model's problem:
 
 ```bash
-FORGE=~/.claude/skills   # or wherever the skills are installed
-bash "$FORGE/task/scripts/brief.sh" init "modal is unreadable on dark backgrounds"
-bash "$FORGE/task/scripts/brief.sh" note "rejected raising opacity — the token is shared with 6 sites"
-bash "$FORGE/task/scripts/brief.sh" stream add "audit tokens" "find every 3% surface use"
-bash "$FORGE/task/scripts/brief.sh" stream done "audit tokens" "9 sites; 2 were intentional"
-bash "$FORGE/task/scripts/brief.sh" status
-bash "$FORGE/task/scripts/brief.sh" close
+FORGE=~/.claude   # the directory containing skills/ — in this repo, plugins/neorgon-forge
+bash "$FORGE/skills/task/scripts/brief.sh" init "modal is unreadable on dark backgrounds"
+bash "$FORGE/skills/task/scripts/brief.sh" note "rejected raising opacity — the token is shared with 6 sites"
+bash "$FORGE/skills/task/scripts/brief.sh" stream add "audit tokens" "find every 3% surface use"
+bash "$FORGE/skills/task/scripts/brief.sh" stream done "audit tokens" "9 sites; 2 were intentional"
+bash "$FORGE/skills/task/scripts/brief.sh" status
+bash "$FORGE/skills/task/scripts/brief.sh" close
 ```
 
 Why it exists: the three things a deck or post most needs — the symptom before the fix, the
@@ -203,6 +211,18 @@ stop layering; animation fails by looking *pasted on*. Its scripts run from the 
 root and write into `./images/mascot/`, so one install serves every project. Art generation needs
 `GEMINI_API_KEY`; `keys.py` is the only place that reads a key, and it never prints one.
 
+## Across the work — `secret-safe-reporting`
+
+Any pipeline that classifies sensitive data and reports on it will, by default, leak the data
+into the report — in fixtures, in "sample value" tables, in git history. The skill carries one
+architectural rule (classify at the trust boundary, propagate the verdict, never the input) and
+the mechanical checks that make it hold: classifier ordering where deny-by-name outranks
+allow-by-family, synthetic same-shape fixtures instead of observed values, a canary suite with a
+negative control, and `sweep.sh` — a pre-publish tripwire that scans the tree, the index, and
+(before a first push) the whole history for credential-shaped content, reporting `file:line` and
+never the value itself. The same architecture serves PII in analytics, user content in error
+reports, and prompt text in LLM traces; only the shape vocabulary changes.
+
 ## Portability
 
 Portable core, overlay for local convention. Each `SKILL.md` works in any repo; anything true
@@ -231,7 +251,8 @@ neorgon-forge/
 │       ├── debrief/      SKILL.md, scripts/collect-changes.sh, reference/
 │       ├── writeup/      SKILL.md, scripts/{check-writeup.sh,diagram-kit.mjs,rasterize.mjs}
 │       ├── voicecheck/   SKILL.md, scripts/load-voice.sh, reference/voice-defaults.md
-│       └── mascot-forge/ SKILL.md, scripts/*.py, assets/, reference/prompts/
+│       ├── mascot-forge/ SKILL.md, scripts/*.py, assets/, reference/prompts/
+│       └── secret-safe-reporting/  SKILL.md, scripts/sweep.sh, reference/shapes.md
 ├── bin/{install,refresh,validate,new}.sh
 ├── docs/authoring.md
 └── Makefile

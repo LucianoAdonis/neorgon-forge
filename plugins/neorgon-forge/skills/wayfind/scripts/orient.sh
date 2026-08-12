@@ -12,6 +12,9 @@
 #
 # Reads only. Nothing here writes to the surveyed repo.
 #
+# If tools here fail with "command not found": some harness shells drop PATH
+# inside loop bodies — run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
+#
 # Usage: orient.sh [dir]
 set -uo pipefail
 
@@ -82,10 +85,59 @@ for candidate in pages app src/pages src/app src/routes routes app/routes views 
 done
 
 head_ "Entry points"
+entries=0
 for candidate in index.html src/main.ts src/main.js src/index.ts src/index.js src/index.tsx \
   src/App.tsx main.py app.py manage.py wsgi.py asgi.py main.go cmd; do
-  [ -e "$DIR/$candidate" ] && printf '  %s\n' "$candidate"
+  [ -e "$DIR/$candidate" ] && { printf '  %s\n' "$candidate"; entries=$((entries + 1)); }
 done
+[ "$entries" -eq 0 ] && dim "  none of the usual names — with file-based routing the route roots above are
+  the entry model; in an infra-heavy repo the manifests below are"
+
+# ── Infra manifests ─────────────────────────────────────────────────
+# In an AWS-heavy repo the real entry points and the real topology — Step
+# Functions, cron schedules, queues, a function with no obvious handler file —
+# live in SAM/CloudFormation/serverless/Terraform manifests, not in the code
+# file census. A census that skips these reports the app and misses the system.
+head_ "Infra manifests"
+infra=0
+while IFS= read -r f; do
+  infra=$((infra + 1))
+  printf '  %s\n' "${f#"$DIR"/}"
+  # Resource names sit at indent 2 under Resources:, their Type at indent 4.
+  # Enumerated from the manifest, not from handler files, so a function that
+  # exists only here is still listed.
+  awk '
+    /^(Resources|functions):[[:space:]]*$/ { in_res = 1; next }
+    in_res && /^[^[:space:]]/              { in_res = 0 }
+    in_res && /^  [A-Za-z0-9_-]+:[[:space:]]*$/ {
+      cur = $1; sub(/:$/, "", cur); next
+    }
+    in_res && cur != "" && /^    ([Tt]ype|handler):[[:space:]]*[^[:space:]]/ {
+      printf "    %-30s %s\n", cur, $2; cur = ""
+    }
+  ' "$f"
+  grep -nE '[Ss]chedule([Ee]xpression)?:|rate\([^)]+\)|cron\([^)]+\)' "$f" 2>/dev/null |
+    sed 's/^\([0-9]*\):[[:space:]]*/    L\1  /' | head -8
+done < <(find "$DIR" "${PRUNE[@]}" -o -type f \
+  \( -name 'template.yaml' -o -name 'template.yml' -o -name 'serverless.yml' \
+     -o -name 'serverless.yaml' -o -iname '*cloudformation*.yml' \
+     -o -iname '*cloudformation*.yaml' \) -print 2>/dev/null | sort | head -6)
+
+tf_files=$(find "$DIR" "${PRUNE[@]}" -o -type f -name '*.tf' -print 2>/dev/null | sort)
+if [ -n "$tf_files" ]; then
+  infra=$((infra + 1))
+  tf_n=$(printf '%s\n' "$tf_files" | wc -l | tr -d ' ')
+  printf '  terraform (%s .tf %s)\n' "$tf_n" "$([ "$tf_n" -eq 1 ] && echo file || echo files)"
+  printf '%s\n' "$tf_files" | tr '\n' '\0' | xargs -0 grep -h '^resource "' 2>/dev/null |
+    awk -F'"' '{ count[$2]++ } END { for (t in count) printf "%6d  %s\n", count[t], t }' |
+    sort -rn | head -15 | sed 's/^/  /'
+fi
+if [ "$infra" -eq 0 ]; then
+  dim "  none — the code census above is the whole story here"
+else
+  dim "  reconcile the function list against the handler-file census below: a function"
+  dim "  with no obvious handler file is the one that slips review"
+fi
 
 # ── Where each kind of file lives ───────────────────────────────────
 # The census that path rules get written against. A directory holding one .tsx

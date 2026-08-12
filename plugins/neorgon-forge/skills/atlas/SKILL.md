@@ -29,9 +29,9 @@ edits across without noticing they have.
 ## Step 1 — build the model
 
 ```bash
-FORGE=~/.claude/skills
+FORGE=~/.claude   # the directory containing skills/ — every forge skill uses this shape
 cd <the project>
-python3 "$FORGE/atlas/scripts/scan.py"
+python3 "$FORGE/skills/atlas/scripts/scan.py"
 ```
 
 Scans `.js/.mjs/.jsx/.ts/.tsx/.py/.html/.css` and writes `docs/atlas/model.json`:
@@ -65,7 +65,7 @@ automatically; the two skills are designed to compose in that order.
 ## Step 2 — look at the model before publishing anything
 
 ```bash
-python3 "$FORGE/atlas/scripts/ask.py" risk
+python3 "$FORGE/skills/atlas/scripts/ask.py" risk
 ```
 
 Read this yourself first. It reports hubs, import cycles, and modules nothing
@@ -81,7 +81,7 @@ hand-written for exactly that reason.
 ## Step 3 — generate the corpus
 
 ```bash
-python3 "$FORGE/atlas/scripts/build.py" --scaffold
+python3 "$FORGE/skills/atlas/scripts/build.py" --scaffold
 ```
 
 Writes into `docs/atlas/reference/`: `architecture.md`, `dependencies.md`,
@@ -126,12 +126,12 @@ rendered.
 ## Step 4 — answer questions from the model
 
 ```bash
-python3 "$FORGE/atlas/scripts/ask.py" impact schema     # what breaks if I change this
-python3 "$FORGE/atlas/scripts/ask.py" needs render      # what I must understand first
-python3 "$FORGE/atlas/scripts/ask.py" where card        # which modules match a term
-python3 "$FORGE/atlas/scripts/ask.py" layers            # distance from an entry point
-python3 "$FORGE/atlas/scripts/ask.py" areas             # sizes and coupling
-python3 "$FORGE/atlas/scripts/ask.py" stale             # does the model still hold
+python3 "$FORGE/skills/atlas/scripts/ask.py" impact schema     # what breaks if I change this
+python3 "$FORGE/skills/atlas/scripts/ask.py" needs render      # what I must understand first
+python3 "$FORGE/skills/atlas/scripts/ask.py" where card        # which modules match a term
+python3 "$FORGE/skills/atlas/scripts/ask.py" layers            # distance from an entry point
+python3 "$FORGE/skills/atlas/scripts/ask.py" areas             # sizes and coupling
+python3 "$FORGE/skills/atlas/scripts/ask.py" stale             # does the model still hold
 ```
 
 Query the model, not the generated pages. The pages are prose *about* the model
@@ -157,11 +157,11 @@ is not a syntax question — it is a theming one.
 | `export` | A standalone `.mmd` rendered to SVG/PNG | Baked in | Nothing else supplies one |
 
 ```bash
-D="$FORGE/atlas/scripts/diagram.py"
+D="$FORGE/skills/atlas/scripts/diagram.py"
 python3 "$D" areas   --target page                       # fences: build.py embeds these
 python3 "$D" flow    --target export --out docs/atlas/diagrams/flow.mmd
 python3 "$D" focus   --focus state --target export --out docs/atlas/diagrams/state.mmd
-bash "$FORGE/atlas/scripts/render.sh" docs/atlas/diagrams --png
+bash "$FORGE/skills/atlas/scripts/render.sh" docs/atlas/diagrams --png
 ```
 
 `build.py` already embeds the page-target fences, so generate `export` diagrams
@@ -198,8 +198,8 @@ page fence needs its own styling or belongs in `export`.
 ## Step 6 — keep it honest over time
 
 ```bash
-python3 "$FORGE/atlas/scripts/ask.py" stale
-python3 "$FORGE/atlas/scripts/scan.py" && python3 "$FORGE/atlas/scripts/build.py"
+python3 "$FORGE/skills/atlas/scripts/ask.py" stale
+python3 "$FORGE/skills/atlas/scripts/scan.py" && python3 "$FORGE/skills/atlas/scripts/build.py"
 ```
 
 `stale` asks git, not the filesystem — a file touched but not changed has a new

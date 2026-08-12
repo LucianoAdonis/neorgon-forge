@@ -13,6 +13,9 @@
 # Every rule carries a basis. A rule with no basis is a guess that outlives the
 # session that guessed it, and `rule` refuses to record one.
 #
+# If tools here fail with "command not found": some harness shells drop PATH
+# inside loop bodies — run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
+#
 # Usage:
 #   map.sh init "<application>"
 #   map.sh area <name> <paths,comma,separated> "<what lives here>"
@@ -21,6 +24,7 @@
 #   map.sh resolve <path>                which rules and area apply
 #   map.sh ticket "<ticket text>"        candidate paths, ranked
 #   map.sh check                         rules that no longer match anything
+#   map.sh index [root]                  aggregate child repos' maps (submodule hubs)
 #   map.sh status
 #   map.sh path
 set -uo pipefail
@@ -44,6 +48,30 @@ PRUNE=(-type d \( -name .git -o -name node_modules -o -name __pycache__ \
 
 need_map() {
   [ -f "$MAP" ] || die "no map at $MAP — run: map.sh init \"<application>\""
+}
+
+# Same guard as task's brief.sh, same reason: a git tree in a cloud-sync
+# folder forks concurrently-written files into silent "name 2.ext" copies,
+# and the map is exactly the kind of long-lived file that loses. Details:
+# skills/task/reference/hazards.md.
+warn_cloud_sync() {
+  case "$PWD" in
+    *"/Mobile Documents/"*|*"/Dropbox/"*|*"/Dropbox"|*"/OneDrive"*|*"/Google Drive/"*|*"/My Drive/"*)
+      printf '\033[31mWARNING: this directory is inside a cloud-sync folder.\033[0m\n' >&2
+      printf '\033[31m  git and sync daemons both assume they own the tree — concurrent writes fork\033[0m\n' >&2
+      printf '\033[31m  files silently. Move the repo to an unsynced path before mapping it.\033[0m\n' >&2
+      ;;
+  esac
+}
+
+# Terms, not sentences: words under four characters and the obvious filler
+# match everything and rank nothing. Shared by `ticket` and `index` so the
+# two cannot drift into tokenizing differently.
+extract_terms() {
+  tr '[:upper:]' '[:lower:]' |
+    tr -cs '[:alnum:]_-' '\n' |
+    awk 'length($0) > 3 && $0 !~ /^(the|and|when|with|that|this|from|into|user|users|page|should|would|does|doesnt|isnt|need|needs|make|makes|show|shows|after|before|because|there|their|been|have|will|only|also|then|than|some|what|which|where|while|about|able)$/' |
+    sort -u
 }
 
 # A glob is matched with find -path, so `*` spans directory separators. That is
@@ -72,6 +100,7 @@ append_section() {
 cmd_init() {
   local app="${1:-}"
   [ -n "$app" ] || die 'usage: map.sh init "<application>"'
+  warn_cloud_sync
   mkdir -p "$FORGE_DIR"
   if [ -f "$MAP" ]; then
     ok "map already exists at $MAP"
@@ -255,13 +284,8 @@ cmd_ticket() {
   head_ "Ticket"
   printf '  %s\n' "$text"
 
-  # Terms, not the sentence. Words under four characters and the obvious filler
-  # match everything and rank nothing.
   local terms
-  terms=$(printf '%s\n' "$text" | tr '[:upper:]' '[:lower:]' |
-    tr -cs '[:alnum:]_-' '\n' |
-    awk 'length($0) > 3 && $0 !~ /^(the|and|when|with|that|this|from|into|user|users|page|should|would|does|doesnt|isnt|need|needs|make|makes|show|shows|after|before|because|there|their|been|have|will|only|also|then|than|some|what|which|where|while|about|able)$/' |
-    sort -u)
+  terms=$(printf '%s\n' "$text" | extract_terms)
 
   [ -n "$terms" ] || { warn "  no usable terms — the ticket is too vague to resolve"; return 0; }
 
@@ -315,6 +339,93 @@ cmd_ticket() {
   head_ "Next"
   dim "  resolve the top candidate to get its rules: map.sh resolve <path>"
   dim "  then state the affected area and the files you expect to change, before editing."
+  return 0
+}
+
+# A submodule hub or monorepo gets one map per child repo, which is right —
+# and structurally blind: the same collection, field, or concern touched by two
+# repos is invisible when each map is read alone. That blindness is where
+# duplicated jobs hide. `index` aggregates the child maps and flags the
+# vocabulary they share, so a cross-repo overlap becomes a listed fact instead
+# of an open question. It writes the parent's .forge/map-index.md; regenerate
+# rather than edit.
+cmd_index() {
+  local root="${1:-.}"
+  [ -d "$root" ] || die "no such directory: $root"
+
+  local list
+  list=$(mktemp)
+  find "$root" -mindepth 3 -maxdepth 5 \
+    \( -name node_modules -o -name .git \) -prune -o \
+    -type f -path '*/.forge/map.md' -print 2>/dev/null | sort >"$list"
+
+  if [ ! -s "$list" ]; then
+    rm -f "$list"
+    warn "no child maps under $root"
+    dim "  a child map is <repo>/.forge/map.md — run wayfind inside each repo first"
+    return 0
+  fi
+
+  mkdir -p "$FORGE_DIR"
+  local out="$FORGE_DIR/map-index.md" pairs
+  pairs=$(mktemp)
+
+  {
+    printf '# Map index — %s\n\n' "$(cd "$root" && pwd)"
+    printf 'Generated %s by `map.sh index`. Regenerate rather than edit.\n\n' "$(now)"
+    printf '## Repos\n\n'
+  } >"$out"
+
+  head_ "Child maps"
+  while IFS= read -r m; do
+    local rdir rname fdir areas rules lessons anames
+    fdir=$(dirname "$m")
+    rdir=$(dirname "$fdir")
+    rname="${rdir#"$root"/}"
+    areas=0; rules=0; lessons=0
+    [ -s "$fdir/map-areas.tsv" ]   && areas=$(wc -l <"$fdir/map-areas.tsv" | tr -d ' ')
+    [ -s "$fdir/map-rules.tsv" ]   && rules=$(wc -l <"$fdir/map-rules.tsv" | tr -d ' ')
+    [ -s "$fdir/map-lessons.tsv" ] && lessons=$(wc -l <"$fdir/map-lessons.tsv" | tr -d ' ')
+    anames=$(awk -F'\t' '{ print $1 }' "$fdir/map-areas.tsv" 2>/dev/null | paste -sd, - | sed 's/,/, /g')
+    printf '  %-28s %s, %s, %s\n' "$rname" \
+      "$(plural "$areas" area)" "$(plural "$rules" rule)" "$(plural "$lessons" lesson)"
+    printf -- '- **%s** — %s, %s, %s%s\n' \
+      "$rname" "$(plural "$areas" area)" "$(plural "$rules" rule)" "$(plural "$lessons" lesson)" \
+      "${anames:+ · areas: $anames}" >>"$out"
+
+    # The vocabulary this repo's map uses: area names and descriptions, plus
+    # lesson texts. Rules are globs and excluded — path syntax is not a concern.
+    { awk -F'\t' '{ print $1, $3 }' "$fdir/map-areas.tsv" 2>/dev/null
+      awk -F'\t' '{ print $2 }'     "$fdir/map-lessons.tsv" 2>/dev/null
+    } | extract_terms |
+      awk 'length($0) > 3 && $0 !~ /^(file|files|live|lives|here|goes|kind|each|these|other|them)$/' |
+      awk -v r="$rname" '{ print $0 "\t" r }' >>"$pairs"
+  done <"$list"
+
+  head_ "Shared concerns"
+  dim "  a term two repos' maps both use — where duplicated jobs and split ownership hide"
+  local shared
+  shared=$(sort -u "$pairs" | awk -F'\t' '
+    { repos[$1] = repos[$1] ", " $2; n[$1]++ }
+    END { for (t in repos) if (n[t] > 1) printf "%d\t%s\t%s\n", n[t], t, substr(repos[t], 3) }
+  ' | sort -rn | head -20)
+
+  printf '\n## Shared concerns\n\n' >>"$out"
+  if [ -n "$shared" ]; then
+    printf '%s\n' "$shared" | while IFS=$'\t' read -r n term repos; do
+      printf '  %-24s %s\n' "$term" "$repos"
+      printf -- '- `%s` — %s\n' "$term" "$repos" >>"$out"
+    done
+    echo
+    dim "  each of these is a question: same concern, or same job done twice?"
+  else
+    dim "  none — the child maps share no vocabulary beyond filler"
+    printf 'None — the child maps share no vocabulary beyond filler.\n' >>"$out"
+  fi
+
+  rm -f "$list" "$pairs"
+  echo
+  ok "wrote $out"
   return 0
 }
 
@@ -394,7 +505,8 @@ case "${1:-}" in
   resolve) shift; cmd_resolve "$@" ;;
   ticket)  shift; cmd_ticket "$@" ;;
   check)   cmd_check ;;
+  index)   shift; cmd_index "$@" ;;
   status)  cmd_status ;;
   path)    echo "$MAP" ;;
-  *)       sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *)       awk 'NR > 1 { if (!/^#/) exit; line = $0; sub(/^# ?/, "", line); print line }' "$0" ;;
 esac

@@ -223,6 +223,18 @@ skill genuinely needs a fourth root, that is a change to this rule and to `bin/v
 greps every skill's scripts for directory targets and fails on anything outside the three. Argue
 for it here rather than working around the check locally.
 
+One argued exception exists: **`scripts/mascot/masters/`**, mascot-forge's full-resolution
+masters. They fail all three lifetimes. Not ephemeral — deleting them loses paid generation
+plus hand curation, which is work, not state. Not regenerable — the "source" they would be
+rebuilt from is a prompt and taste, so a rebuild produces a *different* character. Not a
+deliverable — they are deliberately excluded from `images/` so full-resolution art is not
+deploy weight; what ships is derived from them. That combination — expensive to recreate,
+committed, never served — is a genuinely fourth lifetime, and it is scoped to the one path
+rather than generalised because one skill needing it is evidence for an exception, not for
+a category. The remove.bg response cache, which used to sit beside this problem at
+`.cache/`, is *not* an exception: a cache is safe to delete by definition, which makes it
+the ephemeral lifetime, and it lives under `.forge/cache/`.
+
 ## Portability
 
 The rule this repo follows: **portable core, overlay for local convention.**

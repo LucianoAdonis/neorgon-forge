@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Enumerate the full population matching a pattern, then point at the outliers.
 #
+# If tools here fail with "command not found": some harness shells drop PATH
+# inside loop bodies — run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
+#
 # The `scale` branch fails in one specific way: a pattern is inferred from the
 # two or three instances that happened to be read first, thirty mechanical edits
 # follow, and the outlier that breaks the pattern is discovered afterwards. This

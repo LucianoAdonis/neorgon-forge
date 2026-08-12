@@ -43,7 +43,10 @@ OUT_DIR = PROJECT / "images" / "mascot"
 # colour under fully transparent pixels, which is invisible but does mean the
 # files are not byte-for-byte reproducible from the PNGs.
 MASTER_DIR = PROJECT / "scripts" / "mascot" / "masters"
-CACHE_DIR = PROJECT / ".cache" / "removebg"
+# API responses live under .forge/ because a cache is the ephemeral lifetime:
+# gitignored, per-machine, and safe to delete — rebuilding costs a few
+# preview-size calls, not work.
+CACHE_DIR = PROJECT / ".forge" / "cache" / "removebg"
 
 REMOVEBG_ENDPOINT = "https://api.remove.bg/v1.0/removebg"
 # The free tier only returns a 0.25MP preview. That is useless as a final

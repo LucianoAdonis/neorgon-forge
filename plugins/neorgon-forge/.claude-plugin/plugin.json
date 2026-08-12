@@ -1,7 +1,7 @@
 {
   "name": "neorgon-forge",
-  "version": "1.6.0",
-  "description": "Skills for finding your way into hard work, taking it on, and then explaining it. wayfind maps an unfamiliar codebase and resolves tickets to files; untangle works a problem whose shape is not yet known; atlas extracts a dependency model and generates MkDocs pages and Mermaid diagrams from it, then answers questions against it; task scopes and delegates; debrief turns the result into a deck; writeup turns it into a published post; voicecheck keeps the copy consistent; mascot-forge generates a character and rigs it. task, debrief and writeup share one brief written during the work, so the account of it is a record rather than a recollection.",
+  "version": "1.7.0",
+  "description": "Skills for finding your way into hard work, taking it on, and then explaining it. wayfind maps an unfamiliar codebase and resolves tickets to files; untangle works a problem whose shape is not yet known; atlas extracts a dependency model and generates MkDocs pages and Mermaid diagrams from it, then answers questions against it; task scopes and delegates; debrief turns the result into a deck; writeup turns it into a published post; voicecheck keeps the copy consistent; mascot-forge generates a character and rigs it; secret-safe-reporting designs pipelines that report on sensitive data without leaking it. task, debrief and writeup share one brief written during the work, so the account of it is a record rather than a recollection.",
   "author": {
     "name": "LucianoAdonis",
     "url": "https://neorgon.com"
