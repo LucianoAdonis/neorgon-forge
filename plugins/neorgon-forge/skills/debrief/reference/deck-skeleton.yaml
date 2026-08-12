@@ -15,6 +15,16 @@ presentation:
   #                     # --theme or the project's stated default; names are colors,
   #                     # never clients (the YAML travels with the deck)
 
+  # Ship these in the deck even when off — flipping a false beats discovering a key.
+  logo: ""              # URL, data: URI, or "placeholder" (monogram) for drafts
+  logo_all: false       # true = stamp the logo on every non-title slide
+  # logo_pos: bottom-left    # stamp corner (default top-right)
+  # logo_size: 96            # title-slide logo height in px (default 52)
+  # logo_stamp_size: 44      # stamp height in px on the other slides (default 30)
+  # pattern: dots            # background texture: dots, grid, diagonal, rings, orbs
+  # brand:                   # brand colors override the theme, travel with the deck
+  #   accent: "#e50914"
+
   slides:
     # ── Open on the problem, never on the solution ──────────────
     - type: title
