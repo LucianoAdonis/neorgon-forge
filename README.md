@@ -14,9 +14,12 @@ asked questions and can report their own staleness. `task` then scopes the work,
 workstreams that can be delegated, and keeps a brief on disk while the work happens. `debrief`
 and `writeup` read that brief afterwards — so the account of the work comes from a record written
 at the time rather than reconstructed from a diff at the end. The next two are about what a fleet
-of projects drifts on: how the copy reads, and how the art holds together. And one sits across
-the whole arc rather than at a point on it: `secret-safe-reporting`, for any work that reads
-sensitive data and produces output other people will see.
+of projects drifts on: how the copy reads, and how the art holds together. Two more serve the
+writing itself: `penname` drafts under a named persona whose register rules are checkable rather
+than adjectival, and `groundwork` investigates what a service actually requires before a tutorial
+promises it. And one sits across the whole arc rather than at a point on it:
+`secret-safe-reporting`, for any work that reads sensitive data and produces output other people
+will see.
 
 | Skill | Use it when | Produces |
 |---|---|---|
@@ -27,6 +30,8 @@ sensitive data and produces output other people will see.
 | **`debrief`** | You need to present what changed | A deck (slides YAML, Marp, or Markdown) |
 | **`writeup`** | You need to publish what changed | `post/POST.md` plus diagrams that cannot drift |
 | **`voicecheck`** | Copy needs auditing, aligning, or de-AI-ing | A `file:line` report, or the rewrite |
+| **`penname`** | Prose must sound like the author, not a model | A draft in persona, linted against its ban/cap rules |
+| **`groundwork`** | A tutorial is about to promise steps | A dated requirements doc, every claim labeled |
 | **`mascot-forge`** | A character to generate, cut out, and rig | Aligned frames plus a CSS/physics rig |
 | **`secret-safe-reporting`** | A scanner, report, or test suite touches sensitive data | A boundary design, synthetic fixtures, a pre-push sweep |
 
@@ -46,7 +51,7 @@ Refresh with `/plugin update neorgon-forge`.
 **With the skills CLI** — for one skill, or for an agent other than Claude Code:
 
 ```bash
-npx skills add LucianoAdonis/neorgon-forge           # all nine
+npx skills add LucianoAdonis/neorgon-forge           # all eleven
 npx skills add LucianoAdonis/neorgon-forge -s atlas   # just one
 npx skills add LucianoAdonis/neorgon-forge -l         # list without installing
 ```
@@ -211,6 +216,22 @@ stop layering; animation fails by looking *pasted on*. Its scripts run from the 
 root and write into `./images/mascot/`, so one install serves every project. Art generation needs
 `GEMINI_API_KEY`; `keys.py` is the only place that reads a key, and it never prints one.
 
+## Writing it down — `penname` and `groundwork`
+
+**`penname`** is voicecheck's drafting half. Where voicecheck audits copy that exists, penname
+writes new prose under one of four personas — `ironic` (the author's public voice, toned down),
+`briefing` (for people who decide, not build), `fieldnote` (engineer-to-engineer evidence),
+`tutorial` (hands-on-keyboard instructions). Each persona is a corpus-derived file whose rules
+are numbers, not adjectives, and `persona-lint.sh` enforces the ban/cap list before anything is
+delivered. The failure mode it prevents runs both directions: drifting into a generic model
+voice, or imitating the author's tics so hard the register collapses into parody.
+
+**`groundwork`** comes before any tutorial that promises steps. It walks the acquisition path
+(sign-up → credential → first successful call), provokes limits rather than reading about them
+where it can, and emits a requirements doc where every claim is labeled `verified`, `documented`,
+or `inferred` — with a date, because a limit without a date is a rumor. Dead ends ship verbatim;
+they are the tutorial's Gotchas section, pre-written.
+
 ## Across the work — `secret-safe-reporting`
 
 Any pipeline that classifies sensitive data and reports on it will, by default, leak the data
@@ -251,6 +272,9 @@ neorgon-forge/
 │       ├── debrief/      SKILL.md, scripts/collect-changes.sh, reference/
 │       ├── writeup/      SKILL.md, scripts/{check-writeup.sh,diagram-kit.mjs,rasterize.mjs}
 │       ├── voicecheck/   SKILL.md, scripts/load-voice.sh, reference/voice-defaults.md
+│       ├── penname/      SKILL.md, personas/{ironic,briefing,fieldnote,tutorial}.md,
+│       │                 scripts/persona-lint.sh, reference/extraction.md
+│       ├── groundwork/   SKILL.md, reference/requirements-template.md
 │       ├── mascot-forge/ SKILL.md, scripts/*.py, assets/, reference/prompts/
 │       └── secret-safe-reporting/  SKILL.md, scripts/sweep.sh, reference/shapes.md
 ├── bin/{install,refresh,validate,new}.sh
