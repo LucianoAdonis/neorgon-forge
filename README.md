@@ -32,6 +32,7 @@ will see.
 | **`voicecheck`** | Copy needs auditing, aligning, or de-AI-ing | A `file:line` report, or the rewrite |
 | **`penname`** | Prose must sound like the author, not a model | A draft in persona, linted against its ban/cap rules |
 | **`groundwork`** | A tutorial is about to promise steps | A dated requirements doc, every claim labeled |
+| **`quizmaster`** | Source material should become a runnable exam | Proctor-format JSON, coverage-mapped and validated |
 | **`mascot-forge`** | A character to generate, cut out, and rig | Aligned frames plus a CSS/physics rig |
 | **`secret-safe-reporting`** | A scanner, report, or test suite touches sensitive data | A boundary design, synthetic fixtures, a pre-push sweep |
 
@@ -51,7 +52,7 @@ Refresh with `/plugin update neorgon-forge`.
 **With the skills CLI** — for one skill, or for an agent other than Claude Code:
 
 ```bash
-npx skills add LucianoAdonis/neorgon-forge           # all eleven
+npx skills add LucianoAdonis/neorgon-forge           # all twelve
 npx skills add LucianoAdonis/neorgon-forge -s atlas   # just one
 npx skills add LucianoAdonis/neorgon-forge -l         # list without installing
 ```
@@ -230,7 +231,20 @@ voice, or imitating the author's tics so hard the register collapses into parody
 (sign-up → credential → first successful call), provokes limits rather than reading about them
 where it can, and emits a requirements doc where every claim is labeled `verified`, `documented`,
 or `inferred` — with a date, because a limit without a date is a rumor. Dead ends ship verbatim;
-they are the tutorial's Gotchas section, pre-written.
+they are the tutorial's Gotchas section, pre-written. Two scripts keep the doc honest after it
+ships: `docrun.sh` executes a doc's fenced bash blocks in order, in one shell, and reports the
+first failing block (a tutorial that proves itself — safe by default, listing unless `--run`),
+and `stale.sh` reports every dated claim past a threshold, because `verified` expires.
+
+**`quizmaster`** turns source material into an exam for the [Proctor](https://proctor.neorgon.com)
+runner: coverage map before questions, one discriminator per stem, distractors drawn from real
+misconceptions, an explanation that teaches on every question — and `validate-exam.mjs`, which
+checks the JSON against the format (answer keys in range, exact-set multi answers, no duplicate
+options) so a plausible-looking exam that would misgrade is caught before a human loads it.
+
+**penname's `shipcheck.sh`** closes the writing loop: the author's own "ship it" checklist
+mechanized — structure (title, hook, headings, example, gotchas, ending) plus rot (every link
+answering, every local image existing).
 
 ## Across the work — `secret-safe-reporting`
 
@@ -273,8 +287,10 @@ neorgon-forge/
 │       ├── writeup/      SKILL.md, scripts/{check-writeup.sh,diagram-kit.mjs,rasterize.mjs}
 │       ├── voicecheck/   SKILL.md, scripts/load-voice.sh, reference/voice-defaults.md
 │       ├── penname/      SKILL.md, personas/{ironic,briefing,fieldnote,tutorial}.md,
-│       │                 scripts/persona-lint.sh, reference/extraction.md
-│       ├── groundwork/   SKILL.md, reference/requirements-template.md
+│       │                 scripts/{persona-lint.sh,shipcheck.sh}, reference/extraction.md
+│       ├── groundwork/   SKILL.md, scripts/{docrun.sh,stale.sh},
+│       │                 reference/requirements-template.md
+│       ├── quizmaster/   SKILL.md, scripts/validate-exam.mjs, reference/question-patterns.md
 │       ├── mascot-forge/ SKILL.md, scripts/*.py, assets/, reference/prompts/
 │       └── secret-safe-reporting/  SKILL.md, scripts/sweep.sh, reference/shapes.md
 ├── bin/{install,refresh,validate,new}.sh

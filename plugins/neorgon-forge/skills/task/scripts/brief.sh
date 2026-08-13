@@ -20,6 +20,7 @@
 #   brief.sh status                        streams and their state
 #   brief.sh close                         stamp it complete
 #   brief.sh path                          print the brief path
+#   brief.sh index [root]                  index every repo's brief under root
 set -uo pipefail
 
 FORGE_DIR="${FORGE_BRIEF_DIR:-.forge}"
@@ -244,6 +245,52 @@ cmd_close() {
   ok "closed $BRIEF"
 }
 
+# "Did I already decide something about X, and where?" — collect every repo's
+# brief under a root into one grep-able index: problems, state, decisions, and
+# what is still open. The index is regenerated wholesale, never merged, so it
+# cannot drift from the briefs it summarizes.
+cmd_index() {
+  local root="${1:-.}"
+  [ -d "$root" ] || die "not a directory: $root"
+  local briefs
+  briefs=$(find "$root" -mindepth 3 -maxdepth 5 -type f -path '*/.forge/brief.md' 2>/dev/null | sort)
+  [ -n "$briefs" ] || die "no */.forge/brief.md under $root — nothing was indexed"
+
+  mkdir -p "$root/.forge"
+  local out="$root/.forge/brief-index.md"
+  {
+    printf '# Brief index — generated %s\n\n' "$(now)"
+    printf 'By `brief.sh index`. Grep this instead of recalling a decision:\n'
+    printf 'every problem, decision, and open item from every brief under this root.\n'
+    while IFS= read -r b; do
+      local repo runs closed state
+      repo="${b#"$root"/}"; repo="${repo%/.forge/brief.md}"
+      # grep -c prints the count even when it is 0 (and exits 1), so no fallback.
+      runs=$(grep -c '^\*\*Problem\.\*\*\|^# Brief — ' "$b" 2>/dev/null)
+      # Closed means: a _Closed stamp after the LAST run's problem line —
+      # counting stamps misreports a brief that was closed and then reopened.
+      state=$(awk '
+        /^\*\*Problem\.\*\*/ || /^# Brief — / { lastp = NR }
+        /^_Closed /                           { lastc = NR }
+        END { print (lastc > lastp && lastp) ? "closed" : "open" }
+      ' "$b")
+      printf '\n## %s · %s · %s run(s)\n\n' "$repo" "$state" "$runs"
+      grep '^# Brief — \|^\*\*Problem\.\*\*' "$b" | sed -E 's/^# Brief — /- problem: /; s/^\*\*Problem\.\*\* /- problem: /'
+      awk '
+        /^## Decisions$/ { inside = 1; next }
+        /^## /           { inside = 0 }
+        inside && /^- /  { print }
+      ' "$b"
+      awk '
+        /^## Open$/                                    { inside = 1; next }
+        /^## / || /^---$/                              { inside = 0 }
+        inside && /^- / && !/^<!--/                    { print "- OPEN: " substr($0, 3) }
+      ' "$b"
+    done <<< "$briefs"
+  } >"$out"
+  ok "indexed $(printf '%s\n' "$briefs" | wc -l | tr -d ' ') brief(s) into $out"
+}
+
 case "${1:-}" in
   init)    shift; cmd_init "$@" ;;
   note)    shift; cmd_note "$@" ;;
@@ -252,5 +299,6 @@ case "${1:-}" in
   status) cmd_status ;;
   close)  cmd_close ;;
   path)   echo "$BRIEF" ;;
+  index)  shift; cmd_index "$@" ;;
   *)      awk 'NR > 1 { if (!/^#/) exit; line = $0; sub(/^# ?/, "", line); print line }' "$0" ;;
 esac

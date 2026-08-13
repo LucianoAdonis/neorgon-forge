@@ -71,6 +71,20 @@ one line rather than silently shipping it.
 Fenced code blocks are excluded from linting automatically; inline `code` spans are not,
 so a flagged token inside backticks is the one case to overrule by hand.
 
+## Before a post ships — shipcheck
+
+The linter checks the voice; `shipcheck` checks the structure and the rot:
+
+```bash
+bash "$FORGE/skills/penname/scripts/shipcheck.sh" <post.md>    # --no-network skips link probes
+```
+
+Title, a hook before the first section, headings on long posts, one concrete example,
+a gotchas section on technical posts, an ending — and every http(s) link answering
+< 400, every local image path existing. Same exit contract as the linter: 0 ships ·
+1 findings · 2 checked nothing (never a pass). A 403 from a bot-hostile site is a
+finding to judge, not automatically rot — say which when reporting.
+
 ## Identity vs. saturation — the judgment call
 
 The author's voice is **contrast and honesty**, not tokens. What makes it recognizable:

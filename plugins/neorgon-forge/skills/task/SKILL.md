@@ -213,6 +213,11 @@ either way. If genuinely nothing is open, say that in one line.
 
 ## Resuming
 
+Before re-deciding something that smells familiar, check whether a past campaign
+already decided it: `brief.sh index <root>` collects every repo's brief under a root
+into `<root>/.forge/brief-index.md` — problems, decisions, and open items, one
+grep-able file. Cheaper than recollection and immune to it.
+
 `--resume` reads `.forge/brief.md` and picks up from stream state. A campaign spanning sessions
 is the case the brief was built for: read it before touching anything, and trust it over your
 recollection where they disagree.

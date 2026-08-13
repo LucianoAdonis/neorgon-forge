@@ -64,6 +64,25 @@ tutorial writer* (possibly a later session with none of this context): every cla
 labeled, every limit dated, time-to-first-success stated honestly including the waits,
 and a named re-verification trigger.
 
+## The doc proves itself — docrun and stale
+
+Two scripts keep a requirements doc honest after it ships:
+
+```bash
+bash "$FORGE/skills/groundwork/scripts/docrun.sh" <doc.md>          # list the runnable blocks
+bash "$FORGE/skills/groundwork/scripts/docrun.sh" <doc.md> --run    # execute them, in order, in one shell
+bash "$FORGE/skills/groundwork/scripts/stale.sh" <dir> --days 90    # dated claims past the threshold
+```
+
+`docrun` executes the doc's fenced bash blocks in a single shell (exports and `cd`
+carry across blocks, as they do for a reader) and reports the first failing block
+with its doc line — the mechanical upgrade from `documented` to `verified`. It is
+safe by default: listing is the default mode, ` ```bash norun ` marks blocks that
+must never execute, and `--run` runs with *your* shell privileges in a scratch
+workdir, so read the doc before running one you did not write. `stale` reports every
+dated claim older than the threshold as `file:line` — the enforcement half of "a
+limit without a date is a rumor". Both exit 0/1/2, and 2 means nothing was checked.
+
 ## The label ladder — the judgment that makes the doc trustworthy
 
 | Label | Means | Earned by |
