@@ -56,6 +56,10 @@ across technical tutorials, troubleshooting stories, hobby tier-lists, and AI
 experiment logs), then **toned down**: the full-strength corpus voice allows elongated
 vowels, more internet-speak, and NSFW-adjacent asides that the portable persona bans.
 Inside the author's own writing repos, a local `VOICE.md` documents full strength and
-outranks the persona's vocabulary rules. `briefing`, `fieldnote`, and `tutorial` keep
+outranks the persona's vocabulary rules. `medium-es` was derived in 2026-08 from a single long editing session over two Spanish
+finals (a certification writeup and a games retrospective), which is a thinner corpus
+than `ironic`'s nineteen posts: its rules come from edits the author accepted or
+rejected in real time rather than from finished text alone. That is why it ships with a
+`feedback/` ledger the other personas do not have. `briefing`, `fieldnote`, and `tutorial` keep
 that corpus's identity layer (directness, honest costs, plain verbs, no em dashes) and
 swap the register layer for their audiences.

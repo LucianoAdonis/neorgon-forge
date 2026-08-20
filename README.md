@@ -222,12 +222,22 @@ root and write into `./images/mascot/`, so one install serves every project. Art
 ## Writing it down — `penname` and `groundwork`
 
 **`penname`** is voicecheck's drafting half. Where voicecheck audits copy that exists, penname
-writes new prose under one of four personas — `ironic` (the author's public voice, toned down),
-`briefing` (for people who decide, not build), `fieldnote` (engineer-to-engineer evidence),
-`tutorial` (hands-on-keyboard instructions). Each persona is a corpus-derived file whose rules
-are numbers, not adjectives, and `persona-lint.sh` enforces the ban/cap list before anything is
-delivered. The failure mode it prevents runs both directions: drifting into a generic model
-voice, or imitating the author's tics so hard the register collapses into parody.
+writes new prose under one of five personas — `ironic` (the author's public voice, toned down),
+`medium-es` (the Spanish one, full strength, for a LatAm tech audience), `briefing` (for people
+who decide, not build), `fieldnote` (engineer-to-engineer evidence), `tutorial` (hands-on-keyboard
+instructions). Each persona is a corpus-derived file whose rules are numbers, not adjectives, and
+`persona-lint.sh` enforces the ban/cap list before anything is delivered. The failure mode it
+prevents runs both directions: drifting into a generic model voice, or imitating the author's tics
+so hard the register collapses into parody.
+
+`medium-es` is the one persona that also ships a **feedback ledger**, and the reason is its
+provenance: it was distilled from a single long editing session over two Spanish finals rather
+than from nineteen finished posts, so its evidence is thinner and still moving. `feedback/` holds
+the rules the author actually accepted or rejected on top of the persona, and it outranks the
+persona where they disagree, because it is newer evidence. `feedback-add.sh` appends one distilled
+rule and refuses a near-duplicate. It compares significant words, so it catches a restatement and
+not a paraphrase, which is why it prints the whole section back and tells you to read it rather
+than claiming the ledger is clean.
 
 **`groundwork`** comes before any tutorial that promises steps. It walks the acquisition path
 (sign-up → credential → first successful call), provokes limits rather than reading about them
@@ -310,8 +320,9 @@ neorgon-forge/
 │       ├── writeup/      SKILL.md, scripts/{check-writeup.sh,diagram-kit.mjs,rasterize.mjs}
 │       ├── deckcraft/    SKILL.md, scripts/deck-lint.sh, reference/rooms-and-exports.md
 │       ├── voicecheck/   SKILL.md, scripts/load-voice.sh, reference/voice-defaults.md
-│       ├── penname/      SKILL.md, personas/{ironic,briefing,fieldnote,tutorial}.md,
-│       │                 scripts/{persona-lint.sh,shipcheck.sh}, reference/extraction.md
+│       ├── penname/      SKILL.md, personas/{ironic,medium-es,briefing,fieldnote,tutorial}.md,
+│       │                 feedback/medium-es.md, reference/extraction.md,
+│       │                 scripts/{persona-lint.sh,shipcheck.sh,feedback-add.sh}
 │       ├── groundwork/   SKILL.md, scripts/{docrun.sh,stale.sh},
 │       │                 reference/requirements-template.md
 │       ├── quizmaster/   SKILL.md, scripts/validate-exam.mjs, reference/question-patterns.md

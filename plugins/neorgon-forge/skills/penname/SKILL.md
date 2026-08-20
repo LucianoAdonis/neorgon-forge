@@ -1,6 +1,6 @@
 ---
 name: penname
-description: "Use when writing prose that must sound like the author, not like a model — blog and Medium posts, README prose, announcements, exec and stakeholder updates, tutorials, long-form docs. Triggers on: 'write this in my style', 'draft a post about', 'make this sound like me', 'rewrite this for my manager', 'explain this for non-technical people', 'tone this down but keep it me'. Picks one persona from personas/ (ironic, briefing, fieldnote, tutorial), loads its checkable register rules, drafts content-first, then lints the result against the persona's ban/cap list. Not for auditing existing copy (voicecheck), not for slide decks (debrief), not for UI microcopy — only documents a person signs."
+description: "Use when writing prose that must sound like the author, not like a model — blog and Medium posts, README prose, announcements, exec and stakeholder updates, tutorials, long-form docs. Triggers on: 'write this in my style', 'draft a post about', 'make this sound like me', 'rewrite this for my manager', 'explain this for non-technical people', 'tone this down but keep it me', 'escribe esto en mi estilo', 'hazme un post en espanol', 'revisa la fluidez de este post'. Picks one persona from personas/ (ironic, medium-es, briefing, fieldnote, tutorial), loads its checkable register rules plus any accumulated feedback ledger, drafts content-first, then lints the result against the persona's ban/cap list. Not for auditing existing copy (voicecheck), not for slide decks (debrief), not for UI microcopy — only documents a person signs."
 argument-hint: "[draft|rewrite|lint|personas] [target]"
 user-invocable: true
 license: MIT
@@ -21,7 +21,8 @@ One persona per document. Say which one and why in a single line before writing.
 
 | Situation | Persona |
 |---|---|
-| Blog/Medium post, personal README, anything with the author's name and sense of humor on it | `ironic` |
+| Blog/Medium post in **English**, personal README, anything with the author's name and sense of humor on it | `ironic` |
+| Medium post in **Spanish** for a LatAm tech audience | `medium-es` |
 | Update for a manager, exec, or non-technical stakeholder — they decide, they don't build | `briefing` |
 | Engineer-to-engineer: incident narrative, "how I debugged this", technical writeup | `fieldnote` |
 | Step-by-step instructions someone will follow with their hands on a keyboard | `tutorial` |
@@ -36,6 +37,20 @@ Read `$FORGE/skills/penname/personas/<name>.md` top to bottom before writing a w
 Every persona file has the same shape: when to use it, register knobs, vocabulary,
 structure defaults, calibration examples (the same base paragraph rendered correctly and
 over-cooked), and a machine-readable lint block.
+
+**Then load the feedback ledger, if the persona has one:** `feedback/<persona>.md`.
+It holds the rules distilled from edits the author actually accepted or rejected in
+past sessions. Where the ledger and the persona disagree, the ledger wins, because it
+is newer evidence. When this session produces a new correction worth keeping, append
+it before finishing:
+
+```bash
+bash "$FORGE/skills/penname/scripts/feedback-add.sh" <persona> "<rule>" --section <name>
+```
+
+One line, imperative, checkable, in English. The script refuses a near-duplicate and
+prints the section back, because its word-overlap guard catches restatements but not
+paraphrases: read the section before trusting it.
 
 **Precedence:** a project's own `VOICE.md` outranks the persona's vocabulary rules where
 they conflict — the persona still supplies structure and mechanics. This matters in the
