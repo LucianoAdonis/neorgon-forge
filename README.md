@@ -17,7 +17,8 @@ at the time rather than reconstructed from a diff at the end. The next two are a
 of projects drifts on: how the copy reads, and how the art holds together. Two more serve the
 writing itself: `penname` drafts under a named persona whose register rules are checkable rather
 than adjectival, and `groundwork` investigates what a service actually requires before a tutorial
-promises it. And one sits across the whole arc rather than at a point on it:
+promises it. `deckcraft` covers the case `debrief` does not: a deck written from an idea rather
+than from a diff, and a deck already written that needs to start saying something. And one sits across the whole arc rather than at a point on it:
 `secret-safe-reporting`, for any work that reads sensitive data and produces output other people
 will see.
 
@@ -29,6 +30,7 @@ will see.
 | **`task`** | A problem to solve, not an edit to make | Working code, plus `.forge/brief.md` |
 | **`debrief`** | You need to present what changed | A deck (slides YAML, Marp, or Markdown) |
 | **`writeup`** | You need to publish what changed | `post/POST.md` plus diagrams that cannot drift |
+| **`deckcraft`** | A deck lists topics instead of making a claim | Assertion headings, an order for the room, a lint pass |
 | **`voicecheck`** | Copy needs auditing, aligning, or de-AI-ing | A `file:line` report, or the rewrite |
 | **`penname`** | Prose must sound like the author, not a model | A draft in persona, linted against its ban/cap rules |
 | **`groundwork`** | A tutorial is about to promise steps | A dated requirements doc, every claim labeled |
@@ -246,6 +248,27 @@ options) so a plausible-looking exam that would misgrade is caught before a huma
 mechanized — structure (title, hook, headings, example, gotchas, ending) plus rot (every link
 answering, every local image existing).
 
+## The deck itself: `deckcraft`
+
+`debrief` turns a finished diff into a deck. **`deckcraft`** handles every other deck: one written
+from an idea, or one that already exists and is not landing. It targets the failure the
+[slides-site](https://slides.neorgon.com) audit is structurally unable to see. That audit enforces
+density, and density is not meaning: across that project's own twelve example decks, three
+independent passes agreed that 2 of 48 content headings state a claim. The other 46 name a
+subject, which is a filing system with a theme on it.
+
+So the skill inverts the writing order. Headings first, every one an assertion you could disagree
+with, and the bullets become evidence for the heading rather than the thing the heading
+summarises. Usually this is a rewrite and not new writing: in nine of twelve real decks the claim
+was already sitting one field lower, in `subtitle:` or `caption:` or `note:`, set smaller than the
+label above it.
+
+`deck-lint.sh` reports what `validate.mjs` structurally cannot: topic-label headings, a heading
+asserting a number the slide never shows, promised links that do not exist, unlabelled comparison
+columns, missing alt text. `reference/rooms-and-exports.md` carries the part that only matters
+once a deck leaves the browser: minimum legible size by viewing distance, and exactly what each
+export path drops on the way out.
+
 ## Across the work — `secret-safe-reporting`
 
 Any pipeline that classifies sensitive data and reports on it will, by default, leak the data
@@ -285,6 +308,7 @@ neorgon-forge/
 │       ├── task/         SKILL.md, scripts/brief.sh, reference/delegation.md
 │       ├── debrief/      SKILL.md, scripts/collect-changes.sh, reference/
 │       ├── writeup/      SKILL.md, scripts/{check-writeup.sh,diagram-kit.mjs,rasterize.mjs}
+│       ├── deckcraft/    SKILL.md, scripts/deck-lint.sh, reference/rooms-and-exports.md
 │       ├── voicecheck/   SKILL.md, scripts/load-voice.sh, reference/voice-defaults.md
 │       ├── penname/      SKILL.md, personas/{ironic,briefing,fieldnote,tutorial}.md,
 │       │                 scripts/{persona-lint.sh,shipcheck.sh}, reference/extraction.md
