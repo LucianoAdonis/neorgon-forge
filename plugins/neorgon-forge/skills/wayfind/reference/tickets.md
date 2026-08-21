@@ -15,7 +15,7 @@ nothing" comes from.
 translation is one hop and a grep for `date` finds four hundred files.
 
 **The ticket names an outcome, not a location.** "Users can't log in" is a whole subsystem: the
-form, the session, the token, the redirect, the rate limiter. Nothing is wrong with the ticket —
+form, the session, the token, the redirect, the rate limiter. Nothing is wrong with the ticket,
 the reporter cannot see which of those failed. Resolving it means narrowing to a stage first,
 which is `untangle --kind cause`, not a search problem at all.
 
@@ -27,8 +27,8 @@ result: it looks like the answer.
 
 In order of cost, cheapest first. Stop as soon as one works.
 
-**1. The user-visible string.** If the ticket quotes text the user sees — a label, an error
-message, a button — grep the literal string. This is by far the highest-yield move and it is
+**1. The user-visible string.** If the ticket quotes text the user sees. A label, an error
+message, a button: grep the literal string. This is by far the highest-yield move and it is
 routinely skipped in favour of grepping the concept.
 
 ```bash
@@ -54,10 +54,10 @@ git log --oneline -S 'formatIssuedAt' -- .
 git log --oneline --since='3 months ago' --grep='receipt' -i
 ```
 
-`-S` searches for commits that changed the number of occurrences of a string — it finds the commit
+`-S` searches for commits that changed the number of occurrences of a string. It finds the commit
 that *introduced* a term, which no grep of the current tree can do.
 
-**5. Ask.** One sentence — "which screen is this on?" — beats twenty minutes of synonym search, and
+**5. Ask.** One sentence: "which screen is this on?", beats twenty minutes of synonym search, and
 the answer is worth recording as a lesson because the same translation will be needed again.
 
 ## What to record afterwards
@@ -94,5 +94,5 @@ Whatever route you took, say it out loud before changing anything:
 
 Two things happen when that sentence exists. A wrong guess gets corrected in one line instead of
 after a diff. And when the change turns out to touch six files instead of two, the discrepancy is
-visible — which usually means the ticket was a `scale` problem or a design question in disguise,
+visible: which usually means the ticket was a `scale` problem or a design question in disguise,
 and the right move is to stop and reclassify rather than keep editing.

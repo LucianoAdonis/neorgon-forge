@@ -1,4 +1,4 @@
-# Feedback ledger — medium-es
+# Feedback ledger: medium-es
 
 Distilled rules from edits the author actually accepted or rejected, session by session.
 Rules only, never the cases: a rule that needs its example to be understood is not

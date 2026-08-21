@@ -1,4 +1,4 @@
-# VOICE.md — <Project Name>
+# VOICE.md: <Project Name>
 
 Project-specific overrides. Record only what **differs** from the baseline in
 `voice-defaults.md`; a `VOICE.md` that restates the baseline forks it and goes stale.
@@ -6,7 +6,7 @@ Chrome invariants declared by a local overlay are never overridable here.
 
 ## Register
 
-`<brand | product>` — brand means the copy *is* the product (landing, marketing); product
+`<brand | product>`: brand means the copy *is* the product (landing, marketing); product
 means the copy serves a task (app UI, empty states, errors).
 
 ## Audience
@@ -20,7 +20,7 @@ means the copy serves a task (app UI, empty states, errors).
 
 ## Blessed words
 
-<terms this project SHOULD use — domain jargon, game terms, feature names>
+<terms this project SHOULD use: domain jargon, game terms, feature names>
 
 ## Extra banned words
 
@@ -32,5 +32,5 @@ means the copy serves a task (app UI, empty states, errors).
 
 ## On-voice example
 
-<one real sentence from this project that nails it. Real, not invented — an invented
+<one real sentence from this project that nails it. Real, not invented. An invented
 example drifts toward the baseline and stops being a delta.>

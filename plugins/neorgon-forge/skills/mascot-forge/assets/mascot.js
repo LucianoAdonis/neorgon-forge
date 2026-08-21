@@ -2,7 +2,7 @@
  * Mascot behaviour: idle reactions that escalate as she is clicked, and spring
  * physics so she has some weight when you poke her.
  *
- * Expected markup — the poke wrapper exists because bob, physics and
+ * Expected markup: the poke wrapper exists because bob, physics and
  * breathe/sway each need their own transform, and one element can only carry
  * one animation per property:
  *
@@ -15,7 +15,7 @@
  *         ...
  *
  * Any number of elements may share a data-layer value, so a reaction that comes
- * with detached art — the sweat drop on `exasperated` — shows both at once.
+ * with detached art: the sweat drop on `exasperated`: shows both at once.
  */
 
 // How long a reaction stays up after the last click.
@@ -24,7 +24,7 @@ const HOLD_MS = 1400;
 const RESET_MS = 5000;
 
 // The lowest click count at which each reaction takes over. She reads as amused
-// before unimpressed before exasperated — an older sister, not an angry one.
+// before unimpressed before exasperated: an older sister, not an angry one.
 const LADDER = [
   { from: 1, frame: "surprise" },
   { from: 2, frame: "amused" },
@@ -54,7 +54,7 @@ function outfitUrl(baseSrc, outfit) {
 const BODY = { stiffness: 190, damping: 14 };
 const TRAIL = { stiffness: 90, damping: 9 };
 // Secondary chest motion. Softer and much less damped than the body, so it
-// arrives late and rings on for a beat after she has already settled — the
+// arrives late and rings on for a beat after she has already settled. The
 // standard game trick for making a rigid sprite read as having soft mass.
 const BOUNCE = { stiffness: 60, damping: 5 };
 
@@ -63,7 +63,7 @@ const BOUNCE = { stiffness: 60, damping: 5 };
 // An impulse response peaks at roughly v0/ωd, and ωd here is ~11.9.
 const IMPULSE = 21;
 // Clicking mid-wobble stacks onto the existing velocity, so a frenzy builds
-// up — but only to about twice a single click's deflection. Raising this is the
+// up: but only to about twice a single click's deflection. Raising this is the
 // one knob that makes her bouncier.
 const MAX_VELOCITY = 42;
 
@@ -208,7 +208,7 @@ export function initMascot(root) {
     // The bounce layer is a copy of whatever is showing, so it has to follow.
     if (chest) chest.src = url;
     root.classList.toggle("has-outfit", Boolean(name));
-    // Exposed so CSS can size an outfit whose canvas differs from the default —
+    // Exposed so CSS can size an outfit whose canvas differs from the default,
     // the chibi is a different shape, not just different clothes.
     if (name) {
       root.dataset.outfit = name;

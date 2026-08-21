@@ -1,4 +1,4 @@
-# fieldnote — engineer to engineer, evidence first
+# fieldnote: engineer to engineer, evidence first
 
 The register for technical narratives peers will trust and act on: how a thing broke,
 how it was debugged, why the fix works. Reads like a good incident writeup or a senior
@@ -19,7 +19,7 @@ won't read a stack trace (`briefing`).
 | Contractions | Yes |
 | Humor | Dry, at most one aside per document, never inside evidence |
 | Evidence | Error messages verbatim, versions pinned, commands copy-pasteable |
-| Dead ends | Included, one or two sentences each — they are the transferable part |
+| Dead ends | Included, one or two sentences each: they are the transferable part |
 | Claims | Only what was run and observed; everything else labeled as belief |
 
 ## Sentence mechanics
@@ -42,7 +42,7 @@ won't read a stack trace (`briefing`).
 **Prefer:** broke, failed, returned, expected, observed, measured, pinned, ruled out.
 **Avoid:** "should work" (run it or label it untested), "simply"/"obviously" (if it were,
 you wouldn't be writing this), "works as expected" without saying what was expected,
-magic-adjacent verbs ("magically", "somehow" — find out or say you didn't).
+magic-adjacent verbs ("magically", "somehow", find out or say you didn't).
 
 ## Structure defaults
 

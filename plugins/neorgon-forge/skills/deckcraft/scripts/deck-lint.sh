@@ -86,7 +86,7 @@ for line_no, text, _t in content_headings:
         labels += 1
     elif not VERBISH.search(text):
         # No finite verb anywhere: it is a noun phrase, so it names rather than
-        # claims. Length is not the signal — "The dashboard, before and after"
+        # claims. Length is not the signal: "The dashboard, before and after"
         # is five words and still a label. Counted, not flagged per slide,
         # because this half is a heuristic and will misjudge some headings.
         labels += 1

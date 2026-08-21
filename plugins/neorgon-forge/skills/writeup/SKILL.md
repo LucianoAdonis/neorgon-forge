@@ -1,12 +1,12 @@
 ---
 name: writeup
-description: "Use to turn finished work into a published post — a Medium post, blog post, essay, announcement, or launch post, especially one needing diagrams. Triggers on: 'write this up', 'write the post for this', 'make a Medium post', 'blog post about X', 'I need images for the post', 'article + diagrams', 'translate the post to Spanish', 'make the post shorter', 'use writeup', 'writeup and debrief'. Finds the argument in the code, drafts it in the author's voice, generates SVG diagrams that import the project's own model so they cannot drift, rasterizes to PNG for platforms that reject SVG, runs an AI-writing detox that leaves the voice intact, and optionally produces a neutral-Spanish version. Often wanted together with debrief — a post and a deck from one body of work; run both when the user asks for docs about finished work without naming a format. Not for README/docs prose (use crafting-effective-readmes) or a deck alone (use debrief)."
+description: "Use to turn finished work into a published post. A Medium post, blog post, essay, announcement, or launch post, especially one needing diagrams. Triggers on: 'write this up', 'write the post for this', 'make a Medium post', 'blog post about X', 'I need images for the post', 'article + diagrams', 'translate the post to Spanish', 'make the post shorter', 'use writeup', 'writeup and debrief'. Finds the argument in the code, drafts it in the author's voice, generates SVG diagrams that import the project's own model so they cannot drift, rasterizes to PNG for platforms that reject SVG, runs an AI-writing detox that leaves the voice intact, and optionally produces a neutral-Spanish version. Often wanted together with debrief. A post and a deck from one body of work; run both when the user asks for docs about finished work without naming a format. Not for README/docs prose (use crafting-effective-readmes) or a deck alone (use debrief)."
 argument-hint: "[draft|diagrams|detox|translate|check] [project]"
 user-invocable: true
 license: MIT
 ---
 
-# writeup — work into a publishable post, with diagrams that cannot drift
+# writeup: work into a publishable post, with diagrams that cannot drift
 
 Turns a finished piece of work into something a person would actually read. Two things make
 this different from asking a model to "write a blog post": the argument is extracted from the
@@ -19,7 +19,7 @@ Output lands in `<project>/post/`:
 post/
 ├── POST.md              # the draft
 ├── POST.es.md           # optional translation
-├── build-visuals.mjs    # generates the SVGs — imports the project's model
+├── build-visuals.mjs    # generates the SVGs, imports the project's model
 ├── rasterize.mjs        # SVG → 2x PNG
 ├── NN-name.svg          # generated, do not hand-edit
 └── png/NN-name.png      # generated
@@ -39,7 +39,7 @@ Default (no command) = the full pipeline in order. Named commands run one stage.
 
 ---
 
-## Step 1 — Find the argument in the code
+## Step 1: Find the argument in the code
 
 A post about work should be able to point at the line that makes its claim true. Before writing
 a sentence, read the project's instruction file (`CLAUDE.md` / `AGENTS.md`), its model or data
@@ -53,13 +53,13 @@ looking for:
 - **The concessions.** Anything the project already admits it gets wrong. These make the
   strongest section of the post and they are already written; do not soften them.
 
-If the work has an "open concerns" or "known gaps" doc — or a brief with an `## Open` section —
+If the work has an "open concerns" or "known gaps" doc, or a brief with an `## Open` section,
 the post's honest-limitations section is mostly a rewrite of that. Reuse it.
 
-## Step 2 — Draft in the author's voice
+## Step 2: Draft in the author's voice
 
 Ask for a voice sample if you do not have one: an earlier post, a raw brain-dump, a long Slack
-message. If the user supplies a raw draft, **that is the voice** — your job is structure and
+message. If the user supplies a raw draft, **that is the voice**, your job is structure and
 compression, not replacement.
 
 Match their register. If the sample says "let me cook" and "if the shoe fits", those survive
@@ -72,10 +72,10 @@ Structure that reliably works for a work write-up:
 2. The frame or metaphor
 3. The core claim, with its diagram
 4. The counter-argument someone will actually raise, answered
-5. Where it breaks — the concessions from step 1
+5. Where it breaks: the concessions from step 1
 6. Link + credits
 
-## Step 3 — Generate diagrams from the model
+## Step 3: Generate diagrams from the model
 
 **Import the model. Do not restate it.** A diagram with hardcoded numbers is a second source of
 truth that will silently go stale the first time the model changes.
@@ -86,7 +86,7 @@ import { TYPES, efficiency, withAI } from '../js/data.js';
 ```
 
 Then compute every number in the diagram by calling those functions. If a value cannot be
-imported — a caption, a short label — keep it in one clearly-named map at the top of the file so
+imported: a caption, a short label, keep it in one clearly-named map at the top of the file so
 there is a single place to check when something changes.
 
 `scripts/diagram-kit.mjs` bundles the reusable parts: a dark-canvas frame, heading and footnote
@@ -99,7 +99,7 @@ cp "$FORGE/skills/writeup/scripts/diagram-kit.mjs" <project>/post/
 cp "$FORGE/skills/writeup/scripts/rasterize.mjs" <project>/post/
 ```
 
-The kit's palette is Neorgon's. **Outside that monorepo, change the palette constants first** —
+The kit's palette is Neorgon's. **Outside that monorepo, change the palette constants first**,
 see `reference/neorgon.md` for what they are and why.
 
 Design rules that hold across diagrams:
@@ -110,7 +110,7 @@ Design rules that hold across diagrams:
 - **Label in the reader's vocabulary.** Domain names go in the heading; the nodes get the words
   the audience already uses.
 
-## Step 4 — Rasterize
+## Step 4: Rasterize
 
 Medium, LinkedIn and most newsletters reject SVG. `rasterize.mjs` renders every `.svg` in `post/`
 at 2x and flattens it onto the canvas background, because these platforms composite on white and
@@ -140,19 +140,19 @@ node -e "const s=require('sharp');s('post/png/X-bare.png').trim({threshold:1}).t
 
 Content smaller than the canvas means nothing is touching the edges.
 
-## Step 5 — Detox, without flattening the voice
+## Step 5: Detox, without flattening the voice
 
 If the **`ai-writing-detox`** or **`humanizer`** skill is installed, run it for the banned-word
 and banned-structure lists rather than restating them here.
 
 What those do not cover, and what matters most: **the author's voice is not an AI pattern.**
-Apply the detox to machine tells — throat-clearing, empty hedges, "not just X but Y", triads of
+Apply the detox to machine tells: throat-clearing, empty hedges, "not just X but Y", triads of
 near-synonyms, title-case headings, em-dash pileups. Leave alone:
 
 - Slang and memes the author actually uses
 - First-person asides and self-deprecation
 - Deliberate sentence fragments
-- One or two "honestly" / "I know it's a bit—" hedges that read as a person thinking
+- One or two "honestly" / "I know it's a bit-" hedges that read as a person thinking
 
 If you cannot tell whether a phrase is voice or slop, ask. Guessing wrong in the direction of
 "remove it" produces prose that passes every checker and sounds like nobody.
@@ -160,18 +160,18 @@ If you cannot tell whether a phrase is voice or slop, ask. Guessing wrong in the
 `scripts/check-writeup.sh` greps for the mechanical patterns so you spend your attention on the
 judgment calls.
 
-## Step 6 — Translate (neutral Spanish)
+## Step 6: Translate (neutral Spanish)
 
 Only when asked. Neutral means it reads naturally to a reader in Mexico, Colombia, Argentina and
 Chile alike. The full rules, the regionalism blacklist that has actually caught mistakes, the
-loanwords to keep, and the voice-mapping table are in **`reference/spanish.md`** — read it before
+loanwords to keep, and the voice-mapping table are in **`reference/spanish.md`**, read it before
 translating.
 
 The two rules worth carrying without opening it: `tú` throughout, never `vos` or `vosotros`; and
-translate the *voice*, not the words — a literal translation of informal English reads stiff in
+translate the *voice*, not the words: a literal translation of informal English reads stiff in
 Spanish, which is the failure mode to watch for.
 
-## Step 7 — Verify
+## Step 7: Verify
 
 ```bash
 bash "$FORGE/skills/writeup/scripts/check-writeup.sh" <project>/post

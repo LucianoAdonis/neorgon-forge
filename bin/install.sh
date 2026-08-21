@@ -37,7 +37,7 @@ dim()   { printf '\033[2m%s\033[0m\n' "$1"; }
 
 printf '\033[1mForge:\033[0m %s\n' "$REPO"
 printf '\033[1mTarget:\033[0m %s\n\n' "$DEST"
-[ "$DRY" -eq 1 ] && dim "dry run — nothing will be written"
+[ "$DRY" -eq 1 ] && dim "dry run: nothing will be written"
 
 [ "$DRY" -eq 0 ] && mkdir -p "$DEST"
 
@@ -64,7 +64,7 @@ for dir in "$SRC"/*/; do
     # A real directory might be the user's own work. Never clobber it
     # without --force.
     if [ "$FORCE" -eq 0 ]; then
-      red "  ! $name — a real directory is in the way, not touching it"
+      red "  ! $name: a real directory is in the way, not touching it"
       dim "      move it, or re-run with --force to replace it"
       skipped=$((skipped + 1))
       continue
@@ -89,7 +89,7 @@ printf '\n%s skill(s) linked' "$linked"
 printf '\n'
 
 if [ "$DRY" -eq 0 ] && [ "$linked" -gt 0 ]; then
-  printf '\nSkills are read at session start — restart Claude Code, or run /doctor to confirm.\n'
+  printf '\nSkills are read at session start, restart Claude Code, or run /doctor to confirm.\n'
   printf 'Verify with:'
   for name in ${names+"${names[@]}"}; do printf ' /%s' "$name"; done
   printf '\n'

@@ -1,8 +1,8 @@
-# briefing — technical work for people who decide, not build
+# briefing: technical work for people who decide, not build
 
 The register for managers, executives, and non-technical stakeholders. The reader will
 spend ninety seconds, decides something at the end, and must never feel quizzed on
-vocabulary. The voice is still the author's — plain, honest about costs, no hype — with
+vocabulary. The voice is still the author's, plain, honest about costs, no hype, with
 the humor dial near zero and the jargon dial at zero.
 
 **Use for:** status updates, proposals, incident summaries for leadership, "what does
@@ -15,7 +15,7 @@ meant to entertain (`ironic`).
 | Knob | Setting |
 |---|---|
 | Person | First plural for the team ("we shipped"), second for the ask ("you decide") |
-| Contractions | Yes — plain is not stiff |
+| Contractions | Yes: plain is not stiff |
 | Sentence length | ≤ ~22 words average; one idea per sentence |
 | Humor | Optional, dry, at most one aside; never in the ask or the numbers |
 | Jargon | None without an immediate plain-word gloss; prefer the plain word alone |
@@ -24,7 +24,7 @@ meant to entertain (`ironic`).
 
 ## The reader's question ladder
 
-Answer these, in this order, in the first three paragraphs — the reader stops when
+Answer these, in this order, in the first three paragraphs. The reader stops when
 their question is answered, so put theirs first, not yours:
 
 1. **What happened?** One sentence, outcome not activity ("customers can now X", not
@@ -32,7 +32,7 @@ their question is answered, so put theirs first, not yours:
 2. **Does it affect me?** Who is impacted, in their terms: customers, revenue, risk,
    timeline.
 3. **What do you need from me?** The decision or resource, stated once, plainly, with
-   a date. If nothing is needed, say "no action needed" — an update without an ask
+   a date. If nothing is needed, say "no action needed". An update without an ask
    should say so.
 
 Detail, history, and method go *below* the ask, for readers who keep going.

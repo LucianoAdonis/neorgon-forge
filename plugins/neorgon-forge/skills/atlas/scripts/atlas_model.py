@@ -17,7 +17,7 @@ def load(path):
     path = Path(path)
     if not path.is_file():
         raise SystemExit(
-            f"no model at {path}\nrun scan.py first — every other step reads it"
+            f"no model at {path}\nrun scan.py first: every other step reads it"
         )
     return json.loads(path.read_text())
 

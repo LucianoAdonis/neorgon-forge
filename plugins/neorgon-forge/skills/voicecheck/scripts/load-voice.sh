@@ -39,7 +39,7 @@ echo
 #
 # Walk up rather than testing a fixed number of levels. The suite marker was one
 # level above a project until the sites moved under projects/, at which point it
-# became two and a two-level test would have gone quietly dead the same way — the
+# became two and a two-level test would have gone quietly dead the same way. The
 # gate fails closed, so a miss prints "not applicable" and looks like a correct
 # answer in an unrelated repo. Walking up has no such version to get wrong.
 suite=""

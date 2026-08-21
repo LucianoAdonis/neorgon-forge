@@ -4,7 +4,7 @@
 #
 # This runs before any claim about the codebase is made. The failure mode it
 # prevents is asserting a convention from two files that happened to be opened
-# first — "components live in src/components" is true of most repos and false in
+# first: "components live in src/components" is true of most repos and false in
 # the one that matters, and the correction arrives after the change is written.
 #
 # It reports counts and locations, not conclusions. A census is evidence for a
@@ -13,7 +13,7 @@
 # Reads only. Nothing here writes to the surveyed repo.
 #
 # If tools here fail with "command not found": some harness shells drop PATH
-# inside loop bodies — run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
+# inside loop bodies: run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
 #
 # Usage: orient.sh [dir]
 set -uo pipefail
@@ -44,7 +44,7 @@ for marker in package.json requirements.txt pyproject.toml Gemfile go.mod Cargo.
     found=1
   fi
 done
-[ "$found" -eq 0 ] && dim "  no manifest at root — this may be a static site or a subdirectory"
+[ "$found" -eq 0 ] && dim "  no manifest at root. This may be a static site or a subdirectory"
 
 if [ -f "$DIR/package.json" ] && command -v python3 >/dev/null 2>&1; then
   python3 - "$DIR/package.json" <<'PY' 2>/dev/null
@@ -74,7 +74,7 @@ while IFS= read -r f; do
 done < <(find "$DIR" "${PRUNE[@]}" -o -type f \
   \( -iname 'router*' -o -iname 'routes*' -o -iname 'urls.py' -o -iname 'app-routing*' \
      -o -iname 'config.routes*' \) -print 2>/dev/null | sort | head -30)
-[ "$routes" -eq 0 ] && dim "  none by name — routing is probably file-based (see the tree below) or inline"
+[ "$routes" -eq 0 ] && dim "  none by name, routing is probably file-based (see the tree below) or inline"
 
 head_ "File-based route roots"
 for candidate in pages app src/pages src/app src/routes routes app/routes views src/views; do
@@ -90,12 +90,12 @@ for candidate in index.html src/main.ts src/main.js src/index.ts src/index.js sr
   src/App.tsx main.py app.py manage.py wsgi.py asgi.py main.go cmd; do
   [ -e "$DIR/$candidate" ] && { printf '  %s\n' "$candidate"; entries=$((entries + 1)); }
 done
-[ "$entries" -eq 0 ] && dim "  none of the usual names — with file-based routing the route roots above are
+[ "$entries" -eq 0 ] && dim "  none of the usual names, with file-based routing the route roots above are
   the entry model; in an infra-heavy repo the manifests below are"
 
 # ── Infra manifests ─────────────────────────────────────────────────
-# In an AWS-heavy repo the real entry points and the real topology — Step
-# Functions, cron schedules, queues, a function with no obvious handler file —
+# In an AWS-heavy repo the real entry points and the real topology, Step
+# Functions, cron schedules, queues, a function with no obvious handler file,
 # live in SAM/CloudFormation/serverless/Terraform manifests, not in the code
 # file census. A census that skips these reports the app and misses the system.
 head_ "Infra manifests"
@@ -133,7 +133,7 @@ if [ -n "$tf_files" ]; then
     sort -rn | head -15 | sed 's/^/  /'
 fi
 if [ "$infra" -eq 0 ]; then
-  dim "  none — the code census above is the whole story here"
+  dim "  none: the code census above is the whole story here"
 else
   dim "  reconcile the function list against the handler-file census below: a function"
   dim "  with no obvious handler file is the one that slips review"
@@ -143,7 +143,7 @@ fi
 # The census that path rules get written against. A directory holding one .tsx
 # is not a convention; one holding forty is.
 head_ "Extension census, by directory"
-dim "  count · directory · extension — the basis for a path rule, not the rule itself"
+dim "  count · directory · extension: the basis for a path rule, not the rule itself"
 find "$DIR" "${PRUNE[@]}" -o -type f -print 2>/dev/null |
   sed "s|^$DIR/||" |
   awk -F/ '
@@ -186,7 +186,7 @@ done < <(find "$DIR" -maxdepth 2 "${PRUNE[@]}" -o -type f \
      -o -iname 'ARCHITECTURE*' -o -iname 'CONVENTIONS*' -o -iname '.editorconfig' \
      -o -iname 'DESIGN.md' \) -print 2>/dev/null | sort)
 if [ "$docs" -eq 0 ]; then
-  dim "  none — every rule here will have to come from a census or from the user"
+  dim "  none: every rule here will have to come from a census or from the user"
 else
   dim "  a stated convention outranks a census: read these before writing rules"
 fi

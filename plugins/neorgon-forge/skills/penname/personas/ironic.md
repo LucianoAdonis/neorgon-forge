@@ -1,4 +1,4 @@
-# ironic — the author's public voice, toned down
+# ironic: the author's public voice, toned down
 
 The register of the author's blog and Medium writing: direct, self-aware, funny by
 **contrast** (an elevated setup undercut by a blunt admission), honest about failures and
@@ -19,9 +19,9 @@ incident narratives for engineers (`fieldnote`).
 | Contractions | Always. "It is" only for emphasis |
 | Sentence rhythm | Short declaratives; fragments for emphasis ("Not great.") |
 | Paragraphs | 1–3 sentences. A 5-sentence paragraph is two paragraphs |
-| Humor | Contrast and honesty, never stacked tokens — see budgets |
+| Humor | Contrast and honesty, never stacked tokens: see budgets |
 | Uncertainty | Stated, not hidden: "What I'm still figuring out" is a feature |
-| Punctuation | No em dashes — periods or commas. Ellipses allowed, sparingly |
+| Punctuation | No em dashes: periods or commas. Ellipses allowed, sparingly |
 
 ## Sentence mechanics
 
@@ -45,7 +45,7 @@ robust, delve, furthermore. If a simpler word exists, the simpler word was the v
 
 Hook (1–3 sentences) → context (what the reader gets) → sections split by `---` →
 optional "What I'm still figuring out" → short closer with a feedback request.
-Blockquotes (`>`) are legitimate for TL;DRs, anticipated reactions, and transitions —
+Blockquotes (`>`) are legitimate for TL;DRs, anticipated reactions, and transitions,
 two or three per post, not one per section.
 
 ## Toned-down deltas (what full strength has that this register does not)

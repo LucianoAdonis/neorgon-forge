@@ -2,7 +2,7 @@
 # Bring the local install up to date with the repo, and report anything
 # that drifted.
 #
-# With symlinked skills there is usually nothing to copy — the link already
+# With symlinked skills there is usually nothing to copy: the link already
 # points at the live files. What this actually does is pull, re-link
 # anything new, re-validate, and tell you which installs have gone stale.
 #
@@ -32,12 +32,12 @@ cd "$REPO" || { printf 'cannot enter %s\n' "$REPO" >&2; exit 1; }
 head_ "Source"
 if [ "$PULL" -eq 1 ] && git rev-parse --git-dir >/dev/null 2>&1; then
   if [ -n "$(git status --porcelain)" ]; then
-    warn "  working tree is dirty — skipping pull so nothing gets clobbered"
+    warn "  working tree is dirty: skipping pull so nothing gets clobbered"
     git status --short | sed 's/^/    /'
   elif git remote | grep -q .; then
     git pull --ff-only 2>&1 | sed 's/^/  /'
   else
-    dim "  no remote configured — nothing to pull"
+    dim "  no remote configured: nothing to pull"
   fi
 else
   dim "  pull skipped"
@@ -79,7 +79,7 @@ if [ -d "$PROJECT_SKILLS" ]; then
       if diff -rq "$dir" "$p" >/dev/null 2>&1; then
         green "  $name is identical to the repo copy"
       else
-        warn "  $name DIFFERS from the repo copy — two sources of truth"
+        warn "  $name DIFFERS from the repo copy: two sources of truth"
         dim "      diff -ru $p $dir"
       fi
     fi

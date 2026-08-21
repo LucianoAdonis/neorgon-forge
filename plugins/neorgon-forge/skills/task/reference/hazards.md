@@ -1,4 +1,4 @@
-# Environment hazards — where the work gets destroyed by something that is not the work
+# Environment hazards: where the work gets destroyed by something that is not the work
 
 Every entry here cost a real session real losses. None of them announce themselves: the
 failure is silent at the moment it happens and surfaces later as a symptom that looks
@@ -14,7 +14,7 @@ that it happened. One session lost, separately: six tests from a suite (visible 
 pass count dropping 29 → 28), two npm scripts, a 292-line document, and an entire `src/`
 tree of 19 files.
 
-Detect it before making dozens of edits — the path tells you:
+Detect it before making dozens of edits: the path tells you:
 
 ```
 Mobile Documents/     (iCloud Drive)
@@ -25,7 +25,7 @@ Google Drive/  ·  My Drive/
 
 `brief.sh init` checks for these and warns. The right response to the warning is to move
 the repo out (`~/Projects`, anything unsynced) before continuing, not to proceed
-carefully — carefulness does not help against a daemon writing concurrently with you.
+carefully: carefulness does not help against a daemon writing concurrently with you.
 
 If the tree has already been bitten: conflict copies must be ignored with patterns that
 **anchor on the space** the sync daemon inserts:
@@ -35,7 +35,7 @@ If the tree has already been bitten: conflict copies must be ignored with patter
 * [0-9].*
 ```
 
-`*[0-9].md` — no space — matches any file ending in a digit, and will silently swallow
+`*[0-9].md`: no space, matches any file ending in a digit, and will silently swallow
 `notes-2026.md` and `runbook-v2.md`. An over-broad ignore is worse than none, because it
 fails silently in the direction of losing work.
 
@@ -63,7 +63,7 @@ Two caveats, both observed:
 ## An orphan-branch squash breaks every existing clone
 
 `git checkout --orphan` + commit produces a history with **no common ancestor** to the
-original. It is a legitimate way to publish without a leaked `.env` in history — but any
+original. It is a legitimate way to publish without a leaked `.env` in history, but any
 machine holding the old history can no longer pull: `git pull --rebase` replays every old
 commit onto the unrelated root, conflicts on every file, and leaves conflict markers
 inside files where the breakage then looks like an unrelated bug. If you squash for a
@@ -73,14 +73,14 @@ never pull.**
 ## A dropping test count is a data-loss signal, not noise
 
 "28 passed, 0 failed" reads as green. If the previous run said 29, something deleted a
-test — and if you did not delete one deliberately, a file has been truncated, forked, or
+test, and if you did not delete one deliberately, a file has been truncated, forked, or
 reverted under you. Compare counts across runs; a decrease you cannot attribute is a
 defect to chase now, because it is the only visible symptom of the quiet failures above.
 
 ## Stale artifacts on disk impersonate fresh results
 
 A sharded run exited 0 and printed "all shards complete" while every shard had died
-instantly on an unset variable — the aggregate looked plausible because it was reading
+instantly on an unset variable: the aggregate looked plausible because it was reading
 the *previous* run's reports still on disk. Any script that aggregates from files must
 clear its output directory before starting and exit non-zero when it produced nothing.
 "Produced nothing" and "found last run's output" must be distinguishable, and by default
@@ -99,7 +99,7 @@ run. Related trap, same database: sampling more than ~5% of a collection (`$samp
 ## The harness shell can drop PATH inside loops
 
 Under some harness shells (observed: zsh via Claude Code on macOS), `for`-loop bodies
-and some `eval`'d compound commands lose `PATH` — `command not found: git`, then
+and some `eval`'d compound commands lose `PATH`, `command not found: git`, then
 `basename`/`sed` failing once git is made absolute. If that symptom appears: prefix the
 command with `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin`, and prefer
 explicit per-item invocations over loops for anything that must succeed. Scripts invoked

@@ -2,14 +2,14 @@
 # Enumerate the full population matching a pattern, then point at the outliers.
 #
 # If tools here fail with "command not found": some harness shells drop PATH
-# inside loop bodies — run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
+# inside loop bodies: run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
 #
 # The `scale` branch fails in one specific way: a pattern is inferred from the
 # two or three instances that happened to be read first, thirty mechanical edits
 # follow, and the outlier that breaks the pattern is discovered afterwards. This
 # script exists so the population comes from the filesystem rather than from
 # recollection, and so the instances chosen for reading are chosen to be
-# *different* — oldest, newest, densest — instead of alphabetically first.
+# *different*: oldest, newest, densest, instead of alphabetically first.
 #
 # It also reports which directories the matches cluster in, because that is the
 # partition a campaign is delegated along, and which files carry only one match,
@@ -130,7 +130,7 @@ if git -C "$DIR" rev-parse --git-dir >/dev/null 2>&1; then
       "$(date -r "${newest%%	*}" '+%Y-%m-%d' 2>/dev/null)" "${newest#*	}"
     dim "  third: the one someone warns you about. Ask, or take the densest above."
   else
-    dim "  not enough git history to date these — pick by directory instead"
+    dim "  not enough git history to date these, pick by directory instead"
   fi
 
   head_ "Untracked matches"
@@ -141,7 +141,7 @@ if git -C "$DIR" rev-parse --git-dir >/dev/null 2>&1; then
       untracked=$((untracked + 1))
     fi
   done
-  [ "$untracked" -eq 0 ] && printf '  none — every match is tracked\n'
+  [ "$untracked" -eq 0 ] && printf '  none: every match is tracked\n'
 fi
 
 head_ "Next"

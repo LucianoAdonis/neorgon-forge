@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# stale.sh — a limit without a fresh date is a rumor. Scan groundwork
+# stale.sh: a limit without a fresh date is a rumor. Scan groundwork
 # requirements docs for dated claims older than the threshold and report each
 # one as file:line, plus every re-verify trigger so it can be judged by eye.
 #
 # A file counts as a groundwork doc if it carries a "# Groundwork:" title or an
-# "**Investigated:**" stamp — the two things the template guarantees.
+# "**Investigated:**" stamp: the two things the template guarantees.
 #
 # Usage:
 #   stale.sh <dir-or-file> [--days N]     # default 90
@@ -59,7 +59,7 @@ while IFS= read -r doc; do
 done <<< "$DOCS"
 
 if [ "$stale" -gt 0 ]; then
-  red "$stale dated claim(s) past the ${DAYS}-day threshold — re-verify or relabel as rumor"
+  red "$stale dated claim(s) past the ${DAYS}-day threshold, re-verify or relabel as rumor"
   exit 1
 fi
 green "all dated claims within ${DAYS} days"

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# docrun.sh — a tutorial that proves itself. Extract the fenced bash blocks
+# docrun.sh: a tutorial that proves itself. Extract the fenced bash blocks
 # from a doc and execute them in order, in ONE shell, so exports and cd carry
 # across blocks the way they do for a reader. The first failing block is
 # reported as `block N (doc line L)` with the tail of its output.
 #
 # Safe by default: with no mode flag it only LISTS what would run. There is no
-# sandbox — --run executes the doc's commands with your shell privileges in a
+# sandbox: --run executes the doc's commands with your shell privileges in a
 # scratch workdir. Read the doc first; the tool's job is upgrading a tutorial
 # from `documented` to `verified`, not protecting you from a doc you trust
 # blindly.
@@ -19,7 +19,7 @@
 #   docrun.sh <doc.md> --run --workdir DIR
 #
 # Exit codes: 0 all blocks passed (or listed) · 1 a block failed ·
-# 2 no runnable bash blocks (nothing was checked — never a pass).
+# 2 no runnable bash blocks (nothing was checked: never a pass).
 set -uo pipefail
 
 red()   { printf '\033[31m%s\033[0m\n' "$1"; }

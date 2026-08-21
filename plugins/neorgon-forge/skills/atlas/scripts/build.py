@@ -4,12 +4,12 @@
 Generated pages carry a provenance line naming the model commit they were built
 from, and land under docs/atlas/reference/. Everything this skill writes lives
 under the one docs/atlas/ root: the model, the pages generated from it, and the
-exported diagrams. That single boundary is the entire discipline — hand-written
+exported diagrams. That single boundary is the entire discipline, hand-written
 pages elsewhere in docs/ are never touched, and a generated page is never edited
 by hand, because the next build overwrites it.
 
 Without the boundary the corpus becomes a place where some pages are true and some
-are stale and nothing distinguishes them, which is worse than no corpus at all —
+are stale and nothing distinguishes them, which is worse than no corpus at all,
 a reader trusts it either way. One root rather than three is what makes the
 boundary memorable enough to hold: a rule with three exceptions to recall is a
 rule someone eventually edits across.
@@ -101,7 +101,7 @@ def provenance(model):
         f"!!! info \"Generated\"\n"
         f"    Built by `atlas` from `{model['generated_by']}` at "
         f"`{commit}`{dirty}.\n"
-        f"    Do not edit — run `atlas build` again instead.\n"
+        f"    Do not edit: run `atlas build` again instead.\n"
     )
 
 
@@ -162,7 +162,7 @@ def page_architecture(model):
     if entry_source == "inferred":
         out.append(
             "No module declared itself an entry point, so these are inferred "
-            "from having no importers — which is also what dead code looks like.\n\n"
+            "from having no importers: which is also what dead code looks like.\n\n"
         )
     for node_id in entry_ids:
         out.append(f"- `{node_id}`\n")
@@ -309,13 +309,13 @@ def main():
     if "--scaffold" in argv:
         config = PROJECT / "mkdocs.yml"
         if config.exists():
-            print("mkdocs.yml exists — left alone")
+            print("mkdocs.yml exists: left alone")
         else:
             config.write_text(MKDOCS_YML.format(name=model["root"]))
             written.append("mkdocs.yml")
         index = docs / "index.md"
         if index.exists():
-            print("docs/index.md exists — left alone")
+            print("docs/index.md exists: left alone")
         else:
             write(index, INDEX_STUB.format(name=model["root"]))
 
@@ -329,13 +329,13 @@ def main():
                 if existing and not existing.endswith("\n"):
                     handle.write("\n")
                 handle.write("\n# MkDocs build output\nsite/\n")
-            print("  .gitignore — added site/")
+            print("  .gitignore: added site/")
 
     for path in written:
         print(f"  {path}")
     print(f"{plural(len(written), 'file')} written")
     print(f"everything atlas owns lives under "
-          f"{(docs / ATLAS_ROOT).relative_to(PROJECT).as_posix()}/ — "
+          f"{(docs / ATLAS_ROOT).relative_to(PROJECT).as_posix()}/, "
           "never edit it, rerun instead")
     if model.get("dirty"):
         print("model was built from a dirty tree, so provenance names a commit "

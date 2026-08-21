@@ -7,7 +7,7 @@ Run from the target project's root, after prep-frames.py:
     python3 verify-frames.py --reference idle    # name the base frame explicitly
 
 The rig in assets/mascot.{css,js} is built on four claims about the exported
-files. Each one is invisible when it breaks — the page still renders, the
+files. Each one is invisible when it breaks. The page still renders, the
 character just looks subtly wrong in a way a screenshot review passes:
 
   canvas    Every layer shares one canvas. A frame on a different canvas is
@@ -108,7 +108,7 @@ def check_canvas(report, frames):
         size = next(iter(sizes))
         report.ok("canvas", f"{len(frames)} frames on one {size[0]}x{size[1]} canvas")
         return True
-    report.fail("canvas", f"{len(sizes)} different canvases — layers cannot align")
+    report.fail("canvas", f"{len(sizes)} different canvases, layers cannot align")
     for size, names in sorted(sizes.items(), key=lambda kv: -len(kv[1])):
         report.note(f"{size[0]}x{size[1]}: {', '.join(names)}")
     report.note("re-run prep-frames.py with every frame in one command")
@@ -118,14 +118,14 @@ def check_canvas(report, frames):
 def check_scale(report, prep, reference, others, pinned=()):
     """Alignment reads the alpha silhouette, so it only means something on a
     frame that has one. A flattened frame is a fully-opaque rectangle and would
-    report a large residual for a reason that has nothing to do with scale —
+    report a large residual for a reason that has nothing to do with scale,
     check_alpha already named that defect, and reporting it twice under the
     wrong heading sends the fix in the wrong direction."""
     ref_alpha = alpha_of(reference)
     worst = 0.0
     for path in others:
         if path.stem in pinned:
-            report.note(f"{path.stem} pinned — no shared silhouette to score")
+            report.note(f"{path.stem} pinned: no shared silhouette to score")
             continue
         alpha = alpha_of(path)
         if alpha.shape != ref_alpha.shape or alpha.min() > 0.99:
@@ -138,7 +138,7 @@ def check_scale(report, prep, reference, others, pinned=()):
                 f"{path.stem} mismatches {reference.stem} by {residual:.1%} "
                 f"on {band} (limit {prep.SCALE_SUSPECT:.1%})",
             )
-            report.note("drawn at a different scale — regenerate it, do not re-align")
+            report.note("drawn at a different scale: regenerate it, do not re-align")
         elif offset != (0, 0):
             report.note(f"{path.stem} sits {offset} off {reference.stem}")
     if worst <= prep.SCALE_SUSPECT:
@@ -182,7 +182,7 @@ def check_body(report, prep, reference, others):
         return
     if clean:
         report.ok("body", f"body band identical across {compared} frame(s) "
-                          f"— idle reuse is safe")
+                          f"idle reuse is safe")
     else:
         report.fail("body", "a frame changed outside the face")
         report.note("the shared idle body layer will not match it; either "
@@ -195,7 +195,7 @@ def check_alpha(report, frames):
     solid_bare = [p.stem for p in bare if alpha_of(p).min() > 0.99]
     if solid_bare:
         report.fail("alpha", f"bare export is flattened: {', '.join(solid_bare)}")
-        report.note("a bare frame keeps its alpha — it composites onto unknown art")
+        report.note("a bare frame keeps its alpha. It composites onto unknown art")
     elif bare:
         report.ok("alpha", f"{len(bare)} bare export(s) kept transparency")
     opaque = [name for name in flat if not name.endswith("-bare")]
@@ -217,7 +217,7 @@ def check_derivatives(report, frames):
 
 def main():
     argv = sys.argv[1:]
-    # A frame can be on its own canvas on purpose — a chibi redraw is a different
+    # A frame can be on its own canvas on purpose. A chibi redraw is a different
     # shape, not a costume, and gets its own CSS size. Without a way to say so,
     # this check fails forever and stops being read.
     pinned = set()
@@ -237,14 +237,14 @@ def main():
             wanted = argv[index]
 
     if not FRAME_DIR.is_dir():
-        print(f"no {FRAME_DIR.relative_to(PROJECT)} — run prep-frames.py first",
+        print(f"no {FRAME_DIR.relative_to(PROJECT)}, run prep-frames.py first",
               file=sys.stderr)
         return 1
 
     source = master_dir(load_prep())
     frames = [p for p in frames_in(source) if p.stem not in separate]
     if separate:
-        print(f"excluding {', '.join(sorted(separate))} — declared separate\n")
+        print(f"excluding {', '.join(sorted(separate))}, declared separate\n")
     if not frames:
         print(f"no frames in {source.relative_to(PROJECT)}", file=sys.stderr)
         return 1
@@ -252,7 +252,7 @@ def main():
     reference = next((p for p in frames if p.stem == (wanted or "idle")), None)
     if reference is None:
         reference = frames[0]
-        print(f"no {wanted or 'idle'} frame — comparing against {reference.stem}")
+        print(f"no {wanted or 'idle'} frame: comparing against {reference.stem}")
 
     others = [p for p in frames if p != reference]
     print(f"{len(frames)} frame(s) in {source.relative_to(PROJECT)}, "
@@ -267,7 +267,7 @@ def main():
         check_scale(report, prep, reference, others, pinned)
         check_body(report, prep, reference, others)
     elif not aligned:
-        report.note("skipping scale and body checks — canvases disagree first")
+        report.note("skipping scale and body checks, canvases disagree first")
 
     print()
     if report.failures:

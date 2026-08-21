@@ -38,12 +38,12 @@ CSS_EXT = (".css",)
 
 # Import forms, in one pass per file. Regex rather than a parser because the
 # model tolerates a missed exotic import far better than it tolerates a
-# toolchain dependency per language — and a missed edge shows up as a node with
+# toolchain dependency per language, and a missed edge shows up as a node with
 # no inbound arrows, which is visible.
 #
 # Horizontal whitespace only, never \s, before the keyword. An \s* that can
 # cross newlines makes the match start on a blank line above the import, and the
-# reported line number is then off by however many blank lines precede it — which
+# reported line number is then off by however many blank lines precede it, which
 # quietly breaks the one property that makes an edge checkable.
 # The named-import list may span lines, so that branch crosses newlines. It stays
 # bounded by excluding quotes and semicolons, which stops it from running past
@@ -233,7 +233,7 @@ def area_of(path: str, areas) -> str:
         return "unassigned"
     # The containing directory, not the top-level one. Most of these projects put
     # every module under js/, so grouping by first segment yields a single area and
-    # an area diagram with one box in it — technically correct and worth nothing.
+    # an area diagram with one box in it: technically correct and worth nothing.
     parent = path.rsplit("/", 1)[0] if "/" in path else "root"
     return parent
 
@@ -260,7 +260,7 @@ def main():
     sources = [p for p in walk(PROJECT) if p.suffix in scanned]
     if not sources:
         print("no sources found under the cwd", file=sys.stderr)
-        print("atlas scans .js/.mjs/.jsx/.ts/.tsx/.py/.html/.css — for anything "
+        print("atlas scans .js/.mjs/.jsx/.ts/.tsx/.py/.html/.css, for anything "
               "else, model it by hand", file=sys.stderr)
         return 1
 
@@ -345,10 +345,10 @@ def main():
     print(f"  areas from {model['areas_from']}: "
           f"{', '.join(a['name'] if isinstance(a, dict) else a for a in model['areas'])}")
     if model["dirty"]:
-        print("  working tree is dirty — the model describes the files on disk, "
+        print("  working tree is dirty: the model describes the files on disk, "
               "not the commit")
     if not model["commit"]:
-        print("  no git commit — staleness cannot be measured without one")
+        print("  no git commit: staleness cannot be measured without one")
     return 0
 
 

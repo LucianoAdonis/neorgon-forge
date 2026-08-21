@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// validate-exam.mjs — check an exam JSON against the Proctor format
+// validate-exam.mjs: check an exam JSON against the Proctor format
 // (spec: https://proctor.neorgon.com/llms.txt) before a human loads it.
 //
 // Errors = Proctor would misload or misgrade. Warnings = craft debts the
@@ -22,7 +22,7 @@ try { doc = JSON.parse(raw); }
 catch (e) {
   console.error(`${file}: not valid JSON (${e.message})`);
   if (/^\s*(title|questions)\s*:/m.test(raw))
-    console.error('  looks like YAML — JSON is the canonical Proctor format; emit JSON');
+    console.error('  looks like YAML: JSON is the canonical Proctor format; emit JSON');
   process.exit(2);
 }
 
@@ -44,7 +44,7 @@ if (!Array.isArray(qs) || qs.length === 0) {
   err('top', 'questions is required and must be a non-empty array');
 } else {
   if (qs.length < 10 || qs.length > 20)
-    warn('top', `${qs.length} questions — the spec recommends 10-20`);
+    warn('top', `${qs.length} questions: the spec recommends 10-20`);
 
   const seenPrompts = new Map();
   const types = new Set();
@@ -82,7 +82,7 @@ if (!Array.isArray(qs) || qs.length === 0) {
         const dup = opts.find((o, j) => opts.indexOf(o) !== j);
         if (dup !== undefined) err(where, `duplicate option: ${JSON.stringify(dup)}`);
         if (/^```/m.test(opts.join('\n')) || opts.some(o => /^[-] |^\d+\. /m.test(o)))
-          warn(where, 'options are inline-only markdown — fenced blocks and lists will not render');
+          warn(where, 'options are inline-only markdown, fenced blocks and lists will not render');
       }
     }
 
@@ -97,7 +97,7 @@ if (!Array.isArray(qs) || qs.length === 0) {
       else if (typeof q.answer === 'string' && !matches(q.answer))
         err(where, `answer text does not exactly match any option: ${JSON.stringify(q.answer)}`);
       else if (typeof q.answer === 'boolean')
-        err(where, 'boolean answer on a single question — did you mean type truefalse?');
+        err(where, 'boolean answer on a single question, did you mean type truefalse?');
     }
     if (type === 'multi') {
       if (!Array.isArray(q.answers) || q.answers.length === 0)
@@ -109,9 +109,9 @@ if (!Array.isArray(qs) || qs.length === 0) {
             err(where, `answers text not an exact option: ${JSON.stringify(a)}`);
         });
         if (new Set(q.answers.map(String)).size !== q.answers.length)
-          err(where, 'answers contains duplicates — grading is exact-set');
+          err(where, 'answers contains duplicates: grading is exact-set');
         if (q.answers.length === optOk.length && optOk.length > 0)
-          warn(where, 'every option is correct — a multi where nothing discriminates');
+          warn(where, 'every option is correct: a multi where nothing discriminates');
       }
     }
     if (type === 'truefalse' && typeof q.answer !== 'boolean')
@@ -123,21 +123,21 @@ if (!Array.isArray(qs) || qs.length === 0) {
 
     if (q.points !== undefined && !(typeof q.points === 'number' && q.points > 0))
       err(where, 'points must be a positive number');
-    if (!q.explanation) warn(where, 'no explanation — study mode shows nothing that teaches');
-    if (!q.category)    warn(where, 'no category — results cannot aggregate by topic');
+    if (!q.explanation) warn(where, 'no explanation, study mode shows nothing that teaches');
+    if (!q.category)    warn(where, 'no category, results cannot aggregate by topic');
   });
 
   if (qs.length >= 8 && types.size === 1)
-    warn('top', `all ${qs.length} questions are type "${[...types][0]}" — mix types where content earns them`);
+    warn('top', `all ${qs.length} questions are type "${[...types][0]}", mix types where content earns them`);
   if (!qs.some(q => q.ensure === true))
-    warn('top', 'no ensure:true questions — random draws may skip every must-know item');
+    warn('top', 'no ensure:true questions, random draws may skip every must-know item');
 }
 
 for (const f of findings) console.log(`${file}: ${f.where}: ${f.level}: ${f.msg}`);
 const errors = findings.filter(f => f.level === 'error').length;
 if (findings.length) {
   console.log(`${errors} error(s), ${findings.length - errors} warning(s)` +
-    (errors ? ' — Proctor would misload or misgrade this' : ''));
+    (errors ? ': Proctor would misload or misgrade this' : ''));
   process.exit(1);
 }
 console.log(`valid Proctor exam: ${doc.title} (${qs.length} questions)`);

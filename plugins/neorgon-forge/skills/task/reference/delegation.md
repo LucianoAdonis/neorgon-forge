@@ -13,14 +13,14 @@ produce a last-writer-wins result, and neither reports a conflict because neithe
 two streams must touch one file, either serialise them or pull that file out into a third
 stream you run yourself.
 
-**Bounded.** You can state the done condition in a sentence. "Audit the CSS" is not bounded —
+**Bounded.** You can state the done condition in a sentence. "Audit the CSS" is not bounded,
 the agent decides when to stop, and it stops early. "List every hardcoded hex colour in
 `css/*.css` with its file and line" is bounded, and you can tell at a glance whether it
 finished.
 
 **Verifiable.** You can check the result without redoing the work. Counting files, running a
 grep, or reading a diff is verification. Re-reasoning through the design decision the agent
-made is not — it costs what the delegation saved.
+made is not: it costs what the delegation saved.
 
 ## What to delegate
 
@@ -28,7 +28,7 @@ Work that is wide and shallow:
 
 - Per-site, per-package, or per-file sweeps of a pattern you have already decided
 - "Find every call site of X" across a large tree
-- Independent research — reading docs, comparing library options
+- Independent research: reading docs, comparing library options
 - Mechanical migrations where the transformation is settled
 
 ## What to keep
@@ -56,7 +56,7 @@ GOAL (as a done condition)
 
 CONSTRAINTS
   - Do not touch vendored files: neorgon-header.css, neorgon-footer.css, viz.css
-  - If no token matches a colour, leave it and report it — do not invent a token
+  - If no token matches a colour, leave it and report it, do not invent a token
   - Match the existing var(--name) formatting
 
 RETURN
@@ -69,7 +69,7 @@ REPORT WHAT YOU COULD NOT DO rather than working around it.
 
 Omit the goal-as-done-condition and it stops early. Omit constraints and it edits vendored
 files. Omit the return contract and you get prose you have to re-read the diff to check. Omit
-the last line and it invents a token rather than admitting the gap — the failure that is
+the last line and it invents a token rather than admitting the gap. The failure that is
 hardest to catch, because the output looks complete.
 
 ## Verifying on return
@@ -80,7 +80,7 @@ made by the party with an interest in the claim.
 | Check | How | Catches |
 |---|---|---|
 | Read the diff | `git diff --stat`, then the hunks | Work that was reported but not done |
-| Count the claim | It said 34 files — count them | Rounded-up or invented totals |
+| Count the claim | It said 34 files: count them | Rounded-up or invented totals |
 | Look for the silence | What hard case went unmentioned? | Skipped edge cases |
 | Reconcile conventions | Compare two streams' output | Drift between parallel streams |
 | Re-run the check | The grep whose emptiness means done | Partial completion |
@@ -96,5 +96,5 @@ brief.sh stream done "css tokens" "34 sites; 3 needed manual review; 2 colours h
 ```
 
 Include what the stream got wrong. At the end of a campaign the useful question is not what was
-done but **which parts were verified and which were taken on trust** — and only the record
+done but **which parts were verified and which were taken on trust**, and only the record
 answers that, because by then everything looks equally finished.

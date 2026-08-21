@@ -6,7 +6,7 @@ user-invocable: true
 license: MIT
 ---
 
-# debrief — the work, as a deck someone can sit through
+# debrief: the work, as a deck someone can sit through
 
 Turns finished work into a presentation that explains what changed and, more importantly, why.
 
@@ -14,13 +14,13 @@ The failure mode this skill exists to avoid: a deck assembled from what the mode
 doing, which drifts toward flattery and omits the parts that did not work. Every claim here
 starts from the diff or from the brief written while the work happened.
 
-## Step 1 — Collect the facts
+## Step 1: Collect the facts
 
 **First, decide which of the two decks this is**, because it changes where the facts come from:
 
-- **A change readout** — what shifted in this body of work. The default, and the rest of this
+- **A change readout**: what shifted in this body of work. The default, and the rest of this
   step applies.
-- **An overview** — what a project *is*, what it does, who it is for. No diff sits behind it.
+- **An overview**: what a project *is*, what it does, who it is for. No diff sits behind it.
   Skip the collector; it has nothing to say about a system that did not just change. Get the
   facts from the README, the schema or data model, the entry points, and the user. Then jump to
   the overview spine in Step 3.
@@ -47,13 +47,13 @@ Without a brief, get the same four things from the session or by asking:
 
 - **What was wrong before.** A deck that opens with the solution leaves the audience unable to
   judge whether it was worth doing.
-- **What was measured.** Real numbers only — page height, error count, response time, test
+- **What was measured.** Real numbers only: page height, error count, response time, test
   results. If a number was never measured, it does not go on a slide.
 - **What was decided and rejected.** The alternative you did not take is usually the most
   interesting slide in the deck.
 - **What is still open.** Non-negotiable; see Step 5.
 
-## Step 2 — Pick the audience
+## Step 2: Pick the audience
 
 The same work makes three different decks. Ask if it is not obvious.
 
@@ -67,14 +67,14 @@ For `stakeholder`, translate every technical fact into a consequence. "Changed t
 a fixed height" is not a slide; "the chart and its readout now fit on one screen, so nobody
 scrolls to see the result of their own click" is.
 
-## Step 3 — Structure the narrative
+## Step 3: Structure the narrative
 
 The spine that works for a change readout:
 
 ```
 title
 → what was wrong        (the symptom, in the audience's language)
-→ what we found         (the cause — often more interesting than the fix)
+→ what we found         (the cause, often more interesting than the fix)
 → what changed          (grouped by theme, not by file)
 → proof                 (measured before/after; stats or split)
 → what it cost          (trade-offs, what got harder)
@@ -82,7 +82,7 @@ title
 → cta                   (the decision or next step you want)
 ```
 
-For an **overview**, the change-readout spine does not apply — there is no "before" to open on.
+For an **overview**, the change-readout spine does not apply. There is no "before" to open on.
 Use this instead, and keep it short. An overview that runs long stops being an overview:
 
 ```
@@ -110,9 +110,9 @@ Two structural notes:
   something and makes the fix obvious rather than magic.
 - **Put a divider before each theme.** Printed headings alone should tell the story.
 
-## Step 4 — Write the deck
+## Step 4: Write the deck
 
-`reference/deck-skeleton.yaml` is the annotated skeleton — copy it, fill it, delete what does
+`reference/deck-skeleton.yaml` is the annotated skeleton: copy it, fill it, delete what does
 not apply. Its comments explain what each slide is *for*, which is the part that decides whether
 a slide earns its place.
 
@@ -131,12 +131,12 @@ of these that applies.
 |---|---|---|
 | `yaml` | A deck player expects it (see `reference/neorgon.md` for slides-site) | `docs/debrief-<YYYY-MM>.yaml` |
 | `marp` | The repo has Marp, or the user wants PDF/PPTX export | `docs/debrief-<YYYY-MM>.md` |
-| `md` | Neither — plain Markdown, one `##` per slide, `---` between | `docs/debrief-<YYYY-MM>.md` |
+| `md` | Neither: plain Markdown, one `##` per slide, `---` between | `docs/debrief-<YYYY-MM>.md` |
 
 If the format supports a deck-level look (a `theme:` key, a Marp theme), set it only when a
 preference exists: `--theme` wins, else a deck theme the project's own docs state, else leave it
 unset and the player's default applies. Valid names live in the player's docs, not here. Theme
-names are **colors, never clients or companies** — the value ships inside the deck file, and a
+names are **colors, never clients or companies**. The value ships inside the deck file, and a
 deck that names a customer in its metadata cannot be reshared outside that room.
 
 Density rules hold in every format, and they are the difference between a deck and a document:
@@ -150,7 +150,7 @@ Slide types worth reaching for in a change deck:
 
 | Use | For |
 |---|---|
-| split | Before/after — the workhorse of a change deck |
+| split | Before/after: the workhorse of a change deck |
 | stats | Measured numbers, up to 4. Only measured ones |
 | code | The one diff hunk that makes the point |
 | timeline | Rollout or migration phases |
@@ -158,27 +158,27 @@ Slide types worth reaching for in a change deck:
 | quote | A user complaint or a review finding, verbatim |
 | divider | Between themes |
 
-**If the change is visible in a browser, show it — a screenshot demo beats describing a UI.**
+**If the change is visible in a browser, show it. A screenshot demo beats describing a UI.**
 When the work touched something a page renders, capture it and put it on `image` slides:
 
 - Launch the project's own preview and screenshot the changed feature in its real state, not a
   mockup. For a new feature, one shot of it working; for a visual change, before/after on a
-  `split`-adjacent pair of `image` slides — the old state is usually still reachable via the
+  `split`-adjacent pair of `image` slides: the old state is usually still reachable via the
   live site or the previous commit.
 - **Reuse assets that already exist before capturing new ones.** A verification screenshot
-  from the session that built the change, an OG image, generated art — if the work produced
+  from the session that built the change, an OG image, generated art, if the work produced
   an asset worth sharing, the deck is where it gets seen.
 - Skip it honestly when the work is not visual: a screenshot of a terminal proves less than
   the `code` slide showing the diff hunk, and a decorative screenshot dilutes the deck.
 
-Reference images by relative path from the deck file — or by public URL when the deck will
-travel — and confirm each one resolves.
+Reference images by relative path from the deck file, or by public URL when the deck will
+travel. Confirm each one resolves.
 
 Put the detail you cut from a slide into its speaker note. File paths, exact numbers, and the
-caveat you would say out loud belong there — it keeps slides sparse without losing the
+caveat you would say out loud belong there. It keeps slides sparse without losing the
 information, and it means the user can present without re-deriving what each slide was about.
 
-## Step 5 — The honest slide
+## Step 5: The honest slide
 
 Every debrief gets a "what is still open" slide, and it is the one that earns the rest of the
 deck its credibility. Include:
@@ -193,10 +193,10 @@ blocked streams, they go here by name.
 
 Presenting a change as complete when part of it is not is the single fastest way to lose an
 audience's trust, and they always find out. If the work genuinely has no open items, say so in
-one line rather than dropping the slide — an audience reads a missing caveats slide as an
+one line rather than dropping the slide: an audience reads a missing caveats slide as an
 omission, not as an absence of caveats.
 
-## Step 6 — Audit
+## Step 6: Audit
 
 Two questions, both worth answering out loud before handing the deck over:
 
@@ -206,10 +206,10 @@ Two questions, both worth answering out loud before handing the deck over:
 Then check it renders, in whatever player applies, and confirm no slide overflows. A slide that
 scrolls is a slide with two ideas on it.
 
-## Step 7 — Hand over a file, not a source
+## Step 7: Hand over a file, not a source
 
 A deck YAML is an input to a player. Most of the people a debrief is written for will never open
-one, so **build the shareable artifact and give them the path** — do not close by explaining
+one, so **build the shareable artifact and give them the path**, do not close by explaining
 which buttons to press.
 
 PDF is the default: it survives email, Slack, and a phone. Add PPTX when the audience will edit

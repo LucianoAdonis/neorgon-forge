@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# persona-lint.sh — check a document against a persona's ban/cap rules.
+# persona-lint.sh: check a document against a persona's ban/cap rules.
 #
 # Rules live in a ```lint fenced block inside the persona file:
 #   ban /regex/ message          every match is a violation, reported file:line

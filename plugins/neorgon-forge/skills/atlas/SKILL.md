@@ -1,23 +1,23 @@
 ---
 name: atlas
-description: "Use when an app needs documentation that stays true — architecture docs, a dependency map, diagrams of how the pieces fit, or an MkDocs site. Triggers on: 'document this app', 'diagram the architecture', 'map the dependencies', 'map the inner workings', 'set up mkdocs', 'mermaid diagrams in mkdocs', 'what depends on this file', 'what breaks if I change this', 'where is change expensive', 'is this doc still accurate', 'what loads this stylesheet'. Extracts a dependency model from JS, Python, HTML and CSS — so a static site's real entry point is its index.html rather than a guessed module — generates the Mermaid diagrams and MkDocs pages from that model rather than beside it, then answers questions against it with file:line citations that can be disproved — so the docs go stale loudly instead of silently. Not for Mermaid syntax questions (use mermaid-diagrams), not for choosing a C4 level (use c4-architecture), not for finding where a ticket's change goes (use wayfind)."
+description: "Use when an app needs documentation that stays true, architecture docs, a dependency map, diagrams of how the pieces fit, or an MkDocs site. Triggers on: 'document this app', 'diagram the architecture', 'map the dependencies', 'map the inner workings', 'set up mkdocs', 'mermaid diagrams in mkdocs', 'what depends on this file', 'what breaks if I change this', 'where is change expensive', 'is this doc still accurate', 'what loads this stylesheet'. Extracts a dependency model from JS, Python, HTML and CSS, so a static site's real entry point is its index.html rather than a guessed module, generates the Mermaid diagrams and MkDocs pages from that model rather than beside it, then answers questions against it with file:line citations that can be disproved, so the docs go stale loudly instead of silently. Not for Mermaid syntax questions (use mermaid-diagrams), not for choosing a C4 level (use c4-architecture), not for finding where a ticket's change goes (use wayfind)."
 argument-hint: "[scan|build|ask|render] [target]"
 user-invocable: true
 license: MIT
 ---
 
-# atlas — an app's dependencies as a model, a doc site, and a thing you can ask
+# atlas: an app's dependencies as a model, a doc site, and a thing you can ask
 
 Extracts a dependency model from the source, then generates every diagram and doc
 page *from that model* rather than beside it. The failure mode it exists to
 prevent: architecture docs that were true once. A hand-drawn diagram goes stale
-silently — it keeps looking authoritative, and the first reader who trusts it
+silently: it keeps looking authoritative, and the first reader who trusts it
 after a refactor is misled with no warning. A generated one goes stale loudly,
 because the model records the commit it was built from and `ask stale` compares
 that against the tree.
 
 Everything here reads one file. Diagrams, pages, and answers all derive from
-`docs/atlas/model.json`, so they cannot disagree with each other — only,
+`docs/atlas/model.json`, so they cannot disagree with each other, only,
 together and visibly, with the code.
 
 Everything it *writes* goes under one directory, `docs/atlas/`. That is a
@@ -26,10 +26,10 @@ generated and hand-owned pages is only useful if a person can hold it in their
 head, and a boundary spread over three directories is one somebody eventually
 edits across without noticing they have.
 
-## Step 1 — build the model
+## Step 1: build the model
 
 ```bash
-FORGE=~/.claude   # the directory containing skills/ — every forge skill uses this shape
+FORGE=~/.claude   # the directory containing skills/, every forge skill uses this shape
 cd <the project>
 python3 "$FORGE/skills/atlas/scripts/scan.py"
 ```
@@ -52,24 +52,24 @@ next:
 
 | It says | It means | Do |
 |---|---|---|
-| `areas from wayfind` | `.forge/map-areas.tsv` exists | Nothing — areas are already in the user's words |
+| `areas from wayfind` | `.forge/map-areas.tsv` exists | Nothing: areas are already in the user's words |
 | `areas from directory tree` | Areas were derived from containing directories | Consider running `wayfind` first, or accept directory names |
 | `working tree is dirty` | Provenance will name a commit the pages don't match | Fine while iterating; commit before publishing |
-| `no git commit` | Staleness cannot be measured at all | Say so — the corpus has no way to warn a future reader |
+| `no git commit` | Staleness cannot be measured at all | Say so: the corpus has no way to warn a future reader |
 
 **If the areas are directory names, the area diagram is a picture of the folder
 layout.** That is worth something but it is not architecture. `wayfind` names
 areas the way the people working there name them, and `scan.py` picks those up
 automatically; the two skills are designed to compose in that order.
 
-## Step 2 — look at the model before publishing anything
+## Step 2: look at the model before publishing anything
 
 ```bash
 python3 "$FORGE/skills/atlas/scripts/ask.py" risk
 ```
 
 Read this yourself first. It reports hubs, import cycles, and modules nothing
-imports — and those are findings, not decoration. A cycle you did not know about
+imports, and those are findings, not decoration. A cycle you did not know about
 changes the architecture description you were about to write. An orphan list with
 six entries means either dead code or a scan that missed an entry point, and
 publishing before deciding which bakes the wrong answer into a doc.
@@ -78,7 +78,7 @@ publishing before deciding which bakes the wrong answer into a doc.
 imports; it does not know what the app is *for*. `docs/index.md` is left
 hand-written for exactly that reason.
 
-## Step 3 — generate the corpus
+## Step 3: generate the corpus
 
 ```bash
 python3 "$FORGE/skills/atlas/scripts/build.py" --scaffold
@@ -86,26 +86,26 @@ python3 "$FORGE/skills/atlas/scripts/build.py" --scaffold
 
 Writes into `docs/atlas/reference/`: `architecture.md`, `dependencies.md`,
 `modules.md`, and one `area-*.md` per area. With `--scaffold` it also writes
-`mkdocs.yml` and a `docs/index.md` stub — and it never overwrites either if they
+`mkdocs.yml` and a `docs/index.md` stub, and it never overwrites either if they
 exist.
 
 The `docs/atlas/` boundary is the whole discipline:
 
 | Location | Owner | Rule |
 |---|---|---|
-| `docs/atlas/` | `atlas` | Everything under here is generated. Never edit — rerun `scan.py` then `build.py` |
+| `docs/atlas/` | `atlas` | Everything under here is generated. Never edit: rerun `scan.py` then `build.py` |
 | `docs/atlas/model.json` | `scan.py` | The single source every page, diagram and answer derives from |
 | `docs/atlas/reference/*` | `build.py` | The MkDocs pages. Every one says it is generated in an admonition |
 | `docs/atlas/diagrams/*` | `diagram.py` | Export-target `.mmd` and whatever `render.sh` produced beside it |
 | `docs/index.md`, everything else in `docs/` | You | `atlas` never touches it |
 
 One root, not three. The line a reader has to keep straight is "inside
-`docs/atlas/` is generated, outside it is yours" — and a line that simple gets
+`docs/atlas/` is generated, outside it is yours". A line that simple gets
 respected, where "generated pages live in one place, the model in a second, the
 diagrams in a third" is a rule someone edits across while believing they are
 inside it. Without the split the corpus becomes a place where some pages are
 current and some are stale with nothing to tell them apart, which is worse than
-having no corpus — a reader trusts it either way.
+having no corpus: a reader trusts it either way.
 
 **`model.json` is not hidden, so MkDocs copies it into the built site.** That is
 intended. The whole claim this skill makes is that its assertions can be checked,
@@ -120,10 +120,10 @@ mkdocs build --strict    # or: python3 -m mkdocs build --strict
 
 **MkDocs may not be installed, and that is not a failure.** The Markdown is
 valid either way. Say plainly that the corpus was generated but not built, and
-offer `pip install mkdocs-material` — do not report a working docs site you never
+offer `pip install mkdocs-material`: do not report a working docs site you never
 rendered.
 
-## Step 4 — answer questions from the model
+## Step 4: answer questions from the model
 
 ```bash
 python3 "$FORGE/skills/atlas/scripts/ask.py" impact schema     # what breaks if I change this
@@ -139,17 +139,17 @@ and prose loses the structure: "what depends on `schema.js` transitively" is one
 lookup here and a reading-comprehension exercise there.
 
 `impact` and `needs` print the `file:line` of each direct import, so any claim in
-the answer can be checked in seconds. Quote those locations when you answer —
+the answer can be checked in seconds. Quote those locations when you answer,
 an unlocated dependency claim is indistinguishable from a guess.
 
 **Run `stale` before answering anything consequential**, and lead with what it
 says. An answer from a stale model reads exactly like an answer from a current
 one, which is the specific way this kind of tool does damage.
 
-## Step 5 — diagrams, and which target they need
+## Step 5: diagrams, and which target they need
 
 This is the one thing about Mermaid-in-MkDocs that is easy to get wrong, and it
-is not a syntax question — it is a theming one.
+is not a syntax question: it is a theming one.
 
 | Target | Where it goes | Theme | Why |
 |---|---|---|---|
@@ -182,27 +182,27 @@ looks subtly broken. This is a live regression, not a hypothetical.
 switch, greyscale printing, and a colourblind reader; a legend mapping hex values
 to roles survives none of them.
 
-The rest of the visual reasoning — why `flow` draws a spine instead of every
+The rest of the visual reasoning: why `flow` draws a spine instead of every
 edge, why fan-out goes left-to-right, why every reduction is counted in a `%%`
 comment, the full shape vocabulary, the verified Material contract, and what
-breaks with each extension missing — is in **`reference/mkdocs.md`**. Read it
+breaks with each extension missing: is in **`reference/mkdocs.md`**. Read it
 when scaffolding `mkdocs.yml` by hand, when a fence renders as a code block, or
 before changing how a diagram is drawn.
 
-For Mermaid *syntax* — sequence diagrams, class diagrams, participant
-declarations — use the `mermaid-diagrams` skill. For choosing a C4 level, use
+For Mermaid *syntax*: sequence diagrams, class diagrams, participant
+declarations: use the `mermaid-diagrams` skill. For choosing a C4 level, use
 `c4-architecture`. Note that Material auto-themes only flowchart, sequence,
 class, state and ER; **C4 diagrams are not auto-themed**, so a C4 diagram in a
 page fence needs its own styling or belongs in `export`.
 
-## Step 6 — keep it honest over time
+## Step 6: keep it honest over time
 
 ```bash
 python3 "$FORGE/skills/atlas/scripts/ask.py" stale
 python3 "$FORGE/skills/atlas/scripts/scan.py" && python3 "$FORGE/skills/atlas/scripts/build.py"
 ```
 
-`stale` asks git, not the filesystem — a file touched but not changed has a new
+`stale` asks git, not the filesystem: a file touched but not changed has a new
 mtime and identical content, and an mtime check that reports drift which does not
 exist gets ignored within a week. It also ignores changes under `docs/` and
 `site/`, since those are this skill's own output and counting them would make the

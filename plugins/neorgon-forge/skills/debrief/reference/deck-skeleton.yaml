@@ -1,7 +1,7 @@
 # Change-readout skeleton for slides-site.
 #
 # Copy, fill, delete what does not apply. The comments explain what each
-# slide is *for* — if you cannot fill one honestly, cut the slide rather
+# slide is *for*: if you cannot fill one honestly, cut the slide rather
 # than padding it.
 #
 # Full schema and density rules: slides-site/CLAUDE.md
@@ -11,11 +11,11 @@ presentation:
   subtitle: "<the one-line why>"
   author: "<name>"
   date: "YYYY-MM"
-  # theme: <name>       # deck-wide look, only if the player supports it — set from
+  # theme: <name>       # deck-wide look, only if the player supports it, set from
   #                     # --theme or the project's stated default; names are colors,
   #                     # never clients (the YAML travels with the deck)
 
-  # Ship these in the deck even when off — flipping a false beats discovering a key.
+  # Ship these in the deck even when off: flipping a false beats discovering a key.
   logo: ""              # URL, data: URI, or "placeholder" (monogram) for drafts
   logo_all: false       # true = stamp the logo on every non-title slide
   # logo_pos: bottom-left    # stamp corner (default top-right)
@@ -49,7 +49,7 @@ presentation:
       right:
         heading: "What it was"
         bullets:
-          - "<the mechanism — this is the teaching moment>"
+          - "<the mechanism: this is the teaching moment>"
 
     # ── Themes. One divider + one slide per theme, 3–4 total. ───
     - type: divider
@@ -108,7 +108,7 @@ presentation:
         - "<deferred, and why>"
         - "<known defect that shipped, and the reasoning>"
         - "<decision that is the audience's to make>"
-      note: "If there is genuinely nothing open, say that in one line rather than cutting the slide — a missing caveats slide reads as an omission."
+      note: "If there is genuinely nothing open, say that in one line rather than cutting the slide. A missing caveats slide reads as an omission."
 
     - type: qa
       heading: "Questions?"

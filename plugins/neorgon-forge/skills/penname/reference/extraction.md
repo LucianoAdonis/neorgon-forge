@@ -8,7 +8,7 @@ what the author *always does* from what they *sometimes do*, and to put a number
 
 ## The method
 
-1. **Sample across registers, finals only.** Pick 4–6 finished, published pieces —
+1. **Sample across registers, finals only.** Pick 4–6 finished, published pieces,
    drafts teach the wrong lessons. Deliberately include different content types (a
    tutorial, an opinion piece, a troubleshooting story): what survives across all of
    them is identity; what appears in only one is register.
@@ -30,7 +30,7 @@ what the author *always does* from what they *sometimes do*, and to put a number
 4. **Write the lint block from observed drift.** Every `ban` should name a failure you
    have actually seen (an AI-tell the author never uses, a formalization that killed
    the voice); every `cap` puts a number on "sparingly". A rule that could never fire
-   on a plausible draft is decoration — delete it.
+   on a plausible draft is decoration: delete it.
 
 5. **Calibrate with a pair.** Render the *same base fact* twice: once in persona, once
    over-cooked. The over-cooked example is the more valuable half; it shows the
@@ -38,7 +38,7 @@ what the author *always does* from what they *sometimes do*, and to put a number
    keep-list and saturates.
 
 6. **Trip the lint.** Run `persona-lint.sh` against the over-cooked example (put it in
-   a scratch file — the persona file's own examples are not linted). If the lint block
+   a scratch file: the persona file's own examples are not linted). If the lint block
    passes the bad example, the rules are decoration; fix them before shipping the
    persona.
 

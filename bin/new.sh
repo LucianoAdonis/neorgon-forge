@@ -50,19 +50,19 @@ mkdir -p "$DIR/reference"
 cat >"$DIR/SKILL.md" <<EOF
 ---
 name: $NAME
-description: "Use when TODO — the situation, in the words a user would actually type. Then what it covers, concretely. Then: Triggers on: 'TODO', 'TODO', 'TODO'. Then: Not for TODO (use TODO instead). Aim 300-900 chars: this string is the only thing loaded until the skill fires, so it carries the whole routing decision."
+description: "Use when TODO. The situation, in the words a user would actually type. Then what it covers, concretely. Then: Triggers on: 'TODO', 'TODO', 'TODO'. Then: Not for TODO (use TODO instead). Aim 300-900 chars: this string is the only thing loaded until the skill fires, so it carries the whole routing decision."
 argument-hint: "[TODO|TODO] [target]"
 user-invocable: true
 license: MIT
 ---
 
-# $NAME — $PURPOSE
+# $NAME: $PURPOSE
 
 TODO: two sentences. What this does, and the failure mode it exists to prevent.
-The second sentence is the one that makes a skill worth having — if you cannot
+The second sentence is the one that makes a skill worth having, if you cannot
 name what goes wrong without it, the skill is a preference, not a skill.
 
-## Step 1 — TODO
+## Step 1: TODO
 
 TODO: the first thing to do, concretely enough to follow without interpretation.
 
@@ -76,13 +76,13 @@ run wastes tokens and gets it subtly different each time.
 INNER
 )
 
-## Step 2 — TODO
+## Step 2: TODO
 
 TODO.
 
 ## TODO: the judgment section
 
-Every good skill has one section that is not steps — a table of trade-offs, a
+Every good skill has one section that is not steps. A table of trade-offs, a
 list of what to keep versus cut, the thing an experienced person knows and a
 first-timer does not. That section is why the skill beats a plain prompt.
 
@@ -95,7 +95,7 @@ first-timer does not. That section is why the skill beats a plain prompt.
 TODO: the non-negotiables, as imperatives. These are what you would call out in
 review. Three to five; a list of twelve is a list nobody reads.
 
-- **TODO.** TODO — why it matters.
+- **TODO.** TODO: why it matters.
 EOF
 
 # Fix the placeholder path in the heredoc above, which could not interpolate
@@ -120,14 +120,14 @@ cat >"$DIR/reference/.gitkeep" <<'EOF'
 EOF
 
 green "created $DIR"
-dim "  SKILL.md              the skill — every TODO must go"
+dim "  SKILL.md              the skill: every TODO must go"
 [ "$WANT_SCRIPTS" -eq 1 ] && dim "  scripts/collect.sh    mechanical fact-gathering"
 dim "  reference/            detail loaded on demand, not every session"
 
 cat <<EOF
 
 Next:
-  1. Write the description first — it is the router, and the hardest part.
+  1. Write the description first: it is the router, and the hardest part.
      Read: docs/authoring.md
   2. Fill every TODO. A shipped TODO is worse than a missing section.
   3. bash bin/validate.sh $NAME

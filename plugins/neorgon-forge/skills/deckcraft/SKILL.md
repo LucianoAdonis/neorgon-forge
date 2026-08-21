@@ -6,7 +6,7 @@ user-invocable: true
 license: MIT
 ---
 
-# deckcraft — decks that argue, not decks that list
+# deckcraft: decks that argue, not decks that list
 
 Writes and repairs decks for `projects/slides-site`, where the mechanical audit already enforces
 density and cannot enforce meaning.
@@ -16,7 +16,7 @@ tells the audience nothing.** Measured on that project's own twelve example deck
 independent passes, 2 of 48 content headings state a claim. The other 46 name a subject. A deck
 whose headings read "Problem / Rollout / Actions / Next Steps" is a filing system with a theme.
 
-## Step 0 — Refuse to start on nothing
+## Step 0: Refuse to start on nothing
 
 Before writing a slide, you need three answers. Two come from the user; the third you decide.
 
@@ -31,7 +31,7 @@ is worse than no deck: it looks like progress and cannot be presented. Ask for t
 before/after, or the decision being requested. This is the one step where refusing beats
 producing.
 
-## Step 1 — Read the ground truth
+## Step 1: Read the ground truth
 
 ```bash
 bash "$FORGE/skills/deckcraft/scripts/deck-lint.sh" <deck.yaml>
@@ -45,7 +45,7 @@ output before handing it over.
 Then read the project's `CLAUDE.md` for the schema and the density table. **Do not restate those
 limits here or re-derive them.** They are enforced; your job starts where they stop.
 
-## Step 2 — Write the headings first
+## Step 2: Write the headings first
 
 Write every heading before any bullet. The heading carries the argument; the body is evidence for
 it. This inverts the usual order deliberately: bullets written first produce a heading that
@@ -75,7 +75,7 @@ Three rules that follow:
 Exception, and it is real: a **calendar or curriculum spine** ("Day One", "Days Two to Four")
 should stay a label. The reader needs a position, not a claim.
 
-## Step 3 — Order for the room
+## Step 3: Order for the room
 
 The order is not a house style. It is a function of who is deciding.
 
@@ -100,18 +100,18 @@ shown it.
 in a twenty-minute slot is forty-eight seconds each, which is a reading exercise. Move the
 overflow behind `type: appendix`, where the density rules stop applying and the page count resets.
 
-## Step 4 — Pick the type by the question it answers
+## Step 4: Pick the type by the question it answers
 
 The audit can only coach a deck whose types carry intent. Choosing `bullets` for everything
 throws that away.
 
 | The question the slide answers | Type |
 |---|---|
-| Which option should we take? | `matrix` — criteria down, options across |
+| Which option should we take? | `matrix`: criteria down, options across |
 | What are the numbers? | `table` for reading across, `stats` for three that carry the argument |
 | Where are we in a sequence? | `timeline` |
-| What is the state of our commitments? | `checklist` — done, doing, blocked |
-| What does it look like, and what should I notice? | `media` — the image with 2 to 5 lines beside it |
+| What is the state of our commitments? | `checklist`: done, doing, blocked |
+| What does it look like, and what should I notice? | `media`: the image with 2 to 5 lines beside it |
 | Two pictures that only mean something together | `compare` |
 | Two or three parallel ideas that are not a sequence | `grid` |
 | Who are these people? | `people` |
@@ -122,10 +122,10 @@ every export path intact. When a layout is fighting you, a table is the answer t
 
 **Do not reach for a diagram.** The tool has no diagram type, and that is a decision, not a gap:
 Mermaid renders blank in the engines that tried it, Marp has no built-in support, PPTX would need
-a raster and lose editable text, and its parser breaks on accented characters — which matters
+a raster and lose editable text, and its parser breaks on accented characters, which matters
 directly for Spanish decks. Use `table`, or an SVG through `image`.
 
-## Step 5 — Write the notes, and know they may not travel
+## Step 5: Write the notes, and know they may not travel
 
 `note:` is where the sentence you actually say lives. Shape it as **a delivery cue, then the
 talking points**:
@@ -141,7 +141,7 @@ Reveal export writes them into markup that has no plugin registered to open them
 presenting from an exported file has no notes. Until that is fixed, put anything you cannot
 afford to lose on the slide or in the appendix.
 
-## Step 6 — Check what the audit cannot
+## Step 6: Check what the audit cannot
 
 Run `deck-lint.sh` again, then read the deck the way an audience meets it:
 

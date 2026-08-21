@@ -26,8 +26,8 @@ that and they are the whole design:
 costs nothing until it is relevant, and a 400-line skill is fine where a 400-line addition to
 `CLAUDE.md` would not be.
 
-**It can carry scripts.** Mechanical work — collecting a diff, grepping for patterns, rasterizing
-images — belongs in a script the skill calls, not in instructions the model re-derives every run.
+**It can carry scripts.** Mechanical work, collecting a diff, grepping for patterns, rasterizing
+images: belongs in a script the skill calls, not in instructions the model re-derives every run.
 A model rewriting the same grep each time wastes tokens and gets it subtly different every time.
 
 Write a skill when the work is **recurring**, needs **judgment** the model does not reliably
@@ -35,8 +35,8 @@ apply, and has a **failure mode you can name**. That last test is the one that m
 
 | Instinct | Better home |
 |---|---|
-| "Always use tabs here" | `CLAUDE.md` — it is a constant, not a procedure |
-| "Look up this library's API" | Nothing — that is what docs tools are for |
+| "Always use tabs here" | `CLAUDE.md`: it is a constant, not a procedure |
+| "Look up this library's API" | Nothing: that is what docs tools are for |
 | "Run this exact 4-command sequence" | A slash command, or a shell script |
 | "Turn finished work into a deck, without the deck becoming a flattering summary" | A skill |
 
@@ -47,9 +47,9 @@ Preferences belong in `CLAUDE.md`.
 
 Both live in this repo's plugin. The split:
 
-- **Skill** — the model decides to use it, based on the description. Use for anything where
+- **Skill**: the model decides to use it, based on the description. Use for anything where
   recognising the situation is part of the value.
-- **Command** — the user types `/name` to force it. Use for a deterministic sequence where there
+- **Command**: the user types `/name` to force it. Use for a deterministic sequence where there
   is nothing to recognise.
 
 A `user-invocable: true` skill is both: the model can route to it *and* the user can type
@@ -64,10 +64,10 @@ skill that is never used, which is indistinguishable from a skill that does not 
 Four parts, in this order:
 
 ```
-1. WHEN — the situation, in the words a user would actually type
-2. WHAT — what it covers, concretely enough to distinguish it from neighbours
-3. TRIGGERS — literal phrases: Triggers on: 'make a deck about this', 'slides for the demo'
-4. BOUNDARY — Not for X (use Y instead)
+1. WHEN: the situation, in the words a user would actually type
+2. WHAT: what it covers, concretely enough to distinguish it from neighbours
+3. TRIGGERS: literal phrases: Triggers on: 'make a deck about this', 'slides for the demo'
+4. BOUNDARY: Not for X (use Y instead)
 ```
 
 Aim for 300–900 characters. Under ~120 there is nothing to route on; over ~1400 the signal
@@ -84,7 +84,7 @@ lists the phrases people actually type.
 
 ```
 description: "Use at the END of a piece of work when the user wants a presentation, deck, or
-slides explaining what they changed and why — for a demo, a standup, a sprint review, a
+slides explaining what they changed and why, for a demo, a standup, a sprint review, a
 stakeholder update, a retro, or 'so I can show what I did'. Reads the actual git diff and the
 task brief so the deck reports facts rather than a flattering summary. Triggers on: 'make a deck
 about this', 'slides for the demo', 'build me a readout'. Not for writing a blog post (use
@@ -127,10 +127,10 @@ each is.
 
 **At least one judgment section that is not steps.** A trade-off table, a keep-versus-cut list,
 the thing an experienced person knows and a first-timer does not. This is where a skill beats a
-prompt — anyone can write steps, and the model can usually infer them. What it cannot infer is
+prompt: anyone can write steps, and the model can usually infer them. What it cannot infer is
 which of two reasonable options is wrong here.
 
-**An `## Invariants` section.** Three to five non-negotiables as imperatives — the things you
+**An `## Invariants` section.** Three to five non-negotiables as imperatives. The things you
 would call out in review. A list of twelve is a list nobody reads.
 
 Keep `SKILL.md` under ~500 lines. Past that, move detail into `reference/`.
@@ -147,7 +147,7 @@ Three tiers, and putting a file in the wrong tier is the main way a skill gets e
 | `scripts/*` | Executed, never read into context | Anything mechanical |
 
 `reference/` is for the long tail: a full schema, a regionalism blacklist, a per-repo overlay.
-Reference it explicitly from `SKILL.md` — an unreferenced reference file never gets read, and
+Reference it explicitly from `SKILL.md`: an unreferenced reference file never gets read, and
 `validate.sh` flags a reference that points at a file which does not exist.
 
 `scripts/` is the cheapest tier by a wide margin, because output enters context but the source
@@ -163,7 +163,7 @@ Conventions across this repo:
 - Print grouped, labelled output. The consumer is a model reading a transcript.
 - Never mutate the user's repo. Collectors collect.
 - Take the target directory as an argument, defaulting to `.`.
-- Executable (`chmod +x`) — `validate.sh` checks. Python modules imported by a sibling script are
+- Executable (`chmod +x`): `validate.sh` checks. Python modules imported by a sibling script are
   the exception; they only have to parse.
 
 Scripts are also where anything time-dependent has to live. A model cannot read a clock, so
@@ -185,7 +185,7 @@ avoid deciding which skill owns a step.
 four entry-point scripts that all need "which modules are hubs" and "what is the import cycle",
 so those live in `atlas_model.py`, which the others import via
 `sys.path.insert(0, str(Path(__file__).resolve().parent))`. This is the one legitimate use of
-`__file__` — reaching the skill's own bundled files, not the work directory. Computing the same
+`__file__`: reaching the skill's own bundled files, not the work directory. Computing the same
 derivation in four places yields four slightly different answers with no way to tell which is
 right. Such a module is not executable and `validate.sh` exempts it from the `chmod +x` check.
 
@@ -198,23 +198,23 @@ public and neither is recoverable by deleting it in a later commit.
 
 | Root | Lifetime | Committed? | Written by |
 |---|---|---|---|
-| `.forge/` | Ephemeral working state — true while the work happens, meaningless after | No, gitignored | `task`, `wayfind`, `untangle`, audits |
-| `docs/atlas/` | Regenerable and checkable — derived from the source, rebuilt on demand | Yes | `atlas` only |
-| `post/`, `images/` | A shippable deliverable — the thing the work was for | Yes | `writeup`, `mascot-forge` |
+| `.forge/` | Ephemeral working state: true while the work happens, meaningless after | No, gitignored | `task`, `wayfind`, `untangle`, audits |
+| `docs/atlas/` | Regenerable and checkable: derived from the source, rebuilt on demand | Yes | `atlas` only |
+| `post/`, `images/` | A shippable deliverable: the thing the work was for | Yes | `writeup`, `mascot-forge` |
 
 Lifetime is the axis because it is the axis that already decides everything else about a file. An
 ephemeral artifact must not be committed, or every branch carries someone else's half-finished
 reasoning. A regenerable one must be committed *and* must be safe to delete wholesale, which only
 holds if nothing hand-written is mixed in with it. A deliverable is reviewed and shipped, so it
-cannot sit in a directory that gets wiped. Sort by anything else — by which skill wrote it, by
-file type, by "docs" versus "assets" — and you get roots that mix the three, and then there is no
+cannot sit in a directory that gets wiped. Sort by anything else, by which skill wrote it, by
+file type, by "docs" versus "assets", and you get roots that mix the three, and then there is no
 answer to "is it safe to delete this directory".
 
 Two failure modes this prevents, both observed. A skill that scatters its output invents a new
 top-level directory per feature, and a repo that has used four skills has eleven directories with
 no rule about which are safe to remove. And a skill that writes generated pages into a directory a
 human also edits produces a corpus where some pages are current and some are stale with nothing to
-distinguish them — worse than no corpus, because a reader trusts it either way. `atlas` collapsed
+distinguish them: worse than no corpus, because a reader trusts it either way. `atlas` collapsed
 three output directories into `docs/atlas/` for exactly that reason: the boundary between generated
 and hand-owned is only useful if it is one line a person can hold in their head.
 
@@ -224,12 +224,12 @@ greps every skill's scripts for directory targets and fails on anything outside 
 for it here rather than working around the check locally.
 
 One argued exception exists: **`scripts/mascot/masters/`**, mascot-forge's full-resolution
-masters. They fail all three lifetimes. Not ephemeral — deleting them loses paid generation
-plus hand curation, which is work, not state. Not regenerable — the "source" they would be
+masters. They fail all three lifetimes. Not ephemeral, deleting them loses paid generation
+plus hand curation, which is work, not state. Not regenerable. The "source" they would be
 rebuilt from is a prompt and taste, so a rebuild produces a *different* character. Not a
-deliverable — they are deliberately excluded from `images/` so full-resolution art is not
-deploy weight; what ships is derived from them. That combination — expensive to recreate,
-committed, never served — is a genuinely fourth lifetime, and it is scoped to the one path
+deliverable: they are deliberately excluded from `images/` so full-resolution art is not
+deploy weight; what ships is derived from them. That combination, expensive to recreate,
+committed, never served: is a genuinely fourth lifetime, and it is scoped to the one path
 rather than generalised because one skill needing it is evidence for an exception, not for
 a category. The remove.bg response cache, which used to sit beside this problem at
 `.cache/`, is *not* an exception: a cache is safe to delete by definition, which makes it
@@ -239,8 +239,8 @@ the ephemeral lifetime, and it lives under `.forge/cache/`.
 
 The rule this repo follows: **portable core, overlay for local convention.**
 
-`SKILL.md` should work in any repo. Anything true only of one monorepo — a specific deck player,
-a brand palette, the suite's chrome strings — goes in `reference/neorgon.md`, and `SKILL.md`
+`SKILL.md` should work in any repo. Anything true only of one monorepo. A specific deck player,
+a brand palette, the suite's chrome strings, goes in `reference/neorgon.md`, and `SKILL.md`
 points at it with a detection step. `debrief` shows the pattern: it emits YAML when it finds the
 slides player, and falls back to Marp or plain Markdown when it does not.
 
@@ -253,7 +253,7 @@ that does not exist there.
 gates fail *closed*: when the test misses, the skill takes the fallback path and nothing errors.
 That is the right behaviour and it is also what makes a broken gate invisible. `debrief` checked
 `[ -d slides-site ]`; the monorepo later moved its sites under `projects/`, the test stopped
-matching, and the skill silently dropped to plain Markdown — no warning, no failure, just a
+matching, and the skill silently dropped to plain Markdown. No warning, no failure, just a
 feature that had quietly stopped existing. The fix is both paths, never a swap:
 
 ```bash
@@ -261,7 +261,7 @@ feature that had quietly stopped existing. The fix is both paths, never a swap:
 ```
 
 Swapping one hardcoded path for another only moves which repo is broken. Prefer keying on a
-marker that does not move — `voicecheck` tests for `PROJECTS.md` in the project or its parent,
+marker that does not move: `voicecheck` tests for `PROJECTS.md` in the project or its parent,
 which is why the same reorganisation left it working.
 
 This matters more than it looks. A skill that hardcodes one repo's assumptions is a skill you
@@ -269,7 +269,7 @@ cannot use on your next project, and you will not notice until you are on that p
 
 ## Registering
 
-Skills in `plugins/neorgon-forge/skills/` are picked up automatically — the plugin manifest lists
+Skills in `plugins/neorgon-forge/skills/` are picked up automatically. The plugin manifest lists
 no individual skills, so there is nothing to update when you add one.
 
 Update `plugin.json`'s `version` when you change behaviour in a way an installed user would
@@ -279,9 +279,9 @@ notice.
 
 There is no unit-test story for a prompt. What there is:
 
-1. `bash bin/validate.sh my-skill` — mechanical checks.
+1. `bash bin/validate.sh my-skill`: mechanical checks.
 2. **Does it fire?** Start a fresh session and describe the situation *without* naming the skill.
-   If it does not fire, the description is wrong — this is the test that catches the real defect,
+   If it does not fire, the description is wrong. This is the test that catches the real defect,
    and the one people skip.
 3. **Does it fire when it should not?** Describe an adjacent task that belongs to a different
    skill. If yours fires, tighten the boundary clause.

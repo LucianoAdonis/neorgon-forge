@@ -1,9 +1,9 @@
-# MkDocs, Material, and Mermaid — the verified contract
+# MkDocs, Material, and Mermaid: the verified contract
 
 Everything here was checked against `mkdocs 1.6.1` + `mkdocs-material` and
 `mermaid-cli 11.12.0`, by building a site and reading the resulting HTML in a
 browser. Where a claim is about behaviour rather than configuration, the way it
-was verified is stated, because the failures in this area are all silent — the
+was verified is stated, because the failures in this area are all silent. The
 build succeeds and the page looks wrong.
 
 ## The minimum that makes a fence render
@@ -18,7 +18,7 @@ markdown_extensions:
 ```
 
 All four keys are load-bearing. Without the `custom_fences` entry a
-` ```mermaid ` block renders as a **syntax-highlighted code block** — the build
+` ```mermaid ` block renders as a **syntax-highlighted code block**. The build
 succeeds, no warning is printed, and the page shows source instead of a diagram.
 That is the single most common failure and it does not announce itself.
 
@@ -42,7 +42,7 @@ Two consequences that matter:
 **A page fence must carry no theme.** Material's injected variables and a
 frontmatter `themeVariables` block both target the same thing; the baked one wins
 for the properties it sets. The result is a diagram that stays dark when the
-reader switches to the light scheme — invisible to whoever wrote the page, since
+reader switches to the light scheme: invisible to whoever wrote the page, since
 they only ever looked at one palette.
 
 **The docs site needs network for diagrams to appear.** A fully offline reader
@@ -59,7 +59,7 @@ with Mermaid's own defaults, which will not match the surrounding page in either
 palette. Put C4 in `export` and link the image, or style it explicitly.
 
 `pie`, `gantt`, and `gitgraph` are unsupported by Material's theming and are
-discouraged in a docs context anyway — all three degrade badly at narrow widths.
+discouraged in a docs context anyway: all three degrade badly at narrow widths.
 
 ## Images and captions
 
@@ -78,13 +78,13 @@ The caption text.
 ///
 ```
 
-into a real `<figcaption>` inside a `<figure>` — verified in the built HTML. This
+into a real `<figcaption>` inside a `<figure>`: verified in the built HTML. This
 matters more than it sounds: a caption is where a generated diagram states what
 it omitted, and a paragraph of italics below an image is not associated with it
 for a screen reader.
 
 `glightbox` (via `mkdocs-glightbox`) adds click-to-zoom. Optional, and worth it
-only for diagrams too dense to read inline — which is usually a signal to split
+only for diagrams too dense to read inline, which is usually a signal to split
 the diagram instead.
 
 ## The light/dark palette toggle
@@ -126,7 +126,7 @@ Three things that do work:
 
 This is a **regression against committed output**, not a hypothetical. Diagram
 sources across this fleet use `\n`, while their committed `.svg` files contain
-`<br />` and no literals — meaning those SVGs were produced by an older renderer
+`<br />` and no literals: meaning those SVGs were produced by an older renderer
 and each one regresses the next time it is rendered. `render.sh` refuses a `.mmd`
 containing a literal `\n` for that reason: the failure is visible only in the
 render, so the check has to happen before it.
@@ -138,7 +138,7 @@ Verified empirically against 11.12.0:
 - **It rewrites Markdown input in place.** Given a `.md` file, it replaces every
   fence with `![diagram](./out-N.svg)` and saves over the original. Pointing it
   at a docs page destroys the page. `render.sh` only ever accepts `.mmd`.
-- Exit code is 1 on a parse error, for `.mmd`, `.md`, and stdin alike — so it is
+- Exit code is 1 on a parse error, for `.mmd`, `.md`, and stdin alike, so it is
   safe to branch on.
 - **Reported line numbers are relative to the diagram body**, not the file. With
   a frontmatter config block above, the number in the error is offset by the
@@ -154,7 +154,7 @@ Verified empirically against 11.12.0:
 `render.sh --png` composites onto the plate colour by default. An alpha PNG
 placed in a slide deck, a Medium post, or a LinkedIn preview gets composited onto
 **white** by the host, which turns light diagram text on a dark diagram into
-light text on white — unreadable, and only discovered after publishing. Keep the
+light text on white: unreadable, and only discovered after publishing. Keep the
 SVG for anywhere alpha is genuinely honoured.
 
 ## The visual patterns, and why each one
@@ -179,7 +179,7 @@ the script.
 
 A shape survives a palette switch, greyscale printing, and a colourblind reader;
 a legend mapping eight hex values to eight roles survives none of them. Colour is
-used for exactly three things — the way in, the hubs, and anything structurally
+used for exactly three things: the way in, the hubs, and anything structurally
 wrong.
 
 `SHAPES.get(kind, SHAPES["module"])` in `diagram.py` falls back rather than
@@ -191,7 +191,7 @@ build.
 
 A real app has roughly twice as many imports as modules. Drawing all of them
 produces a plate of spaghetti that renders, looks impressive, and answers nothing
-— rendering a 19-module project with all 41 edges was genuinely unreadable, and
+rendering a 19-module project with all 41 edges was genuinely unreadable, and
 the same model as a spine was not.
 
 So `flow` draws one arrow per module (how an entry point reaches it) plus the
@@ -206,7 +206,7 @@ diagram. A silently truncated diagram claims completeness it does not have.
 ### Left-to-right for anything with fan-out
 
 A top-down spine puts every depth-1 module on one row, and a diagram wider than
-the content column gets scaled down to fit — a legible SVG becomes an unreadable
+the content column gets scaled down to fit. A legible SVG becomes an unreadable
 thumbnail. Vertical overflow costs a scroll; horizontal overflow costs the
 diagram.
 

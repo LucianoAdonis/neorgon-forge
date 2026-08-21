@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# feedback-add.sh — append one distilled rule to a persona's feedback ledger.
+# feedback-add.sh: append one distilled rule to a persona's feedback ledger.
 #
 # The ledger is what makes a correction survive the session that produced it.
 # A rule that needs its example to be understood is not distilled yet: write

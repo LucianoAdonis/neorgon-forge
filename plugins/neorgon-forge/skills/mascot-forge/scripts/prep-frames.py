@@ -44,7 +44,7 @@ OUT_DIR = PROJECT / "images" / "mascot"
 # files are not byte-for-byte reproducible from the PNGs.
 MASTER_DIR = PROJECT / "scripts" / "mascot" / "masters"
 # API responses live under .forge/ because a cache is the ephemeral lifetime:
-# gitignored, per-machine, and safe to delete — rebuilding costs a few
+# gitignored, per-machine, and safe to delete: rebuilding costs a few
 # preview-size calls, not work.
 CACHE_DIR = PROJECT / ".forge" / "cache" / "removebg"
 
@@ -71,7 +71,7 @@ ISLAND_RATIO = 0.05
 MIN_ISLAND_PX = 24
 # Half-width of the alignment search window, in pixels.
 SEARCH = 24
-# Rows available for alignment, as fractions of the REFERENCE FIGURE — not of
+# Rows available for alignment, as fractions of the REFERENCE FIGURE, not of
 # the canvas. The canvas grows whenever a wider frame joins the set, and a band
 # pinned to canvas height would then slide off the body part it was chosen for.
 # An expression frame changes only the face, so its still lower body is the
@@ -79,7 +79,7 @@ SEARCH = 24
 # Both are tried and the better match wins, identifying the kind of frame free.
 ALIGN_BANDS = {"body": (0.58, 0.98), "face": (0.24, 0.46)}
 # Residual mismatch in the winning band, above which the frame is probably drawn
-# at a different scale — something no amount of translation can fix.
+# at a different scale: something no amount of translation can fix.
 SCALE_SUSPECT = 0.045
 
 
@@ -87,7 +87,7 @@ def subject_mask(path, shape):
     """Coarse "this is the subject" mask from remove.bg, cached on disk.
 
     Local keying floods inward from the border, so a pocket of background that
-    gets sealed off — between a hair strand and a jaw, say — stays opaque. A
+    gets sealed off: between a hair strand and a jaw, say, stays opaque. A
     segmentation model has no such blind spot. Responses are cached by content
     hash so re-running never spends another call.
     """
@@ -133,7 +133,7 @@ def background_pockets(path, rgb):
 
     The model's verdict alone is too coarse to cut with, so it only gets a vote
     on pixels that are already background-coloured. That makes it impossible for
-    a bad mask to delete hair or clothing — the worst case is a missed pocket.
+    a bad mask to delete hair or clothing: the worst case is a missed pocket.
     """
     keep = subject_mask(path, rgb.shape[:2])
     candidate = (rgb.min(axis=2) >= 255 - WHITE_TOL) & ~keep
@@ -254,14 +254,14 @@ def shift(array, dy, dx):
 def pad_to_canvas(frame, height, width, offset=None):
     """Grow one frame onto a common canvas. Returns the offset applied.
 
-    Renders do not all come back the same size — a taller aspect ratio is the
+    Renders do not all come back the same size. A taller aspect ratio is the
     only way to fit a hat above her head without shrinking her. Landing each
     frame's content bottom on the canvas bottom, and its horizontal centre on
     the canvas centre, leaves the aligner only a few pixels to absorb.
 
     Pass `offset` to shift a frame by a known amount instead. Frames that
     already share a canvas are already aligned to each other, and anchoring each
-    on its own content would pull them apart — a witch hat's content centre is
+    on its own content would pull them apart: a witch hat's content centre is
     not where the body's is.
     """
     height_before, width_before = frame["alpha"].shape
@@ -395,7 +395,7 @@ def main(argv):
     argv = [a for a in argv if a != "--remove-bg"]
 
     # A pose change can move the content anchor further than the default window
-    # reaches — elbows out to the sides drag the bounding box centre away from
+    # reaches: elbows out to the sides drag the bounding box centre away from
     # the body's. Widening costs time quadratically, so it stays opt-in.
     pinned = set()
     for arg in list(argv):
@@ -432,8 +432,8 @@ def main(argv):
 
     canvas_height = max(f["alpha"].shape[0] for f in frames)
     canvas_width = max(f["alpha"].shape[1] for f in frames)
-    # Frames the same size as the reference are presumed already aligned to it —
-    # re-prepping an existing set is the common case — so they get the
+    # Frames the same size as the reference are presumed already aligned to it,
+    # re-prepping an existing set is the common case, so they get the
     # reference's own offset rather than being re-anchored individually.
     reference_shape = frames[0]["alpha"].shape
     reference_offset = pad_to_canvas(frames[0], canvas_height, canvas_width)
@@ -463,7 +463,7 @@ def main(argv):
         if residual > SCALE_SUSPECT:
             print(
                 f"  warning: {frame['name']} still mismatches by {residual:.1%} after "
-                "aligning — likely drawn at a different scale, regenerate it"
+                "aligning: likely drawn at a different scale, regenerate it"
             )
 
     # One shared canvas so the frames stack pixel-for-pixel in the browser.

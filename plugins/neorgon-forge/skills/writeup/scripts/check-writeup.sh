@@ -32,7 +32,7 @@ if grep -HniE "$PAT" "$DIR"/POST.md 2>/dev/null; then fail=1; else green "  clea
 
 head_ "Sentence-start tics"
 if grep -HnoE '(^|[.!?"] )(Well|Now|Look|Listen|Basically|Essentially|Moreover|Furthermore|Additionally|Ultimately), ' "$DIR"/POST.md 2>/dev/null; then
-  echo "  (check these are voice, not filler — 'So,' is often deliberate)"
+  echo "  (check these are voice, not filler, 'So,' is often deliberate)"
 else green "  clean"; fi
 
 head_ "Heading case (should be sentence case)"
@@ -43,7 +43,7 @@ head_ "Spanish regionalisms"
 if [ -f "$DIR/POST.es.md" ]; then
   ES='\b(cachar|cacha|cachai|altiro|po|weon|guagua|arriendo|pololo|chévere|guay|vosotros|habéis|tenéis|coger|platita)\b'
   if grep -HniE "$ES" "$DIR/POST.es.md"; then fail=1; else green "  clean"; fi
-  grep -qE '\bvos\b' "$DIR/POST.es.md" && { red "  found 'vos' — neutral Spanish uses tú"; fail=1; }
+  grep -qE '\bvos\b' "$DIR/POST.es.md" && { red "  found 'vos', neutral Spanish uses tú"; fail=1; }
 else
   echo "  (no POST.es.md)"
 fi
@@ -66,7 +66,7 @@ if [ -f "$DIR/build-visuals.mjs" ]; then
   newest_svg=$(find "$DIR" -maxdepth 1 -name '*.svg' -newer "$DIR/build-visuals.mjs" 2>/dev/null | wc -l | tr -d ' ')
   total_svg=$(find "$DIR" -maxdepth 1 -name '*.svg' 2>/dev/null | wc -l | tr -d ' ')
   if [ "$total_svg" -gt 0 ] && [ "$newest_svg" -eq 0 ]; then
-    red "  generator is newer than every .svg — run: node $DIR/build-visuals.mjs"
+    red "  generator is newer than every .svg, run: node $DIR/build-visuals.mjs"
     fail=1
   else
     green "  ok"
@@ -79,6 +79,6 @@ echo
 if [ "$fail" -eq 0 ]; then
   green "All mechanical checks passed."
 else
-  red "Some checks flagged — see above."
+  red "Some checks flagged: see above."
 fi
 exit 0

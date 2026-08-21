@@ -1,7 +1,7 @@
 # When the evidence contradicts itself
 
 Read this when two observations cannot both be true. That situation always means an assumption is
-wrong, and the assumption is almost never the interesting one — it is one of five boring ones.
+wrong, and the assumption is almost never the interesting one. It is one of five boring ones.
 
 Each case below has the same three parts: what was observed, why it looked impossible, and **the
 shape of the mistake**. The last part is the transferable bit. The specific bugs never recur; the
@@ -12,7 +12,7 @@ shape recurs constantly.
 ## Not the same code
 
 **Observed.** The fix works locally. Deployed, the old behaviour is still there. The file on the
-server has the new line in it — someone checked.
+server has the new line in it: someone checked.
 
 **Why it looked impossible.** The code is right there. Reading it is proof.
 
@@ -21,18 +21,18 @@ code in memory were different things.
 
 **The shape of the mistake:** *treating the source as the running system.* Reading a file tells
 you what would run if it started now. Every layer between the file and the CPU can hold a stale
-copy — a warm process, a bytecode cache, a bundler cache, a CDN edge, a Docker layer, a lockfile
+copy: a warm process, a bytecode cache, a bundler cache, a CDN edge, a Docker layer, a lockfile
 pinning an old version of the thing you just patched.
 
 **The discriminating test:** make the running system state its own identity. Log the commit SHA at
 boot, print the resolved version, add a line that could only come from the new code. Not "is the
-new code there" — "is the new code the code that ran".
+new code there": "is the new code the code that ran".
 
 ---
 
 ## Not the same input
 
-**Observed.** The function is correct for `{locale: "es"}` — it was tested directly and it passes.
+**Observed.** The function is correct for `{locale: "es"}`. It was tested directly and it passes.
 In production it returns the English string.
 
 **Why it looked impossible.** The caller passes the locale. It is in the request.
@@ -75,7 +75,7 @@ sides, diff it. It is faster than any theory and it usually ends the investigati
 
 ## Not one bug
 
-**Observed.** Uploads fail. A fix is found and verified. Uploads still fail — at the same rate,
+**Observed.** Uploads fail. A fix is found and verified. Uploads still fail, at the same rate,
 with the same error message.
 
 **Why it looked impossible.** The cause was confirmed. The fix was confirmed.
@@ -85,8 +85,8 @@ proxy, and an unrelated timeout in the thumbnailer. Fixing either left the sympt
 same frequency.
 
 **The shape of the mistake:** *assuming one symptom means one cause.* This is the hypothesis space
-collapsing early. It is most likely when the symptom is generic — a 500, "failed to save", a blank
-screen — because a generic symptom is the union of many paths.
+collapsing early. It is most likely when the symptom is generic. A 500, "failed to save", a blank
+screen. A generic symptom is the union of many paths.
 
 **The discriminating test:** partition the population and check whether the *rate* moved, not
 whether the symptom is gone. If a real fix does not change the rate, there is a second cause. Also
@@ -106,12 +106,12 @@ Every measurement inside the database was accurate and none of them contained th
 
 **The shape of the mistake:** *theorising about a layer while only instrumenting the one above it.*
 Time spent waiting to enter a layer is invisible from inside it. The same shape covers DNS
-resolution, TLS handshakes, cold starts, a lock held elsewhere, and garbage collection pauses —
+resolution, TLS handshakes, cold starts, a lock held elsewhere, and garbage collection pauses,
 all of them are gaps between spans rather than long spans.
 
 **The discriminating test:** measure end to end, then subtract the parts you can account for. The
 unexplained remainder is where the bug is. If timings do not add up, the missing time *is* the
-finding — stop explaining it away.
+finding: stop explaining it away.
 
 ---
 
@@ -125,7 +125,7 @@ Register whichever you are testing as a real hypothesis, with its refutation:
 
 ```bash
 bash "$FORGE/skills/untangle/scripts/evidence.sh" hypothesis "the running process predates the deploy" \
-  "then a boot-time SHA log would show the new commit — add one and restart"
+  "then a boot-time SHA log would show the new commit, add one and restart"
 ```
 
 And when one of these turns out to be the answer, the last question is worth asking out loud:

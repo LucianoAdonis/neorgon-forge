@@ -56,7 +56,7 @@ HTML = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sekilist mascot — motion preview</title>
+<title>Sekilist mascot: motion preview</title>
 <style>
   :root {
     --color-bg: #0f1018;
@@ -151,7 +151,7 @@ __RIG_CSS__
 </head>
 <body>
 <div class="wrap">
-  <h1>Sekilist mascot — motion preview</h1>
+  <h1>Sekilist mascot: motion preview</h1>
   <p class="sub">One base render plus six expression frames. All movement is CSS on those frames.
   <strong style="color:var(--color-accent-gold)">Click her &mdash; and keep clicking.</strong></p>
 
@@ -161,13 +161,13 @@ __RIG_CSS__
       __RIG:size-340__
       <div class="stage-note">
         <p>What is running:</p>
-        <p><strong>Bob</strong> — 3.1s float.<br>
-        <strong>Breathe</strong> — 1.2% vertical scale from the waist.<br>
-        <strong>Sway</strong> — &plusmn;0.9&deg; on a 7.3s period, so it never lines up with the bob
+        <p><strong>Bob</strong>: 3.1s float.<br>
+        <strong>Breathe</strong>: 1.2% vertical scale from the waist.<br>
+        <strong>Sway</strong>: &plusmn;0.9&deg; on a 7.3s period, so it never lines up with the bob
         and the idle never reads as a loop.<br>
-        <strong>Blink</strong> — a hard cut to the blink frame, ~110ms, twice in quick
+        <strong>Blink</strong>: a hard cut to the blink frame, ~110ms, twice in quick
         succession every 4.5s. People blink in pairs; a single slow fade reads as a droop.<br>
-        <strong>Dance</strong> — the torso shifts &plusmn;2.2% laterally on a 2.9s period, and
+        <strong>Dance</strong>: the torso shifts &plusmn;2.2% laterally on a 2.9s period, and
         the chest runs the same period a third of a second behind, so it arrives late.</p>
         <p>Turn them off to feel what each one adds.</p>
       </div>
@@ -259,7 +259,7 @@ __RIG_CSS__
     </div>
   </div>
 
-  <h2>In context — landing hero</h2>
+  <h2>In context: landing hero</h2>
   <div class="mock">
     <span class="kicker">190+ companies indexed</span>
     <h3>Every doll company.<br>One place.</h3>

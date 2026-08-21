@@ -3,10 +3,10 @@
 # what practice taught that the census did not.
 #
 # Three problems this solves, all of them re-solved from scratch every session
-# otherwise. Where does a change of this kind go — answered by a rule with a
+# otherwise. Where does a change of this kind go: answered by a rule with a
 # recorded basis rather than by inference from whichever file was opened first.
-# Which area does this ticket touch — answered by resolving its terms against
-# the map instead of grepping the whole repo again. And has the map gone stale —
+# Which area does this ticket touch: answered by resolving its terms against
+# the map instead of grepping the whole repo again. And has the map gone stale,
 # answered by `check`, because a rule whose glob now matches nothing is worse
 # than no rule: it is confidently wrong.
 #
@@ -14,7 +14,7 @@
 # session that guessed it, and `rule` refuses to record one.
 #
 # If tools here fail with "command not found": some harness shells drop PATH
-# inside loop bodies — run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
+# inside loop bodies: run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
 #
 # Usage:
 #   map.sh init "<application>"
@@ -28,6 +28,11 @@
 #   map.sh status
 #   map.sh path
 set -uo pipefail
+
+# Logs written before 2026-08 head their first line with an em dash. New ones
+# use a colon. Readers accept both, so a file already on disk stays readable.
+# Built from an escape so this file contains no em dash of its own.
+LEGACY_SEP=$(printf '\u2014')
 
 FORGE_DIR="${FORGE_BRIEF_DIR:-.forge}"
 MAP="$FORGE_DIR/map.md"
@@ -47,7 +52,7 @@ PRUNE=(-type d \( -name .git -o -name node_modules -o -name __pycache__ \
   -o -name dist -o -name build -o -name .next -o -name vendor -o -name .venv \) -prune)
 
 need_map() {
-  [ -f "$MAP" ] || die "no map at $MAP — run: map.sh init \"<application>\""
+  [ -f "$MAP" ] || die "no map at $MAP: run: map.sh init \"<application>\""
 }
 
 # Same guard as task's brief.sh, same reason: a git tree in a cloud-sync
@@ -58,7 +63,7 @@ warn_cloud_sync() {
   case "$PWD" in
     *"/Mobile Documents/"*|*"/Dropbox/"*|*"/Dropbox"|*"/OneDrive"*|*"/Google Drive/"*|*"/My Drive/"*)
       printf '\033[31mWARNING: this directory is inside a cloud-sync folder.\033[0m\n' >&2
-      printf '\033[31m  git and sync daemons both assume they own the tree — concurrent writes fork\033[0m\n' >&2
+      printf '\033[31m  git and sync daemons both assume they own the tree, concurrent writes fork\033[0m\n' >&2
       printf '\033[31m  files silently. Move the repo to an unsynced path before mapping it.\033[0m\n' >&2
       ;;
   esac
@@ -108,7 +113,7 @@ cmd_init() {
   fi
 
   cat >"$MAP" <<EOF
-# Map — $app
+# Map: $app
 
 Started $(now). Maintained by the \`wayfind\` skill. Run \`map.sh check\` before
 trusting it: a rule that no longer matches anything is worse than no rule.
@@ -158,11 +163,11 @@ cmd_area() {
   IFS="$IFS_SAVE"
   if [ -n "$missing" ]; then
     warn "these paths do not exist:$missing"
-    dim "  recorded anyway — but a map of paths that are not there is fiction"
+    dim "  recorded anyway, but a map of paths that are not there is fiction"
   fi
 
   printf '%s\t%s\t%s\t%s\n' "$name" "$paths" "$desc" "$(now)" >>"$AREAS"
-  append_section Areas "- **$name** — ${desc:-no description} · \`${paths//,/\`, \`}\`"
+  append_section Areas "- **$name**: ${desc:-no description} · \`${paths//,/\`, \`}\`"
   ok "area $name recorded"
 }
 
@@ -181,12 +186,12 @@ cmd_rule() {
   n=$(glob_count "$glob")
   if [ "$n" -eq 0 ]; then
     warn "\`$glob\` matches 0 files right now"
-    dim "  either the glob is wrong or the convention is aspirational — say which"
+    dim "  either the glob is wrong or the convention is aspirational, say which"
   fi
 
   printf '%s\t%s\t%s\t%s\t%s\n' "$glob" "$kind" "$basis" "$n" "$(now)" >>"$RULES"
   append_section Rules "- \`$glob\` → **$kind** · $(plural "$n" file) at record time · basis: $basis"
-  ok "rule recorded — $(plural "$n" file) matched"
+  ok "rule recorded: $(plural "$n" file) matched"
 }
 
 cmd_learn() {
@@ -201,7 +206,7 @@ cmd_learn() {
   [ -n "$text" ] || die 'usage: map.sh learn "<what practice taught>" [--rule <glob>]'
 
   local entry="- $text"
-  [ -n "$glob" ] && entry="- \`$glob\` — $text"
+  [ -n "$glob" ] && entry="- \`$glob\`: $text"
   append_section Learned "$entry"
 
   # Also in a TSV, so `resolve` can surface a lesson attached to a glob rather
@@ -214,7 +219,7 @@ cmd_learn() {
   if [ -z "$glob" ]; then
     dim "  attach it to a glob with --rule so resolve surfaces it on the right files"
   fi
-  dim "  if this contradicts a rule, correct the rule too — the map is read as current"
+  dim "  if this contradicts a rule, correct the rule too. The map is read as current"
 }
 
 cmd_resolve() {
@@ -223,13 +228,13 @@ cmd_resolve() {
   [ -n "$target" ] || die 'usage: map.sh resolve <path>'
 
   head_ "Resolving $target"
-  [ -e "$target" ] || dim "  (path does not exist — resolving as a hypothetical)"
+  [ -e "$target" ] || dim "  (path does not exist, resolving as a hypothetical)"
 
   local hits=0 clean="${target#./}"
   head_ "Rules that apply"
   if [ -s "$RULES" ]; then
     while IFS=$'\t' read -r glob kind basis _ _; do
-      # The glob is unquoted on purpose — it is a pattern, not a literal. The
+      # The glob is unquoted on purpose: it is a pattern, not a literal. The
       # backticks are Markdown code fencing in output a person reads.
       # shellcheck disable=SC2254,SC2016
       case "$clean" in
@@ -251,7 +256,7 @@ cmd_resolve() {
       IFS=','
       for p in $paths; do
         case "$clean" in
-          "${p%/}"/*|"$p") printf '  %s — %s\n' "$name" "$desc"; found=1 ;;
+          "${p%/}"/*|"$p") printf '  %s: %s\n' "$name" "$desc"; found=1 ;;
         esac
       done
       IFS="$IFS_SAVE"
@@ -287,7 +292,7 @@ cmd_ticket() {
   local terms
   terms=$(printf '%s\n' "$text" | extract_terms)
 
-  [ -n "$terms" ] || { warn "  no usable terms — the ticket is too vague to resolve"; return 0; }
+  [ -n "$terms" ] || { warn "  no usable terms. The ticket is too vague to resolve"; return 0; }
 
   head_ "Terms"
   printf '%s\n' "$terms" | tr '\n' ' ' | sed 's/^/  /;s/ $/\n/'
@@ -295,7 +300,7 @@ cmd_ticket() {
   # Ranked by how many distinct ticket terms a file mentions. One shared term is
   # coincidence; three is the file the ticket is about.
   head_ "Candidate files"
-  dim "  distinct ticket terms matched, per file — read the top of this list first"
+  dim "  distinct ticket terms matched, per file, read the top of this list first"
   local tmp
   tmp=$(mktemp)
   while IFS= read -r term; do
@@ -316,7 +321,7 @@ cmd_ticket() {
     # that share a common word. Saying so prevents the first line being read as
     # an answer.
     if [ "$(awk 'NR == 1 { print $1 }' "$tmp")" = "1" ]; then
-      dim "      every candidate matched one term only — this is not yet a ranking"
+      dim "      every candidate matched one term only. This is not yet a ranking"
     fi
   fi
   rm -f "$tmp"
@@ -327,14 +332,14 @@ cmd_ticket() {
     while IFS=$'\t' read -r name paths desc _; do
       while IFS= read -r term; do
         if printf '%s %s %s' "$name" "$paths" "$desc" | grep -qi -- "$term"; then
-          printf '  %s — %s · %s\n' "$name" "$desc" "$paths"
+          printf '  %s: %s · %s\n' "$name" "$desc" "$paths"
           shown=1
           break
         fi
       done <<<"$terms"
     done <"$AREAS"
   fi
-  [ "$shown" -eq 0 ] && dim "  none — either the area is unmapped or the ticket uses different words"
+  [ "$shown" -eq 0 ] && dim "  none: either the area is unmapped or the ticket uses different words"
 
   head_ "Next"
   dim "  resolve the top candidate to get its rules: map.sh resolve <path>"
@@ -342,7 +347,7 @@ cmd_ticket() {
   return 0
 }
 
-# A submodule hub or monorepo gets one map per child repo, which is right —
+# A submodule hub or monorepo gets one map per child repo, which is right,
 # and structurally blind: the same collection, field, or concern touched by two
 # repos is invisible when each map is read alone. That blindness is where
 # duplicated jobs hide. `index` aggregates the child maps and flags the
@@ -362,7 +367,7 @@ cmd_index() {
   if [ ! -s "$list" ]; then
     rm -f "$list"
     warn "no child maps under $root"
-    dim "  a child map is <repo>/.forge/map.md — run wayfind inside each repo first"
+    dim "  a child map is <repo>/.forge/map.md, run wayfind inside each repo first"
     return 0
   fi
 
@@ -371,7 +376,7 @@ cmd_index() {
   pairs=$(mktemp)
 
   {
-    printf '# Map index — %s\n\n' "$(cd "$root" && pwd)"
+    printf '# Map index: %s\n\n' "$(cd "$root" && pwd)"
     printf 'Generated %s by `map.sh index`. Regenerate rather than edit.\n\n' "$(now)"
     printf '## Repos\n\n'
   } >"$out"
@@ -389,12 +394,12 @@ cmd_index() {
     anames=$(awk -F'\t' '{ print $1 }' "$fdir/map-areas.tsv" 2>/dev/null | paste -sd, - | sed 's/,/, /g')
     printf '  %-28s %s, %s, %s\n' "$rname" \
       "$(plural "$areas" area)" "$(plural "$rules" rule)" "$(plural "$lessons" lesson)"
-    printf -- '- **%s** — %s, %s, %s%s\n' \
+    printf -- '- **%s**: %s, %s, %s%s\n' \
       "$rname" "$(plural "$areas" area)" "$(plural "$rules" rule)" "$(plural "$lessons" lesson)" \
       "${anames:+ · areas: $anames}" >>"$out"
 
     # The vocabulary this repo's map uses: area names and descriptions, plus
-    # lesson texts. Rules are globs and excluded — path syntax is not a concern.
+    # lesson texts. Rules are globs and excluded, path syntax is not a concern.
     { awk -F'\t' '{ print $1, $3 }' "$fdir/map-areas.tsv" 2>/dev/null
       awk -F'\t' '{ print $2 }'     "$fdir/map-lessons.tsv" 2>/dev/null
     } | extract_terms |
@@ -403,7 +408,7 @@ cmd_index() {
   done <"$list"
 
   head_ "Shared concerns"
-  dim "  a term two repos' maps both use — where duplicated jobs and split ownership hide"
+  dim "  a term two repos' maps both use: where duplicated jobs and split ownership hide"
   local shared
   shared=$(sort -u "$pairs" | awk -F'\t' '
     { repos[$1] = repos[$1] ", " $2; n[$1]++ }
@@ -414,13 +419,13 @@ cmd_index() {
   if [ -n "$shared" ]; then
     printf '%s\n' "$shared" | while IFS=$'\t' read -r n term repos; do
       printf '  %-24s %s\n' "$term" "$repos"
-      printf -- '- `%s` — %s\n' "$term" "$repos" >>"$out"
+      printf -- '- `%s`: %s\n' "$term" "$repos" >>"$out"
     done
     echo
     dim "  each of these is a question: same concern, or same job done twice?"
   else
-    dim "  none — the child maps share no vocabulary beyond filler"
-    printf 'None — the child maps share no vocabulary beyond filler.\n' >>"$out"
+    dim "  none: the child maps share no vocabulary beyond filler"
+    printf 'None: the child maps share no vocabulary beyond filler.\n' >>"$out"
   fi
 
   rm -f "$list" "$pairs"
@@ -447,28 +452,28 @@ cmd_check() {
       # Never matched anything, not even when recorded. Aspirational rather than
       # drifted, and worth naming differently: the code did not move, the rule
       # was wrong on arrival.
-      printf '\033[33m  EMPTY `%s` (%s) — matched nothing then either\033[0m\n' "$glob" "$kind"
+      printf '\033[33m  EMPTY `%s` (%s): matched nothing then either\033[0m\n' "$glob" "$kind"
       stale=$((stale + 1))
     elif [ "$n" -eq 0 ]; then
-      printf '\033[31m  DEAD  `%s` (%s) — %s when recorded, 0 now\033[0m\n' \
+      printf '\033[31m  DEAD  `%s` (%s): %s when recorded, 0 now\033[0m\n' \
         "$glob" "$kind" "$(plural "$was" file)"
       stale=$((stale + 1))
     elif [ "$n" -gt $((was * 2)) ] && [ "$was" -gt 0 ]; then
-      printf '\033[33m  GREW  `%s` (%s) — %s → %s files\033[0m\n' "$glob" "$kind" "$was" "$n"
+      printf '\033[33m  GREW  `%s` (%s): %s → %s files\033[0m\n' "$glob" "$kind" "$was" "$n"
       grown=$((grown + 1))
     else
-      printf '  ok    `%s` (%s) — %s\n' "$glob" "$kind" "$(plural "$n" file)"
+      printf '  ok    `%s` (%s): %s\n' "$glob" "$kind" "$(plural "$n" file)"
     fi
   done <"$RULES"
 
   if [ "$stale" -gt 0 ]; then
     echo
-    warn "  $(plural "$stale" rule) above match nothing — fix or delete each one"
+    warn "  $(plural "$stale" rule) above match nothing, fix or delete each one"
     dim "      a dead rule is worse than a missing one: it is trusted and it is wrong"
   fi
   if [ "$grown" -gt 0 ]; then
     echo
-    dim "  $(plural "$grown" rule) more than doubled — re-sample, the convention may have split"
+    dim "  $(plural "$grown" rule) more than doubled, re-sample, the convention may have split"
   fi
   return 0
 }
@@ -476,7 +481,7 @@ cmd_check() {
 cmd_status() {
   need_map
   head_ "Map"
-  grep -m1 '^# Map' "$MAP" | sed 's/^# Map — /  /'
+  grep -m1 '^# Map' "$MAP" | sed -E "s/^# Map( $LEGACY_SEP|:) /  /"
   printf '  %s\n' "$MAP"
 
   local areas=0 rules=0 learned=0
@@ -488,11 +493,11 @@ cmd_status() {
     "$(plural "$areas" area)" "$(plural "$rules" rule)" "$(plural "$learned" lesson)"
 
   if [ "$rules" -gt 0 ] && [ "$learned" -eq 0 ]; then
-    dim "  no lessons yet — expected early. A map with rules and no exceptions after"
+    dim "  no lessons yet: expected early. A map with rules and no exceptions after"
     dim "  several tickets means exceptions are being absorbed silently."
   fi
   if [ "$areas" -eq 0 ]; then
-    warn "  no areas — tickets arrive in feature words, and only areas translate them"
+    warn "  no areas: tickets arrive in feature words, and only areas translate them"
   fi
   return 0
 }

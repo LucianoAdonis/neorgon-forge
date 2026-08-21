@@ -1,4 +1,4 @@
-# Neorgon overlay — writeup
+# Neorgon overlay: writeup
 
 Read this only when working inside the Neorgon monorepo (`Documents/Projects/Personal`).
 Everything here is a local convention, not part of the portable skill.
@@ -28,7 +28,7 @@ site's accent rather than the default magenta, and the diagrams will match the s
 ## sharp lives at the monorepo root
 
 `rasterize.mjs` resolves `sharp` from the current working directory's `node_modules`, and in
-this monorepo that means the root — not the project. Run it from the root:
+this monorepo that means the root: not the project. Run it from the root:
 
 ```bash
 node <project>/post/build-visuals.mjs && node <project>/post/rasterize.mjs
@@ -41,7 +41,7 @@ If `sharp` is missing entirely, `npm install sharp` at the root rather than per 
 ## Voice
 
 The author's voice for Neorgon posts is tracked by the **`voicecheck`** skill via a per-project
-`VOICE.md`. Read that file if it exists before drafting — it is a record of decisions already
+`VOICE.md`. Read that file if it exists before drafting. It is a record of decisions already
 made about register, and re-deciding them produces a post that does not match the last one.
 
 Copy rules for headlines, subtitles and button labels are canonical in `PROJECTS.md`.
@@ -49,11 +49,11 @@ Copy rules for headlines, subtitles and button labels are canonical in `PROJECTS
 ## Spanish
 
 The author is Chilean, which is why `reference/spanish.md` weights the Chilean regionalism list
-most heavily — those are the ones that slip through unnoticed. That file is portable; this note
+most heavily: those are the ones that slip through unnoticed. That file is portable; this note
 is just the reason it looks the way it does.
 
 ## Where posts live
 
 `<project>/post/`, alongside the code the post is about, so a diagram generator can import the
 project's model with a relative path. That colocation is what makes the no-drift guarantee work
-— a post in a separate repo cannot import anything, and its numbers go stale silently.
+a post in a separate repo cannot import anything, and its numbers go stale silently.

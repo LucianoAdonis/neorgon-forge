@@ -1,4 +1,4 @@
-# Neorgon overlay — voicecheck
+# Neorgon overlay: voicecheck
 
 Read this only when working inside the Neorgon monorepo (`Documents/Projects/Personal`).
 Everything here is local convention, not part of the portable skill.
@@ -6,7 +6,7 @@ Everything here is local convention, not part of the portable skill.
 ## Detecting the overlay
 
 `scripts/load-voice.sh` walks up from the target directory looking for `PROJECTS.md`, and this
-doc must keep describing exactly that — a doc claiming a different gate than the loader applies
+doc must keep describing exactly that: a doc claiming a different gate than the loader applies
 invites someone to "fix" whichever one they read second:
 
 ```bash
@@ -18,7 +18,7 @@ done
 ```
 
 Walking up rather than testing a fixed depth, because the depth changed. `PROJECTS.md` sat one
-level above a project until the sites moved under `projects/`, which made it two — and the old
+level above a project until the sites moved under `projects/`, which made it two, and the old
 `[ -f ../PROJECTS.md ]` test then silently stopped finding the suite whenever the loader was
 pointed at a project directory, which is the normal way to call it. Nothing errored; the overlay
 just quietly stopped being applied, exactly like `debrief`'s dead `[ -d slides-site ]`. A gate
@@ -32,8 +32,8 @@ These must read identically on all 40+ sites. A project's `VOICE.md` cannot over
 
 | Invariant | Value |
 |---|---|
-| `og:site_name` | `Neorgon` — never `Energon` |
-| Browser `<title>` | `Tool Name \| Descriptor` — pipe, never a dash |
+| `og:site_name` | `Neorgon`: never `Energon` |
+| Browser `<title>` | `Tool Name \| Descriptor`: pipe, never a dash |
 | Footer attribution | `Part of Neorgon`, linking `https://neorgon.com/` |
 
 The pipe is not only an anti-AI-tell: it also reads cleaner in search results, where the
@@ -43,13 +43,13 @@ title is truncated and a dash looks like a broken sentence.
 
 `PROJECTS.md` §3 (Brand Guide) and §6 (Copy Style Guide) are canonical for the suite voice.
 `voice-defaults.md` restates those rules in checkable form. **If `PROJECTS.md` changes, update
-`voice-defaults.md` to match** — the drift runs in that direction, and a stale baseline
+`voice-defaults.md` to match**: the drift runs in that direction, and a stale baseline
 silently passes copy that the brand guide now forbids.
 
 ## Projects that legitimately deviate
 
 No project has a `VOICE.md` yet, so today the baseline is applied everywhere. These are the
-sites whose register genuinely differs — an audit that flags their flavour as off-voice is
+sites whose register genuinely differs: an audit that flags their flavour as off-voice is
 wrong, and each is a candidate for `teach`:
 
 - **Themed:** `guild-hall-site` (Monster Hunter quest board), `questline-site` (NieR console),

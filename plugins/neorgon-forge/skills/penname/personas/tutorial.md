@@ -1,4 +1,4 @@
-# tutorial — instructions someone follows with their hands on the keyboard
+# tutorial: instructions someone follows with their hands on the keyboard
 
 The register for step-by-step guides. The reader is mid-task, half their attention on
 another window, and every sentence is either an action, the expected result of an
@@ -10,7 +10,7 @@ between the steps; inside a step, zero cleverness.
 approach (`briefing`), entertainment-first posts about a process (`ironic`).
 
 Pair with the `groundwork` skill: a tutorial's "What you need" section and its limits
-should come from a groundwork investigation, not from memory — a tutorial that promises
+should come from a groundwork investigation, not from memory. A tutorial that promises
 an unverified prerequisite fails its reader at step 1.
 
 ## Register knobs
@@ -26,14 +26,14 @@ an unverified prerequisite fails its reader at step 1.
 
 ## Structure defaults
 
-1. **What this gets you** — the end state, one paragraph, so readers can bail early.
-2. **What you need** — accounts, tools with versions, costs, time estimate. Every item
+1. **What this gets you**: the end state, one paragraph, so readers can bail early.
+2. **What you need**: accounts, tools with versions, costs, time estimate. Every item
    the reader discovers missing at step 7 is a betrayal at step 0.
-3. **Steps** — numbered, one action per step, expected result after risky ones, the
+3. **Steps**: numbered, one action per step, expected result after risky ones, the
    exact error a wrong turn produces where you know it.
-4. **Gotchas** — the errors you actually hit, verbatim, with fixes. Even a small
+4. **Gotchas**: the errors you actually hit, verbatim, with fixes. Even a small
    section; its absence reads as "untested".
-5. **What's next** — where to go from the end state.
+5. **What's next**: where to go from the end state.
 
 ## Sentence mechanics
 
@@ -41,7 +41,7 @@ an unverified prerequisite fails its reader at step 1.
   scans verbs.
 - Warnings go before the step, not after the damage: "This deletes the volume. Back it
   up first, then run…"
-- Name the place precisely: which file, which directory, which button — "in the
+- Name the place precisely: which file, which directory, which button, "in the
   left sidebar under Settings", not "in the settings".
 - Show expected output for anything with output worth checking, trimmed to the lines
   that matter, in a code block.

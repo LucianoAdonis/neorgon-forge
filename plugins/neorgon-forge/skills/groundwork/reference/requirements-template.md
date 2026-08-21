@@ -1,16 +1,16 @@
 # Requirements template
 
 Copy into the project as `groundwork-<topic>.md` (or directly as a topic folder's
-`CONTEXT.md` — see the mapping note at the end). Delete sections that genuinely don't
+`CONTEXT.md`: see the mapping note at the end). Delete sections that genuinely don't
 apply; a deleted section reads as "not applicable", an empty one reads as "not
 investigated".
 
 ```markdown
-# Groundwork: <service/tool> — <the tutorial's promise>
+# Groundwork: <service/tool>, <the tutorial's promise>
 
 **Investigated:** YYYY-MM-DD on <OS/setup> · **Investigator's clock:** <total hands-on time>
 **Time-to-first-success (reader's clock):** <estimate, including sign-up and approval waits>
-**Re-verify when:** <the trigger — a version bump, a pricing-page change, a date>
+**Re-verify when:** <the trigger: a version bump, a pricing-page change, a date>
 
 ## The promise
 
@@ -21,11 +21,11 @@ investigated".
 | Item | Version/tier | Cost | Label |
 |---|---|---|---|
 | <account> | <free tier / paid plan> | <$ or free> | verified/documented |
-| <tool> | <pinned version> | — | verified |
+| <tool> | <pinned version> | none | verified |
 
-## Credential acquisition — the walked path
+## Credential acquisition: the walked path
 
-1. <step, with the exact screen/menu names> — *<wait time if any>*
+1. <step, with the exact screen/menu names>: *<wait time if any>*
    - Decision point: <the fork and which option the promise needs>
 2. …
 N. First successful call:
@@ -57,7 +57,7 @@ Cause: <…> · Fix: <…>
 
 ## Sources
 
-- <URL> — <what it backs> — accessed YYYY-MM-DD
+- <URL>: <what it backs>, accessed YYYY-MM-DD
 
 ## Open / unverified
 
@@ -69,5 +69,5 @@ Cause: <…> · Fix: <…>
 Repos using a per-topic `CONTEXT.md` for AI-assisted editing consume this directly:
 "What you need" covers *Technical Specifications/Versions*, "Gotchas" covers *Common
 Pitfalls*, "What NOT to do" maps by name, and the promise paragraph covers *Target
-audience*. Keep the labels and dates when converting — they are the part a plain
+audience*. Keep the labels and dates when converting. They are the part a plain
 CONTEXT.md lacks, and the reason the tutorial can say when it was last true.

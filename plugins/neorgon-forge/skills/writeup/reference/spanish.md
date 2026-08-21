@@ -1,7 +1,7 @@
 # Neutral Spanish for write-ups
 
 Read when producing a `POST.es.md`. The target is prose that reads naturally to an engineer in
-Mexico City, Bogotá, Buenos Aires and Santiago alike — no reader should be able to place the
+Mexico City, Bogotá, Buenos Aires and Santiago alike. No reader should be able to place the
 author from the vocabulary.
 
 ## Pronouns
@@ -42,7 +42,7 @@ reads like a badly localised manual. Keep:
 *deploy, commit, branch, build, release, feature, bug, log, endpoint, framework, seniority,
 speedrun, slop, cringe, hype, prompt, pipeline*
 
-Inflect them naturally — *deployear* is real usage, *el deploy* / *los deploys* is fine.
+Inflect them naturally: *deployear* is real usage, *el deploy* / *los deploys* is fine.
 
 Do translate the ones with settled Spanish equivalents: *archivo* (file), *carpeta* (folder),
 *base de datos*, *red* (network), *servidor*, *pruebas* (tests), *rendimiento* (performance).
@@ -66,7 +66,7 @@ Never invent a translation for a term that has an official or widely-used one. L
 ## Translate the voice, not the words
 
 A literal translation of an informal English post reads stiff in Spanish, which is the failure
-mode to watch for. If the English is casual, the Spanish must be equally casual — even when
+mode to watch for. If the English is casual, the Spanish must be equally casual, even when
 that means a different idiom entirely.
 
 | English | Works in Spanish |
@@ -79,7 +79,7 @@ that means a different idiom entirely.
 | you're paying rent | estás pagando alquiler |
 | fair | y es justo / tiene razón |
 
-`Honestly,` at the start of a sentence maps to `La verdad,` — both are the author thinking out
+`Honestly,` at the start of a sentence maps to `La verdad,`. Both are the author thinking out
 loud, and both should survive the detox pass.
 
 ## Length

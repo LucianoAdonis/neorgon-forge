@@ -2,7 +2,7 @@
 # Check every skill in the repo against the house standard before it ships.
 #
 # The checks that matter are about the *description*, because that string is
-# the only thing loaded until a skill fires — it carries the entire routing
+# the only thing loaded until a skill fires: it carries the entire routing
 # decision. A skill with a vague description is a skill that never runs.
 #
 # Usage: validate.sh [skill-name]
@@ -20,7 +20,7 @@ head_() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 fail=0
 warns=0
 
-# Read one frontmatter field. Frontmatter only — a later body line that
+# Read one frontmatter field. Frontmatter only: a later body line that
 # happens to start with "name:" must not be picked up.
 fm() {
   awk -v key="$2" '
@@ -61,13 +61,13 @@ check_skill() {
 
   # ── The description is the router ───────────────────────────
   if [ -z "$desc" ]; then
-    red "  missing: description — the skill will never route"; fail=1
+    red "  missing: description. The skill will never route"; fail=1
   else
     local len=${#desc}
     if [ "$len" -lt 120 ]; then
-      red "  description is ${len} chars — too thin to route on (aim 300-900)"; fail=1
+      red "  description is ${len} chars: too thin to route on (aim 300-900)"; fail=1
     elif [ "$len" -gt 1400 ]; then
-      warn "  description is ${len} chars — long enough to dilute the signal"; warns=$((warns + 1))
+      warn "  description is ${len} chars: long enough to dilute the signal"; warns=$((warns + 1))
     else
       green "  description length ok (${len})"
     fi
@@ -85,7 +85,7 @@ check_skill() {
   if [ -n "$invocable" ]; then
     green "  user-invocable: $invocable"
   else
-    warn "  no user-invocable — will not appear as /$name"; warns=$((warns + 1))
+    warn "  no user-invocable: will not appear as /$name"; warns=$((warns + 1))
   fi
   [ -n "$hint" ] && green "  argument-hint ok"
 
@@ -93,13 +93,13 @@ check_skill() {
   local lines
   lines=$(wc -l <"$md" | tr -d ' ')
   if [ "$lines" -gt 500 ]; then
-    warn "  SKILL.md is ${lines} lines — move detail into reference/"; warns=$((warns + 1))
+    warn "  SKILL.md is ${lines} lines: move detail into reference/"; warns=$((warns + 1))
   else
     green "  body length ok (${lines} lines)"
   fi
 
   grep -q '^## Invariants' "$md" \
-    || { warn "  no Invariants section — the non-negotiables are unstated"; warns=$((warns + 1)); }
+    || { warn "  no Invariants section: the non-negotiables are unstated"; warns=$((warns + 1)); }
 
   # ── Scripts ─────────────────────────────────────────────────
   if [ -d "$dir/scripts" ]; then
@@ -117,7 +117,7 @@ check_skill() {
       fi
     done
     # Python scripts are imported as modules by their siblings, so they are not
-    # required to be executable — only to parse.
+    # required to be executable: only to parse.
     for s in "$dir/scripts"/*.py; do
       [ -f "$s" ] || continue
       if command -v python3 >/dev/null 2>&1; then
@@ -137,12 +137,12 @@ check_skill() {
   #
   # Two shapes are checked, because those are the two ways a root gets created:
   # a literal mkdir target, and a directory constant a script later writes into.
-  # Literals only — a path taken from an argument or an env var is the caller's
+  # Literals only: a path taken from an argument or an env var is the caller's
   # choice and cannot be judged from here. A path a script only *reads* is also
   # out of scope: build-preview.py loads the project's own js/mascot.js, which is
   # not this skill claiming a root.
   # One argued exception: scripts/mascot/masters holds mascot-forge's
-  # full-resolution masters — paid generation plus hand curation, so not
+  # full-resolution masters: paid generation plus hand curation, so not
   # ephemeral; not derivable from source, so not regenerable; deliberately
   # unshipped, so not a deliverable. The argument lives in docs/authoring.md;
   # a new exception goes there first, never just here.
@@ -187,7 +187,7 @@ check_skill() {
         red "  writes outside the sanctioned roots: $target"
       done
       red "  allowed: .forge/ (ephemeral) · docs/atlas/ (regenerable) · post/, images/ (shipped)"
-      red "  (plus one argued exception: scripts/mascot/masters — see docs/authoring.md)"
+      red "  (plus one argued exception: scripts/mascot/masters, see docs/authoring.md)"
       fail=1
     else
       green "  output roots ok"
@@ -214,8 +214,8 @@ check_skill() {
   # Read into an array rather than piping into a while loop: a pipeline
   # runs its last stage in a subshell, so fail=1 set in there would be
   # discarded and the script would exit 0 having printed an error.
-  # A reference prefixed with skills/<name>/ belongs to a sibling skill —
-  # untangle calls task's brief.sh — so it resolves against the skills root,
+  # A reference prefixed with skills/<name>/ belongs to a sibling skill,
+  # untangle calls task's brief.sh, so it resolves against the skills root,
   # not against this skill's directory.
   local refs=()
   while IFS= read -r ref; do refs+=("$ref"); done < <(

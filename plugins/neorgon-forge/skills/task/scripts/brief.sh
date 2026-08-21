@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Maintain .forge/brief.md — the record of what a task was for, what was
+# Maintain .forge/brief.md: the record of what a task was for, what was
 # decided, and what is still open.
 #
 # The point is that it gets written *while* the work happens. A decision
@@ -7,7 +7,7 @@
 # it beat, which is the part worth reporting.
 #
 # If tools here fail with "command not found": some harness shells drop PATH
-# inside loop bodies — run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
+# inside loop bodies: run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
 #
 # Usage:
 #   brief.sh init "<problem>"              start a brief (idempotent)
@@ -23,6 +23,12 @@
 #   brief.sh index [root]                  index every repo's brief under root
 set -uo pipefail
 
+# Briefs written before 2026-08 head their problem line with an em dash.
+# New ones use a colon. Readers accept both; only the writer changed, so an
+# existing .forge/brief.md stays readable. Built from an escape so this file
+# contains no em dash of its own.
+LEGACY_SEP=$(printf '\u2014')
+
 FORGE_DIR="${FORGE_BRIEF_DIR:-.forge}"
 BRIEF="$FORGE_DIR/brief.md"
 STREAMS="$FORGE_DIR/streams.tsv"
@@ -36,20 +42,20 @@ ok()    { printf '\033[32m%s\033[0m\n' "$1"; }
 head_() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 
 need_brief() {
-  [ -f "$BRIEF" ] || die "no brief at $BRIEF — run: brief.sh init \"<problem>\""
+  [ -f "$BRIEF" ] || die "no brief at $BRIEF, run: brief.sh init \"<problem>\""
 }
 
 # A git tree inside a cloud-sync folder loses work silently: the sync daemon
 # forks concurrently-written files into "name 2.ext" copies and reports
 # nothing. Checked at init because that is the moment before dozens of edits.
-# A warning, not a refusal — but the right response is to move the repo, not
+# A warning, not a refusal, but the right response is to move the repo, not
 # to proceed carefully. Details and recovery: reference/hazards.md.
 warn_cloud_sync() {
   case "$PWD" in
     *"/Mobile Documents/"*|*"/Dropbox/"*|*"/Dropbox"|*"/OneDrive"*|*"/Google Drive/"*|*"/My Drive/"*)
       printf '\033[31mWARNING: this directory is inside a cloud-sync folder.\033[0m\n' >&2
       printf '\033[31m  git and sync daemons both assume they own the tree. Concurrent writes\033[0m\n' >&2
-      printf '\033[31m  fork files into "name 2.ext" copies silently — observed losses include\033[0m\n' >&2
+      printf '\033[31m  fork files into "name 2.ext" copies silently, observed losses include\033[0m\n' >&2
       printf '\033[31m  whole source trees. Move the repo to an unsynced path before continuing.\033[0m\n' >&2
       ;;
   esac
@@ -62,16 +68,16 @@ cmd_init() {
   mkdir -p "$FORGE_DIR"
 
   if [ -f "$BRIEF" ]; then
-    ok "brief already exists at $BRIEF — appending a new run"
+    ok "brief already exists at $BRIEF: appending a new run"
     {
-      printf '\n---\n\n## Run — %s\n\n' "$(now)"
+      printf '\n---\n\n## Run: %s\n\n' "$(now)"
       printf '**Problem.** %s\n' "$problem"
     } >>"$BRIEF"
     return
   fi
 
   cat >"$BRIEF" <<EOF
-# Brief — $problem
+# Brief: $problem
 
 Started $(now). Maintained by the \`task\` skill; read by \`debrief\` and \`writeup\`.
 
@@ -146,7 +152,7 @@ cmd_correct() {
     END { if (n) print n }
   ' "$BRIEF")
   [ -n "$lineno" ] ||
-    die "no decision containing \"$old\" — quote a fragment of the note being superseded"
+    die "no decision containing \"$old\": quote a fragment of the note being superseded"
 
   local tmp
   tmp=$(mktemp)
@@ -156,7 +162,7 @@ cmd_correct() {
   ' "$BRIEF" >"$tmp" && mv "$tmp" "$BRIEF"
 
   cmd_note "CORRECTION of the struck note above: $new"
-  ok "superseded — the wrong claim is struck where it stands, not silently rewritten"
+  ok "superseded: the wrong claim is struck where it stands, not silently rewritten"
 }
 
 stream_field() { awk -F'\t' -v n="$1" '$1 == n { print $2 }' "$STREAMS" 2>/dev/null | tail -1; }
@@ -181,11 +187,11 @@ cmd_stream() {
     start) stream_set "$name" active  "$detail";     ok "stream active: $name" ;;
     "done") stream_set "$name" "done" "$detail"
            # The outcome is what debrief reports, so it lands in the brief
-           # body too — including whatever the stream got wrong.
-           cmd_note "stream **$name** done — ${detail:-no outcome recorded}"
+           # body too: including whatever the stream got wrong.
+           cmd_note "stream **$name** done: ${detail:-no outcome recorded}"
            ok "stream done: $name" ;;
     block) stream_set "$name" blocked "$detail"
-           cmd_note "stream **$name** BLOCKED — ${detail:-no reason recorded}"
+           cmd_note "stream **$name** BLOCKED: ${detail:-no reason recorded}"
            ok "stream blocked: $name" ;;
     *)     die "unknown stream action: $action" ;;
   esac
@@ -195,11 +201,11 @@ cmd_status() {
   need_brief
   head_ "Brief"
   printf '  %s\n' "$BRIEF"
-  grep -m1 '^# Brief' "$BRIEF" | sed 's/^# Brief — /  /'
+  grep -m1 '^# Brief' "$BRIEF" | sed -E "s/^# Brief( $LEGACY_SEP|:) /  /"
 
   head_ "Streams"
   if [ ! -s "$STREAMS" ]; then
-    echo "  (none — inline task)"
+    echo "  (none: inline task)"
   else
     awk -F'\t' '
       { mark = ($2 == "done") ? "[x]" : ($2 == "active") ? "[>]" : ($2 == "blocked") ? "[!]" : "[ ]"
@@ -209,13 +215,13 @@ cmd_status() {
     total=$(wc -l <"$STREAMS" | tr -d ' ')
     done_=$(awk -F'\t' '$2 == "done"' "$STREAMS" | wc -l | tr -d ' ')
     printf '\n  %s/%s complete\n' "$done_" "$total"
-    awk -F'\t' '$2 == "blocked" { print "  blocked: " $1 " — " $4 }' "$STREAMS"
+    awk -F'\t' '$2 == "blocked" { print "  blocked: " $1 ", " $4 }' "$STREAMS"
   fi
 
   head_ "Unfilled sections"
   # A brief with empty sections is the common failure: the scaffold gets
   # created and never filled, and the deck inherits the emptiness.
-  # Reported, never fatal — status is a diagnostic and is expected to run
+  # Reported, never fatal: status is a diagnostic and is expected to run
   # mid-task when sections legitimately are not filled yet.
   local empty=0
   for h in Approach Rejected Measured Open; do
@@ -236,7 +242,7 @@ cmd_close() {
     local open_
     open_=$(awk -F'\t' '$2 != "done"' "$STREAMS" | wc -l | tr -d ' ')
     if [ "$open_" != "0" ]; then
-      printf '\033[31m%s\033[0m\n' "  $open_ stream(s) not done — these belong under ## Open, not dropped:"
+      printf '\033[31m%s\033[0m\n' "  $open_ stream(s) not done. These belong under ## Open, not dropped:"
       awk -F'\t' '$2 != "done" { print "    " $1 " (" $2 ") " $4 }' "$STREAMS"
     fi
   fi
@@ -245,7 +251,7 @@ cmd_close() {
   ok "closed $BRIEF"
 }
 
-# "Did I already decide something about X, and where?" — collect every repo's
+# "Did I already decide something about X, and where?": collect every repo's
 # brief under a root into one grep-able index: problems, state, decisions, and
 # what is still open. The index is regenerated wholesale, never merged, so it
 # cannot drift from the briefs it summarizes.
@@ -254,28 +260,28 @@ cmd_index() {
   [ -d "$root" ] || die "not a directory: $root"
   local briefs
   briefs=$(find "$root" -mindepth 3 -maxdepth 5 -type f -path '*/.forge/brief.md' 2>/dev/null | sort)
-  [ -n "$briefs" ] || die "no */.forge/brief.md under $root — nothing was indexed"
+  [ -n "$briefs" ] || die "no */.forge/brief.md under $root, nothing was indexed"
 
   mkdir -p "$root/.forge"
   local out="$root/.forge/brief-index.md"
   {
-    printf '# Brief index — generated %s\n\n' "$(now)"
+    printf '# Brief index: generated %s\n\n' "$(now)"
     printf 'By `brief.sh index`. Grep this instead of recalling a decision:\n'
     printf 'every problem, decision, and open item from every brief under this root.\n'
     while IFS= read -r b; do
       local repo runs closed state
       repo="${b#"$root"/}"; repo="${repo%/.forge/brief.md}"
       # grep -c prints the count even when it is 0 (and exits 1), so no fallback.
-      runs=$(grep -c '^\*\*Problem\.\*\*\|^# Brief — ' "$b" 2>/dev/null)
-      # Closed means: a _Closed stamp after the LAST run's problem line —
+      runs=$(grep -cE "^\*\*Problem\.\*\*|^# Brief( $LEGACY_SEP|:) " "$b" 2>/dev/null)
+      # Closed means: a _Closed stamp after the LAST run's problem line,
       # counting stamps misreports a brief that was closed and then reopened.
-      state=$(awk '
-        /^\*\*Problem\.\*\*/ || /^# Brief — / { lastp = NR }
+      state=$(awk -v sep="$LEGACY_SEP" '
+        /^\*\*Problem\.\*\*/ || $0 ~ "^# Brief( " sep "|:) " { lastp = NR }
         /^_Closed /                           { lastc = NR }
         END { print (lastc > lastp && lastp) ? "closed" : "open" }
       ' "$b")
       printf '\n## %s · %s · %s run(s)\n\n' "$repo" "$state" "$runs"
-      grep '^# Brief — \|^\*\*Problem\.\*\*' "$b" | sed -E 's/^# Brief — /- problem: /; s/^\*\*Problem\.\*\* /- problem: /'
+      grep -E "^# Brief( $LEGACY_SEP|:) |^\*\*Problem\.\*\*" "$b" | sed -E "s/^# Brief( $LEGACY_SEP|:) /- problem: /; s/^\*\*Problem\.\*\* /- problem: /"
       awk '
         /^## Decisions$/ { inside = 1; next }
         /^## /           { inside = 0 }

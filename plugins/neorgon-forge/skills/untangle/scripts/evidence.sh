@@ -3,7 +3,7 @@
 #
 # The discipline this enforces is refutation. A hypothesis registered here
 # must come with the observation that would rule it out, because a theory
-# nothing could disprove cannot be crossed off — it lingers, gets
+# nothing could disprove cannot be crossed off: it lingers, gets
 # re-litigated, and quietly becomes the assumption everything else rests on.
 #
 # `status` sorts live theories to the top and prints the refuting test for
@@ -11,7 +11,7 @@
 # than whichever theory feels warmest.
 #
 # If tools here fail with "command not found": some harness shells drop PATH
-# inside loop bodies — run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
+# inside loop bodies: run `export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin` first.
 #
 # Usage:
 #   evidence.sh init "<symptom>"                    start a log
@@ -22,6 +22,11 @@
 #   evidence.sh status                              live theories first
 #   evidence.sh path
 set -uo pipefail
+
+# Logs written before 2026-08 head their first line with an em dash. New ones
+# use a colon. Readers accept both, so a file already on disk stays readable.
+# Built from an escape so this file contains no em dash of its own.
+LEGACY_SEP=$(printf '\u2014')
 
 FORGE_DIR="${FORGE_BRIEF_DIR:-.forge}"
 LOG="$FORGE_DIR/evidence.md"
@@ -36,7 +41,7 @@ dim()   { printf '\033[2m%s\033[0m\n' "$1"; }
 head_() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 
 need_log() {
-  [ -f "$LOG" ] || die "no evidence log at $LOG — run: evidence.sh init \"<symptom>\""
+  [ -f "$LOG" ] || die "no evidence log at $LOG, run: evidence.sh init \"<symptom>\""
 }
 
 # Hypotheses are numbered from 1 and referenced by number everywhere, so a
@@ -55,7 +60,7 @@ hyp_exists() {
 
 append_log() {
   # The backticks are Markdown code fencing for the timestamp, not a
-  # subshell — the log is a document someone reads.
+  # subshell: the log is a document someone reads.
   # shellcheck disable=SC2016
   printf -- '- `%s` %s\n' "$(now)" "$1" >>"$LOG"
 }
@@ -70,7 +75,7 @@ cmd_init() {
   fi
 
   cat >"$LOG" <<EOF
-# Evidence — $symptom
+# Evidence: $symptom
 
 Started $(now). Maintained by the \`untangle\` skill.
 
@@ -116,7 +121,7 @@ cmd_hypothesis() {
   local live
   live=$(awk -F'\t' '$2 == "live"' "$HYP" | wc -l | tr -d ' ')
   if [ "$live" -eq 1 ]; then
-    warn "only one live hypothesis — a single theory is a hunch with a to-do list"
+    warn "only one live hypothesis: a single theory is a hunch with a to-do list"
     dim "  register the competing explanation before testing this one"
   fi
 }
@@ -136,11 +141,11 @@ cmd_observe() {
   local tags=""
   if [ -n "$refutes" ]; then
     hyp_exists "$refutes" || die "no hypothesis H$refutes"
-    tags=" — refutes **H$refutes**"
+    tags=": refutes **H$refutes**"
   fi
   if [ -n "$supports" ]; then
     hyp_exists "$supports" || die "no hypothesis H$supports"
-    tags="$tags — supports **H$supports**"
+    tags="$tags: supports **H$supports**"
   fi
   append_log "observed: $text$tags"
 
@@ -149,7 +154,7 @@ cmd_observe() {
     # Support is deliberately not a state change. Confirmation accumulates
     # for whichever theory is being looked at hardest, which is exactly the
     # bias this script exists to interrupt.
-    dim "  H$supports supported, not confirmed — what would still rule it out?"
+    dim "  H$supports supported, not confirmed, what would still rule it out?"
   fi
   ok "logged"
 }
@@ -178,7 +183,7 @@ cmd_refute() {
   # what a later session reads to avoid re-testing them.
   local tmp
   tmp=$(mktemp)
-  awk -v entry="- **H$id** $(hyp_text "$id") — ruled out: ${why:-no reason recorded}" '
+  awk -v entry="- **H$id** $(hyp_text "$id"), ruled out: ${why:-no reason recorded}" '
     /^## / && inside && !placed { print entry; print ""; placed = 1; inside = 0 }
     { print }
     /^## Ruled out$/ { inside = 1 }
@@ -199,13 +204,13 @@ cmd_confirm() {
   Anything less is a correlation, and a fix built on one comes back."
   fi
   hyp_set "$id" confirmed "$how"
-  append_log "**H$id** CONFIRMED — $how"
+  append_log "**H$id** CONFIRMED: $how"
   ok "H$id confirmed"
 
   local live
   live=$(awk -F'\t' '$2 == "live"' "$HYP" | wc -l | tr -d ' ')
   if [ "$live" -gt 0 ]; then
-    warn "$live hypothesis/es still live — two causes with one symptom is common"
+    warn "$live hypothesis/es still live: two causes with one symptom is common"
     dim "  refute them explicitly, or note in the brief that they were left untested"
   fi
 }
@@ -213,11 +218,11 @@ cmd_confirm() {
 cmd_status() {
   need_log
   head_ "Symptom"
-  grep -m1 '^# Evidence' "$LOG" | sed 's/^# Evidence — /  /'
+  grep -m1 '^# Evidence' "$LOG" | sed -E "s/^# Evidence( $LEGACY_SEP|:) /  /"
 
   head_ "Hypotheses"
   if [ ! -s "$HYP" ]; then
-    echo "  (none registered — a single unstated theory is the default failure)"
+    echo "  (none registered: a single unstated theory is the default failure)"
   else
     # Live first: the point of the display is what to test next, not history.
     awk -F'\t' '
@@ -241,11 +246,11 @@ cmd_status() {
     local refuted
     refuted=$(awk -F'\t' '$2 == "refuted"' "$HYP" | wc -l | tr -d ' ')
     if [ "$refuted" -ge 3 ] && [ "$confirmed" -eq 0 ]; then
-      warn "  $refuted refuted, none confirmed — this is the stuck signal"
+      warn "  $refuted refuted, none confirmed: this is the stuck signal"
       dim "      report what is known and what you would try next, and ask"
     fi
     if [ "$live" -eq 0 ] && [ "$confirmed" -eq 0 ]; then
-      warn "  no live theories left — the cause is outside every assumption so far"
+      warn "  no live theories left: the cause is outside every assumption so far"
       dim "      re-read ## Observed: one of those observations is probably interpretation"
     fi
   fi

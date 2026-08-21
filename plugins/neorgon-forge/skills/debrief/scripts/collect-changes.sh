@@ -53,7 +53,7 @@ git diff --shortstat "$REV" 2>/dev/null | awk '
   { for (i = 1; i <= NF; i++) { if ($(i+1) ~ /^insertion/) ins = $i; if ($(i+1) ~ /^deletion/) del = $i } }
   END {
     if (ins > 500 && del > 500 && ins / del < 1.5 && del / ins < 1.5) {
-      print "  note: insertions and deletions are large and near-balanced — often a"
+      print "  note: insertions and deletions are large and near-balanced, often a"
       print "  formatting or rename sweep, not that much substance. Check before quoting."
     }
   }'
@@ -87,7 +87,7 @@ head_ "Docs and instructions touched"
 # These usually contain the reasoning already written down in prose,
 # which is the fastest route to the "why" slides.
 changed | grep -iE '(CLAUDE\.md|AGENTS\.md|README\.md|docs/.*\.md|\.agents/)' | sed 's/^/  /' \
-  || echo "  (none — the reasoning is only in the diff and the session)"
+  || echo "  (none: the reasoning is only in the diff and the session)"
 
 head_ "Biggest single-file changes"
 git diff --numstat "$REV" 2>/dev/null \
@@ -103,14 +103,14 @@ changed | grep -iE '(neorgon-(header|footer|themes)\.(css|js)|/png/|\.svg$|packa
 
 head_ "Task brief"
 if [ -f .forge/brief.md ]; then
-  printf '  \033[32mfound .forge/brief.md — read it before writing a slide\033[0m\n'
+  printf '  \033[32mfound .forge/brief.md: read it before writing a slide\033[0m\n'
   printf '  It holds what the diff cannot: the symptom, the rejected alternative,\n'
   printf '  the measured numbers, and what is still open.\n'
   awk '/^## /{h=$0} /^## (Measured|Open)$/{show=1;print "\n  " h;next} /^## /{show=0} show && NF && !/^<!--/ && !/^ /{print "    " $0}' .forge/brief.md
 else
-  echo "  (none — this work did not go through the task skill)"
+  echo "  (none: this work did not go through the task skill)"
 fi
 
 printf '\n\033[1mNext:\033[0m the diff shows what changed. Before writing slides, establish\n'
-printf 'what was wrong before, what was measured, and what is still open — none of\n'
+printf 'what was wrong before, what was measured, and what is still open, none of\n'
 printf 'those are in here.\n'

@@ -1,12 +1,12 @@
 ---
 name: mascot-forge
-description: "Use for an illustrated character, mascot, or avatar — generated, cut out, and brought to life on a page. Triggers on: 'make a mascot', 'animate this character', 'generate a character for the site', 'add expressions to the mascot', 'give her different outfits', 'costume variants', 'add jiggle physics', 'make the mascot react to clicks', 'use my mascot for the favicon and logo'. Creates the art with the Gemini image API, then handles the parts that actually fail: keeping a character on-model across many frames, expression variants (blink, talk, surprise), seasonal outfits, background removal that survives a dark page, frame alignment that stops cross-fades jumping, and a click-reaction rig. Use it to draw the character; once the art exists, resizing it into icon files is the favicon skill's job. Not for photo editing, not for 3D (use 3d-web-experience), not for video."
+description: "Use for an illustrated character, mascot, or avatar, generated, cut out, and brought to life on a page. Triggers on: 'make a mascot', 'animate this character', 'generate a character for the site', 'add expressions to the mascot', 'give her different outfits', 'costume variants', 'add jiggle physics', 'make the mascot react to clicks', 'use my mascot for the favicon and logo'. Creates the art with the Gemini image API, then handles the parts that actually fail: keeping a character on-model across many frames, expression variants (blink, talk, surprise), seasonal outfits, background removal that survives a dark page, frame alignment that stops cross-fades jumping, and a click-reaction rig. Use it to draw the character; once the art exists, resizing it into icon files is the favicon skill's job. Not for photo editing, not for 3D (use 3d-web-experience), not for video."
 argument-hint: "[design|frames|outfits|rig|preview]"
 user-invocable: true
 license: MIT
 ---
 
-# mascot-forge — generate a character, then make it alive
+# mascot-forge: generate a character, then make it alive
 
 Two halves that fail in different ways. **Generation** fails by drifting: the same
 character comes back a little different every time, and a set of frames that drift
@@ -27,20 +27,20 @@ python3 "$MF/scripts/generate.py" --prompt-file "$MF/reference/prompts/base-a-st
 # 2. cut out, align, export
 python3 "$MF/scripts/prep-frames.py" --remove-bg idle=tmp/base-01.png blink=tmp/blink.png
 
-# 3. prove the set is consistent — exits non-zero if it is not
+# 3. prove the set is consistent, exits non-zero if it is not
 python3 "$MF/scripts/verify-frames.py"
 
 # 4. see it move
 python3 "$MF/scripts/build-preview.py" && open images/mascot/preview.html
 ```
 
-Run them from the target project's root — they write relative to the cwd, not to the
+Run them from the target project's root: they write relative to the cwd, not to the
 skill. They need `GEMINI_API_KEY` and, for `--remove-bg`, `REMOVE_BG_API_KEY`, taken from
 the environment or the nearest `.env` searched upward to the repo boundary. Keys are never
 printed, and `keys.py` is the only place that reads them.
 
 Where output lands, by lifetime: served frames and the preview in `images/mascot/`
-(shipped); full-resolution masters in `scripts/mascot/masters/` (committed, never served —
+(shipped); full-resolution masters in `scripts/mascot/masters/` (committed, never served,
 the one argued exception to the three output roots, see the forge's `docs/authoring.md`);
 raw generations and the remove.bg response cache under `.forge/` (ephemeral, safe to
 delete).
@@ -52,10 +52,10 @@ checks quota, so a 429 at least means the call was well formed.
 
 ---
 
-## Step 1 — Design the character
+## Step 1: Design the character
 
 Generate 3–4 *directions*, not 3–4 variations of one direction. Vary the axes that
-change the answer — pose, silhouette, wardrobe — and keep everything else fixed.
+change the answer: pose, silhouette, wardrobe, and keep everything else fixed.
 Judge them **on the background they will actually sit on**, at the size they will
 actually be. A palette that sings on white can dissolve into a dark page.
 
@@ -77,7 +77,7 @@ whether half the work is visible.
 
 ---
 
-## Step 2 — Hold the character on-model
+## Step 2: Hold the character on-model
 
 `--ref` is repeatable and is the whole game. Pass the approved base frame into every
 subsequent generation.
@@ -96,10 +96,10 @@ Name the one thing that changes, then pin everything else:
 
 The opposite framing, and it is counter-intuitive. Calling the reference an "exact
 character sheet" and asking to "change only the rendering style" reads as *keep it
-similar* — it returns near-copies. Demote the reference first:
+similar*: it returns near-copies. Demote the reference first:
 
 > Use the reference image only for WHO she is and how she is posed. Now REDRAW her
-> completely as **&lt;style&gt;**. Do not imitate the reference's rendering — replace
+> completely as **&lt;style&gt;**. Do not imitate the reference's rendering, replace
 > it entirely.
 
 Then give concrete limits: a colour count, an outline weight, "legible at 32px".
@@ -109,7 +109,7 @@ Then give concrete limits: a colour count, an outline weight, "legible at 32px".
 A style prompt that does not defend the character's identity will lose it. A flat
 vector pass flattened a character's amber irises to solid black purely because
 nothing in that prompt mentioned eyes. **Anything that makes the character
-recognisable — eye colour, a ribbon, glasses — must be named in every prompt**, not
+recognisable: eye colour, a ribbon, glasses, must be named in every prompt**, not
 just the base one.
 
 ### Keep every frame at one aspect ratio
@@ -120,7 +120,7 @@ for working examples of all three prompt shapes.
 
 ---
 
-## Step 3 — Cut out and align
+## Step 3: Cut out and align
 
 `prep-frames.py` takes `name=path` pairs. For each render it:
 
@@ -130,7 +130,7 @@ for working examples of all three prompt shapes.
   background, so a white collar, teeth and eye highlights survive. Boundary pixels get
   a feathered alpha and their colour is un-blended from the white, so edges do not
   glow on a dark page.
-- **Splits detached islands** — floating hearts, sparkles, a sweat drop — into
+- **Splits detached islands**: floating hearts, sparkles, a sweat drop, into
   `<name>-extras.png`, so they can animate on their own.
 - **Pads mixed sizes** onto one canvas, anchored on each frame's own content.
 - **Aligns**, then crops everything to one shared canvas and exports PNG + WebP.
@@ -138,7 +138,7 @@ for working examples of all three prompt shapes.
 ### The two alignment traps
 
 **Sealed background pockets.** A flood fill from the border cannot enter background
-the art closes off — between a hair strand and a jaw, say. It stays opaque and shows
+the art closes off: between a hair strand and a jaw, say. It stays opaque and shows
 as a white patch. `--remove-bg` asks remove.bg for a subject mask and feeds the
 unreachable pockets back in.
 
@@ -146,20 +146,20 @@ That integration is built to never spend a paid credit: the model returns a coar
 0.25MP *region* verdict on the free tier, while the local keyer still does every edge
 at full resolution. The model only gets a vote on pixels that are **already
 background-coloured**, and a region must survive a 3px erosion, so a bad mask cannot
-eat hair — the worst case is a pocket it misses. Responses cache by content hash.
+eat hair: the worst case is a pocket it misses. Responses cache by content hash.
 
 **Matching on the wrong thing.** Expression frames change only the face, so the still
 lower body is the signal. Outfit frames change the whole garment, so the unchanged
 face is. The aligner scores both bands and takes the better match, which identifies
-the kind of frame for free — the log says which band won. A residual above ~4.5%
+the kind of frame for free: the log says which band won. A residual above ~4.5%
 after aligning means the frame is drawn at a different **scale**, which no amount of
 translation fixes. Regenerate it.
 
 ### When alignment cannot help
 
 Alignment needs something unchanged to match on. A frame that changes the pose
-*and* the clothing offers nothing — the body differs and limbs move into rows the
-reference leaves empty — and the search will confidently return a wrong answer.
+*and* the clothing offers nothing: the body differs and limbs move into rows the
+reference leaves empty, and the search will confidently return a wrong answer.
 Pin it and trust the padding, which is exact when the render was told to hold its
 scale and head position:
 
@@ -177,7 +177,7 @@ Three bugs worth not rediscovering, all fixed in the shipped script:
 
 - **Padding can break frames that were already aligned.** Anchoring each frame on
   its own content is right for mixed-size sources and wrong for re-prepping an
-  existing set — a hat's content centre is not where the body's is. Frames
+  existing set: a hat's content centre is not where the body's is. Frames
   matching the reference's size inherit the reference's offset instead.
 - **Alignment bands must be fractions of the figure, not the canvas.** The canvas
   grows whenever a wider frame joins, sliding a band off the body part it was
@@ -191,10 +191,10 @@ them; preparing one alone puts it on a different canvas and the layers stop alig
 
 ---
 
-## Step 4 — Verify the frame set before rigging it
+## Step 4: Verify the frame set before rigging it
 
 The rig stands on four claims about the exported files, and all four fail
-invisibly — the page renders either way, and a screenshot review passes.
+invisibly: the page renders either way, and a screenshot review passes.
 
 ```bash
 python3 "$MF/scripts/verify-frames.py"
@@ -216,14 +216,14 @@ Run it after every reprep. It is the cheap version of the invariant at the
 bottom of this file, and the `body` check is the only mechanical test that the
 idle-reuse trick in the rig is still valid.
 
-## Step 5 — The rig
+## Step 5: The rig
 
 `assets/mascot.css` and `assets/mascot.js` are a working starting point. Two
 structural rules decide whether the rest works at all:
 
 **Each transform needs its own element.** Bob, physics and breathe/sway all
 animate `transform`, and one element carries one animation per property. JS owns
-`.mascot-poke` outright — a CSS animation there will fight it.
+`.mascot-poke` outright: a CSS animation there will fight it.
 
 **Only the base frame carries dimensions.** The rest are absolutely positioned and
 inherit the box, so a reprep that changes the canvas touches one line, not eight.
@@ -231,17 +231,17 @@ inherit the box, so a reprep that changes the canvas touches one line, not eight
 The markup, the spring constants, the measured settling times, the
 mutually-indivisible periods that keep the idle loop from reading as a loop, and
 the placement mask are in **`reference/rig.md`**. Read it when tuning motion or
-when a reaction reads as weightless — not before, since none of it matters until
+when a reaction reads as weightless: not before, since none of it matters until
 something moves.
 
 ---
 
-## Step 6 — Outfits and costumes
+## Step 6: Outfits and costumes
 
 Outfits are **alternate base frames, not overlays**: only `idle` exists for each, so
 hide the expression layers and stop the blink while one is on, or the character wears
 default clothes from the neck down. Load them on demand instead of shipping every
-costume to every visitor. Any layer that is a copy of the base — the bounce layer —
+costume to every visitor. Any layer that is a copy of the base. The bounce layer,
 has to swap with them.
 
 Cycle them off a click counter past the last reaction, and expose `?mascot=<name>`
@@ -249,12 +249,12 @@ for screenshots and direct links.
 
 **Hats are the hard case.** At a fixed figure scale a 1:1 render leaves almost no
 headroom, so a tall hat clips. Do **not** solve this by generating at a taller aspect
-— that changes framing and scale, and alignment pins at the search boundary.
+that changes framing and scale, and alignment pins at the search boundary.
 Constrain the hat instead: a santa hat slouched to one side, a witch hat tipped back
 so its cone lies behind the head.
 
 **A chibi is a redraw, not a costume.** Different proportions cannot align with the
-main set, so give it its own canvas and its own CSS size — at a shared width it will
+main set, so give it its own canvas and its own CSS size, at a shared width it will
 render *taller* than the full-size character and the joke lands backwards. Chibify
 the character in their **existing wardrobe**; a chibi plus a school uniform reads as
 a different, much younger character, which is rarely what anyone wants.

@@ -1,4 +1,4 @@
-# medium-es — the author's Spanish Medium voice, full strength
+# medium-es: the author's Spanish Medium voice, full strength
 
 The register of the author's Spanish-language Medium posts: neutral Latin American
 Spanish, semi-ironic, direct, with **deliberate English code-switching** that is part of

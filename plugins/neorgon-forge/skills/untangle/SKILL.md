@@ -6,18 +6,18 @@ user-invocable: true
 license: MIT
 ---
 
-# untangle — for the problems that resist a plan
+# untangle: for the problems that resist a plan
 
 `task` assumes you know the shape of the work and need to execute it well. This is for when you
 do not: the symptom does not point at the source, or three architectures are each defensible, or
 the work is too large to hold in one head at once.
 
 The failure mode it exists to prevent is **confident motion in the wrong direction**. Hard
-problems punish the instinct that serves easy ones — you form a theory, the theory feels right,
+problems punish the instinct that serves easy ones. You form a theory, the theory feels right,
 and every subsequent observation gets read as support. Hours later the bug is still there and the
 theory has never once been tested against something that could have killed it.
 
-## Step 0 — Classify the difficulty
+## Step 0: Classify the difficulty
 
 Say which kind this is, in one line, before anything else. The three branches share almost no
 technique, and running the wrong one is the expensive mistake.
@@ -43,7 +43,7 @@ ends with the reasoning only in the transcript starts over tomorrow.
 bash "$FORGE/skills/task/scripts/brief.sh" init "<the symptom, or the decision>"
 ```
 
-## Branch `cause` — narrow by refutation
+## Branch `cause`: narrow by refutation
 
 ### Establish the observation before theorising
 
@@ -69,12 +69,12 @@ theories and, for each, **the observation that would kill it**:
 
 ```bash
 bash "$FORGE/skills/untangle/scripts/evidence.sh" hypothesis "cache key omits the locale" \
-  "then a locale-free request would also fail — check one"
+  "then a locale-free request would also fail, check one"
 bash "$FORGE/skills/untangle/scripts/evidence.sh" observe "locale-free request succeeds" --refutes 1
 ```
 
 A hypothesis with no refuting observation attached is not testable, and an untestable hypothesis
-cannot be crossed off — it lingers and gets re-litigated. **Design the cheap discriminating
+cannot be crossed off: it lingers and gets re-litigated. **Design the cheap discriminating
 test**: prefer one observation that splits the field over three that each confirm one theory.
 
 ### When the evidence contradicts itself
@@ -96,29 +96,29 @@ them.
 
 You are done when you can **make the bug appear and disappear on demand**. Anything less is a
 correlation, and a fix built on a correlation comes back. If a change makes the symptom go away
-and you cannot say why, that is not a fix — record it as open and say so plainly.
+and you cannot say why, that is not a fix, record it as open and say so plainly.
 
-## Branch `design` — compare, do not rationalise
+## Branch `design`: compare, do not rationalise
 
 ### State the criteria before the options
 
 Criteria chosen after the options are criteria fitted to the preferred option. Write them first,
-with weights if they differ, and get them confirmed if the user is available — a decision made
+with weights if they differ, and get them confirmed if the user is available. A decision made
 against the wrong criteria is worse than a coin flip, because it arrives with a justification.
 
 ### Two or three real options, honestly built
 
 Each needs: how it works in a paragraph, what it costs, what it forecloses, and **what would
 have to be true for this to be the right answer**. That last question exposes options nobody
-actually believes in — a strawman cannot answer it.
+actually believes in: a strawman cannot answer it.
 
 Then score against the criteria in a table, and say which wins and by how much. A narrow win is
 worth saying out loud: it means the decision is roughly reversible and not worth more analysis.
 
 ### Prototype only to resolve a specific uncertainty
 
-If the deciding factor is unknowable from reading — throughput, an API's real behaviour, whether
-a library handles your edge case — build the smallest thing that answers *that one question*.
+If the deciding factor is unknowable from reading, throughput, an API's real behaviour, whether
+a library handles your edge case: build the smallest thing that answers *that one question*.
 Timebox it and record the number in the brief. A prototype that drifts into an implementation
 has stopped being an experiment.
 
@@ -128,7 +128,7 @@ Someone who disagrees with your choice can see, from what you wrote, exactly whi
 they weigh differently. That is what makes a design decision reviewable rather than a matter of
 taste, and `## Rejected` in the brief is where it lands.
 
-## Branch `scale` — map before you touch
+## Branch `scale`: map before you touch
 
 This branch's job is the map. Once it exists, hand execution to `task --scope campaign`; the map
 is the part that gets skipped, not the editing.
@@ -139,13 +139,13 @@ is the part that gets skipped, not the editing.
 bash "$FORGE/skills/untangle/scripts/survey.sh" <pattern> [dir]
 ```
 
-Get the full population before deciding how to handle it — every call site, every package, every
+Get the full population before deciding how to handle it. Every call site, every package, every
 file matching the shape. A count from a script and a count from recollection differ, and the
 difference is what ships broken.
 
 ### Sample before generalising
 
-Read three or four instances *chosen to be different* — the oldest, the newest, the one everyone
+Read three or four instances *chosen to be different*. The oldest, the newest, the one everyone
 warns about. The pattern inferred from the first two will be wrong in a way only the outlier
 reveals, and finding that out after 30 mechanical edits is the expensive path.
 

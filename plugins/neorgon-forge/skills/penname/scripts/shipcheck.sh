@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shipcheck.sh — the "ship it" checklist for a post, mechanized.
+# shipcheck.sh: the "ship it" checklist for a post, mechanized.
 #
 # Structure: title heading, a hook paragraph before the first section, section
 # headings on long posts, one concrete example, a gotchas section on technical
@@ -44,7 +44,7 @@ PROSE="$(awk '
 # ── Structure ────────────────────────────────────────────────────────────────
 
 printf '%s\n' "$PROSE" | awk 'NF { exit !($0 ~ /^# /) }' \
-  || note "$POST:1: no title — the first content line should be a single # heading"
+  || note "$POST:1: no title. The first content line should be a single # heading"
 
 # A hook: at least one prose paragraph (not a heading/image/blockquote) before
 # the first ## section. Skimmers decide here.
@@ -55,27 +55,27 @@ hook="$(printf '%s\n' "$PROSE" | awk '
   NF                           { found = 1; exit }
   END                          { print found + 0 }
 ')"
-[ "$hook" = "1" ] || note "$POST: no hook paragraph before the first section — say what the reader gets"
+[ "$hook" = "1" ] || note "$POST: no hook paragraph before the first section, say what the reader gets"
 
 words="$(printf '%s\n' "$PROSE" | wc -w | tr -d ' ')"
 sections="$(printf '%s\n' "$PROSE" | grep -c '^## ' || true)"
 if [ "$words" -gt 600 ] && [ "$sections" -lt 2 ]; then
-  note "$POST: $words words with $sections section heading(s) — skimmers need ## headings"
+  note "$POST: $words words with $sections section heading(s), skimmers need ## headings"
 fi
 
 if ! grep -qE '^```|!\[' "$POST"; then
-  note "$POST: no concrete example — no code block and no image in the whole post"
+  note "$POST: no concrete example. No code block and no image in the whole post"
 fi
 
 # Technical tell: a fenced code block. Technical posts owe the reader a gotchas
 # or still-figuring-out section; hobby posts are exempt.
 if grep -q '^```' "$POST"; then
   printf '%s\n' "$PROSE" | grep -qiE '^#{2,4} .*(gotcha|common mistake|troubleshoot|what went wrong|figuring out|known issue|caveat)' \
-    || note "$POST: technical post with no gotchas section — even a small one signals it was tested"
+    || note "$POST: technical post with no gotchas section, even a small one signals it was tested"
 fi
 
 printf '%s\n' "$PROSE" | tail -20 | grep -qiE "TL;?DR|and that'?s it|peace!|resources|what'?s next|final thoughts|closing thoughts|let me know" \
-  || note "$POST: no ending — close with a TL;DR, sign-off, resources, or a feedback ask"
+  || note "$POST: no ending, close with a TL;DR, sign-off, resources, or a feedback ask"
 
 # ── Rot ──────────────────────────────────────────────────────────────────────
 
@@ -106,7 +106,7 @@ fi
 # ── Verdict ──────────────────────────────────────────────────────────────────
 
 if [ "$findings" -gt 0 ]; then
-  red "$findings finding(s) — not ready to ship"
+  red "$findings finding(s): not ready to ship"
   exit 1
 fi
 green "ships"

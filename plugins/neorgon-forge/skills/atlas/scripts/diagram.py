@@ -57,7 +57,7 @@ config:
 """
 
 # Shape by role. The pairs wrap the label, so the role is legible in the source
-# as well as the render — a reviewer reading the .mmd sees the same distinction a
+# as well as the render: a reviewer reading the .mmd sees the same distinction a
 # reader of the SVG sees.
 SHAPES = {
     "entry": ("([", "])"),
@@ -95,7 +95,7 @@ def label(text: str) -> str:
 
     <br/> for line breaks, never \\n. Mermaid 11 renders labels through an HTML
     foreignObject by default, where a literal backslash-n is two characters of
-    text rather than a break — a silent, visible-only-in-the-render regression.
+    text rather than a break: a silent, visible-only-in-the-render regression.
     """
     safe = text.replace('"', "'").replace("\n", "<br/>")
     return f'"{safe}"'
@@ -152,7 +152,7 @@ def emit_flow(model, target, limit=24):
 
     Deliberately NOT every edge. A real app has roughly twice as many imports as
     modules, and drawing all of them produces a plate of spaghetti where no path
-    can be followed — the diagram renders, looks impressive, and answers nothing.
+    can be followed: the diagram renders, looks impressive, and answers nothing.
     Rendering this project's 19 modules with all 41 edges was unreadable; the
     spine of the same model is not.
 
@@ -178,7 +178,7 @@ def emit_flow(model, target, limit=24):
 
     # Left-to-right, so depth runs across and siblings stack down. A top-down
     # spine puts every depth-1 module on one row, and a diagram wider than the
-    # content column gets scaled to fit — which in a Material page meant a
+    # content column gets scaled to fit: which in a Material page meant a
     # legible SVG shrunk to unreadable thumbnail. Vertical overflow costs a
     # scroll; horizontal overflow costs the diagram.
     lines = [header(target, "LR")]
@@ -234,7 +234,7 @@ def emit_flow(model, target, limit=24):
     if elided > 0:
         lines.append(
             f"    %% spine only: {len(spine)} of {len(model['edges'])} imports drawn, "
-            f"{elided} elided — see the focus diagram for one module's real edges"
+            f"{elided} elided: see the focus diagram for one module's real edges"
         )
     if cycle_groups:
         lines.append(f"    %% dotted arrows close an import cycle ({len(cycle_groups)} found)")
@@ -303,7 +303,7 @@ def emit_focus(model, target, focus):
         raise SystemExit(f"nothing in the model matches {focus!r}")
     if len(matches) > 1:
         raise SystemExit(
-            f"{focus!r} matches {len(matches)} modules — name one:\n  "
+            f"{focus!r} matches {len(matches)} modules, name one:\n  "
             + "\n  ".join(matches)
         )
     target_id = matches[0]
@@ -390,7 +390,7 @@ def main():
         body = emit_externals(model, target)
     else:
         raise SystemExit(
-            f"unknown diagram kind {kind!r} — "
+            f"unknown diagram kind {kind!r}: "
             "areas, flow, area-detail, focus, externals"
         )
 

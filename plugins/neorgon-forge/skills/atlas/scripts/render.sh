@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Render export-target .mmd files to SVG and PNG with mermaid-cli.
 #
-# Only for diagrams that leave the docs site — a slide, a README, a post. Diagrams
+# Only for diagrams that leave the docs site: a slide, a README, a post. Diagrams
 # inside MkDocs pages stay as fences and are rendered by Material in the browser,
 # because a fence re-themes with the palette and an image does not.
 #
@@ -54,7 +54,7 @@ if [ ${#sources[@]} -eq 0 ]; then
 fi
 
 if ! command -v npx >/dev/null 2>&1; then
-  red "npx not found — mermaid-cli needs Node"
+  red "npx not found: mermaid-cli needs Node"
   dim "the .mmd files are still valid; render them anywhere, or paste into"
   dim "https://mermaid.live to check them by eye"
   exit 1
@@ -67,7 +67,7 @@ for src in "${sources[@]}"; do
   base="${src%.mmd}"
 
   if grep -q '\\n' "$src"; then
-    red "  SKIP $src — contains a literal \\n in a label"
+    red "  SKIP $src: contains a literal \\n in a label"
     dim "        Mermaid 11 renders that as two characters, not a line break."
     dim "        Use <br/> instead. Regenerate with diagram.py, which does."
     fail=1
@@ -75,7 +75,7 @@ for src in "${sources[@]}"; do
   fi
 
   if ! grep -qE '^(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram)' "$src"; then
-    red "  SKIP $src — no diagram declaration found"
+    red "  SKIP $src: no diagram declaration found"
     dim "        Material auto-themes only flowchart, sequence, class, state and ER."
     fail=1
     continue
@@ -118,6 +118,6 @@ else
 fi
 
 if [ "$fail" -ne 0 ]; then
-  red "some diagrams did not render — the model is fine, the diagram source is not"
+  red "some diagrams did not render: the model is fine, the diagram source is not"
   exit 1
 fi

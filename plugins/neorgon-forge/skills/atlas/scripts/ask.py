@@ -7,7 +7,7 @@ schema.js" is one lookup here and a reading comprehension exercise there.
 
 Every answer that names a file names a line too, so it can be checked. And every
 answer reports the commit the model was built at, because an answer from a stale
-model is worse than no answer — it is indistinguishable from a current one.
+model is worse than no answer: it is indistinguishable from a current one.
 
 Usage:
   ask.py <question> [--model docs/atlas/model.json]
@@ -47,12 +47,12 @@ def pick(model, fragment):
     if not matches:
         raise SystemExit(
             f"nothing in the model matches {fragment!r}\n"
-            "the model only contains scanned source files — "
+            "the model only contains scanned source files, "
             "run scan.py again if the file is new"
         )
     if len(matches) > 1:
         raise SystemExit(
-            f"{fragment!r} matches {len(matches)} modules — name one:\n  "
+            f"{fragment!r} matches {len(matches)} modules, name one:\n  "
             + "\n  ".join(matches)
         )
     return matches[0]
@@ -85,10 +85,10 @@ def q_impact(model, fragment):
     layers = reach(model, target, "up")
     total = sum(len(layer) for layer in layers)
 
-    print(f"impact of changing {target} — {stamp(model)}\n")
+    print(f"impact of changing {target}: {stamp(model)}\n")
     if not layers:
         print("nothing imports it. Changing it affects no other module in the model.")
-        print("That means it is an entry point, or it is dead — check which.")
+        print("That means it is an entry point, or it is dead, check which.")
         return
     print(f"{plural(total, 'module')} depend on it, across "
           f"{plural(len(layers), 'level')}.\n")
@@ -105,7 +105,7 @@ def q_impact(model, fragment):
 def q_needs(model, fragment):
     target = pick(model, fragment)
     layers = reach(model, target, "down")
-    print(f"what {target} depends on — {stamp(model)}\n")
+    print(f"what {target} depends on: {stamp(model)}\n")
     if not layers:
         print("nothing. It imports no other module in the model.")
         return
@@ -124,9 +124,9 @@ def q_needs(model, fragment):
 
 def q_where(model, term):
     matches = am.resolve(model, term)
-    print(f"modules matching {term!r} — {stamp(model)}\n")
+    print(f"modules matching {term!r}: {stamp(model)}\n")
     if not matches:
-        print("none. The model indexes file paths, not contents —")
+        print("none. The model indexes file paths, not contents,")
         print("grep the source for a term that appears inside a file.")
         return
     nodes = am.index(model)
@@ -140,7 +140,7 @@ def q_where(model, term):
 def q_layers(model):
     depth = am.depths(model)
     starts, source = am.entries(model)
-    print(f"modules by distance from an entry point — {stamp(model)}\n")
+    print(f"modules by distance from an entry point, {stamp(model)}\n")
     if source == "inferred":
         print("entry points were inferred from having no importers, not declared.\n")
     grouped = {}
@@ -158,7 +158,7 @@ def q_layers(model):
 
 
 def q_risk(model):
-    print(f"where change is expensive — {stamp(model)}\n")
+    print(f"where change is expensive: {stamp(model)}\n")
     print("widest blast radius:")
     for hub in am.hubs(model, 6):
         print(f"  {hub['id']}  {plural(hub['importers'], 'importer')}, "
@@ -178,7 +178,7 @@ def q_risk(model):
     if stray:
         for node_id in stray:
             print(f"  {node_id}")
-        print("  each is dead code or an unrecognised entry point — "
+        print("  each is dead code or an unrecognised entry point, "
               "the two need opposite responses")
     else:
         print("  none")
@@ -188,7 +188,7 @@ def q_areas(model):
     counts = {}
     for node in model["nodes"]:
         counts[node["area"]] = counts.get(node["area"], 0) + 1
-    print(f"areas — {stamp(model)} (from {model['areas_from']})\n")
+    print(f"areas: {stamp(model)} (from {model['areas_from']})\n")
     for area in am.areas_of(model):
         print(f"  {area}  {plural(counts[area], 'module')}")
     edges = am.area_edges(model)
@@ -197,7 +197,7 @@ def q_areas(model):
         for edge in edges:
             print(f"  {edge['from']} -> {edge['to']}  {edge['count']} imports")
     else:
-        print("  none — every area is self-contained")
+        print("  none: every area is self-contained")
 
 
 def q_stale(model):
@@ -207,7 +207,7 @@ def q_stale(model):
     mtime check reports drift that does not exist and gets ignored within a week.
     """
     commit = model.get("commit")
-    print(f"staleness — {stamp(model)}\n")
+    print(f"staleness: {stamp(model)}\n")
     if not commit:
         print("the model records no commit, so drift cannot be measured.")
         print("commit the repo and rerun scan.py.")
@@ -262,7 +262,7 @@ def q_stale(model):
     if not (relevant or new or dirty or head != commit):
         print("nothing relevant changed. Every answer from this model is current.")
     else:
-        print("\nrerun scan.py then build.py — answers below that line are about "
+        print("\nrerun scan.py then build.py: answers below that line are about "
               "an older tree")
 
 
@@ -297,7 +297,7 @@ def main():
         q_stale(model)
     else:
         raise SystemExit(
-            f"unknown question {question!r} — "
+            f"unknown question {question!r}: "
             "impact, needs, where, layers, risk, areas, stale"
         )
     return 0
