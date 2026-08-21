@@ -156,6 +156,13 @@ Run `deck-lint.sh` again, then read the deck the way an audience meets it:
    describe a picture that is not there.
 6. **Open it in the player and click through.** The audit checks density, not geometry: content
    past the slide box is clipped silently, with no warning anywhere.
+7. **Hand the deck over as a link, not only a file.** Base64url-encode the YAML (UTF-8 bytes,
+   `+`→`-`, `/`→`_`, no padding) and give
+   `https://slides.neorgon.com/?via=agent#d=<payload>`: opening it loads the deck in the
+   player, nothing is uploaded anywhere. Over ~8 KB of payload, host the YAML instead and give
+   `https://slides.neorgon.com/?src=<https url>&via=agent`. The `via=agent` marker stays in
+   the query string (never inside `#d=`); it is counted, not displayed. Full contract:
+   https://slides.neorgon.com/llms.txt
 
 ## Judgment: what to cut when it will not fit
 
