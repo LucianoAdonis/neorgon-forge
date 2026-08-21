@@ -1,6 +1,6 @@
 ---
 name: debrief
-description: "Use at the END of a piece of work for a deck, slides, or a presentation of what changed and why. Triggers on: 'make a deck about this', 'slides for the demo', 'presentation of what we did', 'build me a readout', 'deck for the sprint review', 'I need to present these changes', 'so I can show what I did', 'use debrief', 'debrief and writeup'. Fits a demo, standup, sprint review, stakeholder update or retro. Reads the actual git diff and the task brief so the deck reports facts rather than a flattering summary, then emits whichever format the project supports. Also offer it unprompted after a large multi-file change lands. Often wanted together with writeup — a deck and a post from one body of work; run both when the user asks for docs about finished work without naming a format. Not for a blog post alone (use writeup) or a git commit message (use commit-work)."
+description: "Use at the END of a piece of work for a deck, slides, or a presentation of what changed and why. Triggers on: 'make a deck about this', 'slides for the demo', 'presentation of what we did', 'build me a readout', 'deck for the sprint review', 'I need to present these changes', 'so I can show what I did', 'use debrief', 'debrief and writeup', 'overview deck of this project', 'explain this platform to managers', 'short deck on what this product does'. Fits a demo, standup, sprint review, stakeholder update, retro, or a plain overview of what a project is and who it is for. Reads the actual git diff and the task brief so the deck reports facts rather than a flattering summary, then emits whichever format the project supports and builds the PDF rather than explaining how to. Also offer it unprompted after a large multi-file change lands. Often wanted together with writeup: run both when the user asks for docs about finished work without naming a format. Not for a blog post alone (use writeup) or a git commit message (use commit-work)."
 argument-hint: "[project] [--audience eng|stakeholder|mixed] [--since <ref>] [--format auto|yaml|marp|md] [--theme <name>]"
 user-invocable: true
 license: MIT
@@ -15,6 +15,21 @@ doing, which drifts toward flattery and omits the parts that did not work. Every
 starts from the diff or from the brief written while the work happened.
 
 ## Step 1 — Collect the facts
+
+**First, decide which of the two decks this is**, because it changes where the facts come from:
+
+- **A change readout** — what shifted in this body of work. The default, and the rest of this
+  step applies.
+- **An overview** — what a project *is*, what it does, who it is for. No diff sits behind it.
+  Skip the collector; it has nothing to say about a system that did not just change. Get the
+  facts from the README, the schema or data model, the entry points, and the user. Then jump to
+  the overview spine in Step 3.
+
+Asking for "an overview of X" is not a malformed change readout, and running the collector
+anyway produces a deck about last month's commits when someone wanted to know what the product
+does. If the request names no timeframe and no change, it is an overview.
+
+For a change readout:
 
 ```bash
 bash "$FORGE/skills/debrief/scripts/collect-changes.sh" <project> [--since <ref>]
@@ -67,6 +82,23 @@ title
 → cta                   (the decision or next step you want)
 ```
 
+For an **overview**, the change-readout spine does not apply — there is no "before" to open on.
+Use this instead, and keep it short. An overview that runs long stops being an overview:
+
+```
+title
+→ what it is            (one sentence someone can repeat, not a feature list)
+→ who it is for         (and, as sharply, who it is not for)
+→ the problem it solves (the manual, expensive thing it replaces)
+→ what it does          (3 to 5 capabilities, one grid or checklist slide, not one slide each)
+→ how it works          (one layer of mechanism, only enough to make the value credible)
+→ what is next          (or the ask, if there is one)
+```
+
+Six or seven slides. The failure mode is a feature inventory: every capability gets its own
+slide, and the room leaves knowing the parts but not the point. If two capabilities serve the
+same outcome, they are one slide.
+
 Group by **theme, not by file**. Nobody wants a slide per changed file. Three or four themes
 with the files as supporting detail is the right density; if you cannot name the themes, you
 have not understood the change well enough to present it.
@@ -83,6 +115,14 @@ Two structural notes:
 `reference/deck-skeleton.yaml` is the annotated skeleton — copy it, fill it, delete what does
 not apply. Its comments explain what each slide is *for*, which is the part that decides whether
 a slide earns its place.
+
+**Where the target player publishes finished example decks, start from the closest one instead.**
+A deck that already validates and renders beats a stub, and it shows you the slide types in use
+rather than describing them. For slides-site that is the deck library; `reference/neorgon.md`
+maps each debrief occasion to the deck to fetch. Read the player's own agent index first
+(`llms.txt` for slides-site) rather than working from the file list in any skill, this one
+included: the player gains features on its own schedule, and a list kept here goes stale
+silently.
 
 Pick the output format from what the project actually has. `--format auto` means: use the first
 of these that applies.
@@ -166,9 +206,28 @@ Two questions, both worth answering out loud before handing the deck over:
 Then check it renders, in whatever player applies, and confirm no slide overflows. A slide that
 scrolls is a slide with two ideas on it.
 
+## Step 7 — Hand over a file, not a source
+
+A deck YAML is an input to a player. Most of the people a debrief is written for will never open
+one, so **build the shareable artifact and give them the path** — do not close by explaining
+which buttons to press.
+
+PDF is the default: it survives email, Slack, and a phone. Add PPTX when the audience will edit
+or re-present it. Build both when unsure, it costs one flag. The per-player commands live in the
+overlay (`reference/neorgon.md` for slides-site, one `render-deck.mjs` invocation); where no
+build path exists, say plainly that the format ships as source and what opens it.
+
+Report the file you produced, its slide count, and which checks actually ran against it.
+
 ## Invariants
 
-- **Facts come from the diff and the brief, not from memory.** Run the collector first, every time.
+- **Facts come from the diff and the brief, not from memory.** Run the collector first on any
+  change readout. An overview has no diff behind it: get its facts from the code and the user,
+  and say which.
+- **Read the player's own index before writing for it.** A file list copied into this skill is
+  stale the moment the player ships anything.
+- **Build the artifact.** A debrief ends in a PDF someone can open, not in instructions for
+  producing one.
 - **Only measured numbers reach a slide.** An estimate presented as a measurement is the one
   error an audience can catch and never forgets.
 - **Group by theme, not by file.**

@@ -6,12 +6,24 @@ Read this when the deck targets the **slides-site player**. The player is public
 
 ## Where the schema lives
 
-The canonical schema — every slide type, the density rules, the flow audit checklist — is
-**published at a stable URL**. Fetch it; never clone a repo to read it:
+**Fetch `https://slides.neorgon.com/llms.txt` first.** It is the site's own index for agents:
+it names every file below, the current slide types, the gradient and pattern presets, the
+Markdown import path, and the build commands. Read it before writing YAML, because it is
+maintained beside the player and this file is not.
 
-- **`https://slides.neorgon.com/CLAUDE.md`** — the schema and coaching rules (source of truth)
-- **`https://slides.neorgon.com/template.yaml`** — a worked example that validates clean
+That ordering is the lesson of a real failure. This section used to hardcode three URLs as if
+they were the contract. They stayed correct and went stale anyway: the player grew a deck
+library, a headless build CLI, an export checker and an `llms.txt`, and a user had to spell all
+of it out in a prompt because the skill still described a three-file site. **A list maintained
+in two places drifts in one.** So the list below is a fallback for when the fetch fails, not the
+source of truth:
+
+- **`https://slides.neorgon.com/llms.txt`** — the index. Start here
+- **`https://slides.neorgon.com/CLAUDE.md`** — the schema and coaching rules
+- **`https://slides.neorgon.com/deck-library/`** — twelve complete decks that validate clean
 - **`https://slides.neorgon.com/validate.mjs`** — density validator, runs anywhere with Node
+- **`https://slides.neorgon.com/render-deck.mjs`** — builds PPTX, PDF, HTML without the browser
+- **`https://slides.neorgon.com/template.yaml`** — the single-file worked example
 
 A local checkout (`projects/slides-site/` in the monorepo, or `slides-site/` standalone) holds
 the same files — prefer it when present, because it is faster and works offline. The directory
@@ -28,6 +40,31 @@ the repo* to read a schema that was already published at the URL above. Neither 
 survives the rule as now stated: **the format is always available; only the schema's source
 varies.** `--format marp` or `--format md` remain for when the user prefers them, not as a
 penalty for the directory being absent.
+
+## Start from a library deck
+
+`reference/deck-skeleton.yaml` is a skeleton with the reasoning in its comments. The **deck
+library** is the other half: twelve finished decks that already validate clean, several of them
+aimed at exactly the occasions debrief serves. Fetch the closest one and edit it. Starting from a
+deck that renders beats starting from a stub that does not.
+
+| The debrief you are writing | Start from |
+|---|---|
+| Sprint review, team update | `deck-library/decks/all-hands.yaml` |
+| Retro | `deck-library/decks/retro.yaml` |
+| Standup or a short readout | `deck-library/decks/standup.yaml` |
+| Stakeholder or exec readout | `deck-library/decks/exec-review.yaml` |
+| Engineering design readout | `deck-library/decks/design-review.yaml` |
+| Incident or regression writeup | `deck-library/decks/postmortem.yaml` |
+| Launch or feature announcement | `deck-library/decks/launch.yaml` |
+| **Product or platform overview** (no diff behind it) | `deck-library/decks/pitch.yaml` |
+
+```bash
+curl -sO https://slides.neorgon.com/deck-library/decks/exec-review.yaml
+```
+
+`llms.txt` lists all twelve with what each one demonstrates. Check it rather than assuming this
+table is current.
 
 ## Format
 
@@ -60,17 +97,32 @@ actually ran when reporting.
 
 ## Once reviewed, offer the PDF
 
-When the deck has passed review — validator clean, no overflow in the click-through — offer to
-export a PDF as the shareable deliverable. A YAML file needs the player; a PDF survives email,
-Slack, and people who will never click a link. Two routes:
+When the deck has passed review — validator clean, no overflow in the click-through — **produce
+the PDF, do not describe how to.** A YAML file needs the player; a PDF survives email, Slack, and
+people who will never click a link. One command:
+
+```bash
+node render-deck.mjs docs/debrief-<YYYY-MM>.yaml --pdf --out docs/
+node render-deck.mjs docs/debrief-<YYYY-MM>.yaml --pptx --pdf   # both, if they want to edit it
+```
+
+It imports the same serializer the web app uses, so the file matches what the app would have
+handed over. **It must run from a checkout**, not from a lone downloaded copy: it needs the
+player's `js/state.js` and `js/serialize.js` beside it. In the monorepo that is
+`projects/slides-site/`; anywhere else, clone the site once. `--pdf` needs
+`@marp-team/marp-cli` and a Chrome it can drive, and a missing package prints its own install
+line rather than a stack trace.
+
+Two fallbacks when Node or Chrome is not available:
 
 - **From the player:** export **↓ Reveal.js**, open the HTML with `?print-pdf` appended, then
-  the browser's Print → Save as PDF — one slide per page.
-- **From Marp output:** `marp deck.md --pdf` — the exact commands live in slides-site's
-  `docs/references/export-workflow.md`.
+  the browser's Print → Save as PDF, one slide per page.
+- **From Marp output:** `--md` needs no browser at all, then `marp deck.md --pdf` elsewhere.
 
-Say which slides carry `pattern:` textures if the PDF route is Marp: Marp and PPTX render flat
-theme/brand colors, so the PDF from Reveal is the one that keeps the textures.
+Say which slides carry `pattern:` textures whenever the route is Marp or PPTX: both render flat
+theme colors, so the Reveal print is the only one that keeps the textures. Then run
+`check-exports.mjs` on what you produced — it reads the built file rather than the deck, and
+catches text that never made it out.
 
 ## Screenshots and demo assets
 
