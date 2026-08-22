@@ -269,7 +269,7 @@ cmd_index() {
     printf 'By `brief.sh index`. Grep this instead of recalling a decision:\n'
     printf 'every problem, decision, and open item from every brief under this root.\n'
     while IFS= read -r b; do
-      local repo runs closed state
+      local repo runs state
       repo="${b#"$root"/}"; repo="${repo%/.forge/brief.md}"
       # grep -c prints the count even when it is 0 (and exits 1), so no fallback.
       runs=$(grep -cE "^\*\*Problem\.\*\*|^# Brief( $LEGACY_SEP|:) " "$b" 2>/dev/null)

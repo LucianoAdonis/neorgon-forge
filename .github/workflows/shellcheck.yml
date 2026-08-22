@@ -1,0 +1,28 @@
+name: shellcheck
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: shell scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+
+      # Every script the repo ships: bin/ plus each skill's scripts/ directory.
+      # -S warning keeps style nits out of CI while still failing on the
+      # classes that bite: unquoted expansions, unreachable code, bad tests.
+      - name: Lint every shipped script
+        run: |
+          find . -name '*.sh' -not -path './.git/*' -print0 \
+            | xargs -0 --no-run-if-empty shellcheck -S warning
