@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # The only dependency surface this repo has is the actions its own
+  # workflows pin. Without this, actions/checkout silently ages until a
+  # runner deprecation breaks CI.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
+    labels:
+      - dependencies
