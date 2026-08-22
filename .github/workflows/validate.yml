@@ -1,0 +1,23 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  skills:
+    name: skills and manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # bin/validate.sh checks every skill's frontmatter, description length,
+      # body length, script paths and output roots, then parses both plugin
+      # manifests. It already exits non-zero on failure, so it needs no wrapper.
+      - name: Validate every skill against the house standard
+        run: make validate
