@@ -77,6 +77,7 @@ applies it as one undo step. Address blocks by the ids the prompt lists.
   "verify":   [{ "block": "b5", "verdict": "verified|refuted", "evidence": "required" }],
   "status":   [{ "block": "b2", "status": "done" }],
   "criteria": [{ "block": "b4", "add": ["..."] }],
+  "notes":    [{ "block": "b2", "note": "appends to block notes, prefixed Review:" }],
   "blocks":   [{ "id": "n1", "type": "problem", "title": "..." }],
   "arrows":   [{ "from": "n1", "to": "b2", "label": "explains" }]
 }
