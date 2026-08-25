@@ -1,0 +1,3 @@
+interface:
+  display_name: "Pathfinder"
+  short_description: "Read and write Pathfinder canvases that provably load"

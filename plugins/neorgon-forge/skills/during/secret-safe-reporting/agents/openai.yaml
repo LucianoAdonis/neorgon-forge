@@ -1,0 +1,3 @@
+interface:
+  display_name: "Secret-Safe Reporting"
+  short_description: "Report on sensitive data without leaking it"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Atlas"
+  short_description: "Docs and diagrams generated from a real dependency model"

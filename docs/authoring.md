@@ -7,15 +7,24 @@ and is the part that decides whether the skill gets used.
 ## The five-minute version
 
 ```bash
-bash bin/new.sh my-skill "one-line purpose"   # scaffold
-$EDITOR plugins/neorgon-forge/skills/my-skill/SKILL.md
-bash bin/validate.sh my-skill                 # check it against the house standard
-bash bin/install.sh                           # symlink into ~/.claude/skills
+bash bin/new.sh my-skill during "one-line purpose"   # scaffold into a bucket
+$EDITOR plugins/neorgon-forge/skills/during/my-skill/SKILL.md
+bash bin/validate.sh my-skill                       # check it against the house standard
+bash bin/install.sh                                 # symlink into ~/.claude/skills
 # restart Claude Code, then: /my-skill
 ```
 
 Because `install.sh` symlinks rather than copies, every later edit is live immediately. You only
 re-run `install.sh` when you add a *new* skill.
+
+The bucket is **arc position, not topic**: `before` if the skill runs when you have not started,
+`during` while the work happens, `after` when it is done and someone has to hear about it,
+`craft` for standing quality reached for on its own schedule. It is repo organisation only:
+skills install flat, so a cross-skill path in prose never carries a bucket.
+
+`validate.sh` will fail the new skill until it also has an `agents/openai.yaml`, a page at
+`docs/skills/my-skill.md`, and an entry in `plugin.json`'s `skills` array. The fifth thing it
+owes, a line in the `forge` router, is the one nothing can check. See `CLAUDE.md`.
 
 ## What a skill is, and when you want one
 
@@ -235,6 +244,18 @@ a category. The remove.bg response cache, which used to sit beside this problem 
 `.cache/`, is *not* an exception: a cache is safe to delete by definition, which makes it
 the ephemeral lifetime, and it lives under `.forge/cache/`.
 
+A **second** argued exception exists, and it is narrower: the bare file **`.env`**, which
+`wizard`'s `template.sh` upserts into. It fails all three lifetimes too. Not ephemeral, the
+project needs it at runtime. Not regenerable, its values came from a human reading them off a
+dashboard. Not shipped, it is the one file most repos are certain to gitignore. But unlike the
+mascot masters it is **not a root at all**: it claims no directory, it already exists in most
+projects that a wizard would run in, and a wizard writing it leaves no new rule about what is
+safe to delete. That is the whole argument, and it is why the check allows `.env` as an exact
+match only and never as a prefix: `.envoy/` is a new root and still fails.
+
+Two exceptions is close to the limit at which a rule stops being one. A third should be read as
+evidence that lifetime is the wrong axis, not as a third bullet.
+
 ## Portability
 
 The rule this repo follows: **portable core, overlay for local convention.**
@@ -269,11 +290,26 @@ cannot use on your next project, and you will not notice until you are on that p
 
 ## Registering
 
-Skills in `plugins/neorgon-forge/skills/` are picked up automatically. The plugin manifest lists
-no individual skills, so there is nothing to update when you add one.
+**The plugin ships exactly the skills `plugin.json`'s `skills` array lists.** The array became
+explicit when skills moved into buckets, because the default scan only sees one level down. So a
+new skill needs a line added:
+
+```json
+"skills": [ "./skills/before/forge", "...", "./skills/during/my-skill" ]
+```
+
+A skill on disk and missing from the array is installed by nobody, and an entry left behind after
+a rename breaks the plugin load rather than just that one skill. `bin/validate.sh` compares the
+two and fails on any disagreement, so this is caught before it ships rather than after.
+
+Also register it in the **`forge` router** (`skills/before/forge/SKILL.md`), including in the
+overlap table if it is confusable with a sibling. Nothing can check this one, and a router that
+never mentions a skill is a router that lies, exactly as much as one still routing to a skill
+that was renamed.
 
 Update `plugin.json`'s `version` when you change behaviour in a way an installed user would
-notice.
+notice. A skill added, removed, or renamed is a minor bump; a layout change that moves where
+skills live is a major one.
 
 ## Testing
 

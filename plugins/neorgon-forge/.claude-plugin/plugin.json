@@ -1,7 +1,7 @@
 {
   "name": "neorgon-forge",
-  "version": "1.13.0",
-  "description": "Skills for finding your way into hard work, taking it on, and then explaining it. wayfind maps an unfamiliar codebase and resolves tickets to files; untangle works a problem whose shape is not yet known; atlas extracts a dependency model and generates MkDocs pages and Mermaid diagrams from it, then answers questions against it; task scopes and delegates; debrief turns the result into a deck; writeup turns it into a published post; deckcraft writes and repairs the decks that do not come from a diff, holding every heading to a claim someone could dispute; voicecheck keeps the copy consistent; penname drafts new prose in English or Spanish under a corpus-derived persona, lints it against checkable register rules, and keeps a feedback ledger of the corrections the author actually accepted; groundwork investigates a tutorial's prerequisites, credentials, and limits and dates every claim, then docrun.sh executes the doc's own commands to prove them and stale.sh expires them; quizmaster turns source material into a validated Proctor-format exam; mascot-forge generates a character and rigs it; secret-safe-reporting designs pipelines that report on sensitive data without leaking it. task, debrief and writeup share one brief written during the work, so the account of it is a record rather than a recollection.",
+  "version": "2.0.0",
+  "description": "Eighteen skills for finding your way into hard work, taking it on, then explaining it, arranged by where in the work you are rather than by topic. before/: forge routes over the whole set, wayfind maps an unfamiliar codebase, untangle works a problem whose shape is not known yet, grill argues with a plan a whole round of questions at a time, atlas extracts a dependency model and generates MkDocs pages and Mermaid diagrams from it. during/: task scopes and delegates while keeping a brief on disk, wizard generates a bash walkthrough for the steps only a human can take, handoff compacts a session for the next agent, repitch re-explains an answer that did not land, secret-safe-reporting keeps pipelines from leaking what they read. after/: debrief builds the deck, writeup builds the post, deckcraft repairs a deck whose headings name topics instead of making claims. craft/: penname drafts in the author's voice in English or Spanish, voicecheck audits copy that exists, groundwork dates what a service really requires before a tutorial promises it, quizmaster turns source material into a validated exam, mascot-forge generates and rigs a character. task, debrief and writeup share one brief written during the work, so the account of it is a record rather than a recollection.",
   "author": {
     "name": "LucianoAdonis",
     "url": "https://neorgon.com"
@@ -35,6 +35,35 @@
     "quiz-generation",
     "character-art",
     "css-animation",
-    "skill-authoring"
+    "skill-authoring",
+    "router",
+    "interview-technique",
+    "design-review",
+    "handoff",
+    "setup-automation",
+    "shell-wizard"
+  ],
+  "homepage": "https://github.com/LucianoAdonis/neorgon-forge",
+  "repository": "https://github.com/LucianoAdonis/neorgon-forge",
+  "skills": [
+    "./skills/before/atlas",
+    "./skills/before/forge",
+    "./skills/before/grill",
+    "./skills/before/pathfinder",
+    "./skills/before/untangle",
+    "./skills/before/wayfind",
+    "./skills/during/handoff",
+    "./skills/during/repitch",
+    "./skills/during/secret-safe-reporting",
+    "./skills/during/task",
+    "./skills/during/wizard",
+    "./skills/after/debrief",
+    "./skills/after/deckcraft",
+    "./skills/after/writeup",
+    "./skills/craft/groundwork",
+    "./skills/craft/mascot-forge",
+    "./skills/craft/penname",
+    "./skills/craft/quizmaster",
+    "./skills/craft/voicecheck"
   ]
 }

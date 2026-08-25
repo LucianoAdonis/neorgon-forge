@@ -44,7 +44,7 @@ printf '\033[1mTarget:\033[0m %s\n\n' "$DEST"
 linked=0
 skipped=0
 names=()
-for dir in "$SRC"/*/; do
+for dir in "$SRC"/*/*/; do
   name=$(basename "$dir")
   target="$DEST/$name"
 

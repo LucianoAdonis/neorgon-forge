@@ -1,0 +1,3 @@
+interface:
+  display_name: "Debrief"
+  short_description: "Turn finished work into a deck, from the diff and the brief"

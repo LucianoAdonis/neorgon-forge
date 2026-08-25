@@ -7,17 +7,22 @@
 # scaffold full of questions does not.
 #
 # Usage:
-#   new.sh <name> "<one-line purpose>"
-#   new.sh <name> "<purpose>" --no-scripts
+#   new.sh <name> <bucket> "<one-line purpose>"
+#   new.sh <name> <bucket> "<purpose>" --no-scripts
+#
+# Buckets are arc position, not topic: before/ (you have not started),
+# during/ (the work is happening), after/ (it is done and needs explaining),
+# craft/ (standing quality of the fleet, reached for at any time).
 set -uo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC="$REPO/plugins/neorgon-forge/skills"
 
 NAME="${1:-}"
-PURPOSE="${2:-}"
+BUCKET="${2:-}"
+PURPOSE="${3:-}"
 WANT_SCRIPTS=1
-shift 2 2>/dev/null || true
+shift 3 2>/dev/null || true
 while [ $# -gt 0 ]; do
   case "$1" in
     --no-scripts) WANT_SCRIPTS=0; shift ;;
@@ -29,10 +34,20 @@ red()   { printf '\033[31m%s\033[0m\n' "$1"; }
 green() { printf '\033[32m%s\033[0m\n' "$1"; }
 dim()   { printf '\033[2m%s\033[0m\n' "$1"; }
 
-[ -n "$NAME" ] && [ -n "$PURPOSE" ] || {
-  red 'usage: new.sh <name> "<one-line purpose>"'
+[ -n "$NAME" ] && [ -n "$BUCKET" ] && [ -n "$PURPOSE" ] || {
+  red 'usage: new.sh <name> <before|during|after|craft> "<one-line purpose>"'
   exit 1
 }
+
+case "$BUCKET" in
+  before|during|after|craft) : ;;
+  *) red "bucket must be one of: before during after craft (got '$BUCKET')"
+     dim "  before  you have not started: which skill, where does it live, what is the problem"
+     dim "  during  the work is happening"
+     dim "  after   the work is done and needs explaining"
+     dim "  craft   standing quality of the fleet, reached for at any point"
+     exit 1 ;;
+esac
 
 # kebab-case is the convention across every skill; enforcing it here
 # avoids a rename later when the directory and frontmatter must match.
@@ -41,7 +56,7 @@ grep -qE '^[a-z][a-z0-9-]*[a-z0-9]$' <<<"$NAME" || {
   exit 1
 }
 
-DIR="$SRC/$NAME"
+DIR="$SRC/$BUCKET/$NAME"
 [ -e "$DIR" ] && { red "already exists: $DIR"; exit 1; }
 
 mkdir -p "$DIR/reference"
@@ -130,7 +145,11 @@ Next:
   1. Write the description first: it is the router, and the hardest part.
      Read: docs/authoring.md
   2. Fill every TODO. A shipped TODO is worse than a missing section.
-  3. bash bin/validate.sh $NAME
-  4. bash bin/install.sh
-  5. Restart Claude Code, then try: /$NAME
+  3. Write agents/openai.yaml beside SKILL.md (display_name, short_description,
+     plus policy.allow_implicit_invocation: false if it is user-invoked).
+  4. Add a docs page at docs/skills/$NAME.md, and a line in the forge router.
+  5. Register it in plugins/neorgon-forge/.claude-plugin/plugin.json's skills array.
+  6. bash bin/validate.sh $NAME
+  7. bash bin/install.sh
+  8. Restart Claude Code, then try: /$NAME
 EOF

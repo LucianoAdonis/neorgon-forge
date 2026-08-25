@@ -1,0 +1,5 @@
+interface:
+  display_name: "Forge"
+  short_description: "Which forge skill fits this situation, and how they connect"
+policy:
+  allow_implicit_invocation: false

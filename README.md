@@ -6,37 +6,58 @@
 Skills for finding your way into hard work, taking it on, then explaining it, then keeping the
 result consistent.
 
-They follow the arc of a piece of work. `wayfind` and `untangle` come first, for the two things
-that stall a start: not knowing where anything lives, and not knowing the shape of the problem
-yet. `atlas` sits alongside them when the question is about the app itself rather than one change
-it extracts a dependency model and generates the docs and diagrams from it, so they can be
-asked questions and can report their own staleness. `task` then scopes the work, splits it into
-workstreams that can be delegated, and keeps a brief on disk while the work happens. `debrief`
-and `writeup` read that brief afterwards, so the account of the work comes from a record written
-at the time rather than reconstructed from a diff at the end. The next two are about what a fleet
-of projects drifts on: how the copy reads, and how the art holds together. Two more serve the
-writing itself: `penname` drafts under a named persona whose register rules are checkable rather
-than adjectival, and `groundwork` investigates what a service actually requires before a tutorial
-promises it. `deckcraft` covers the case `debrief` does not: a deck written from an idea rather
-than from a diff, and a deck already written that needs to start saying something. And one sits across the whole arc rather than at a point on it:
-`secret-safe-reporting`, for any work that reads sensitive data and produces output other people
-will see.
+They are arranged by **where in the work you are**, not by topic, because that is the question
+you actually have when you go looking for one.
+
+| Bucket | You are here when |
+|---|---|
+| **`before/`** | You have not started: which skill, where the change goes, what the problem is, whether the plan holds |
+| **`during/`** | The work is happening |
+| **`after/`** | It is done and someone has to hear about it |
+| **`craft/`** | Standing quality of the fleet, reached for on its own schedule |
+
+**Start at [`/forge`](docs/skills/forge.md).** It is the router: the main flow, the on-ramps
+that feed it, and a table resolving every pair of skills that sound like each other. Eighteen
+is more than anyone holds in their head, and the one you need is usually the one you forgot you
+had.
+
+### `before/`
 
 | Skill | Use it when | Produces |
 |---|---|---|
-| **`wayfind`** | You do not know where a change goes | `.forge/map.md`: areas, path rules, exceptions |
-| **`untangle`** | The problem resists a plan | Evidence, or a scored decision, or a coverage map |
-| **`atlas`** | An app needs docs that can be checked | A dependency model, an MkDocs corpus, and answers |
-| **`task`** | A problem to solve, not an edit to make | Working code, plus `.forge/brief.md` |
-| **`debrief`** | You need to present what changed | A deck (slides YAML, Marp, or Markdown) |
-| **`writeup`** | You need to publish what changed | `post/POST.md` plus diagrams that cannot drift |
-| **`deckcraft`** | A deck lists topics instead of making a claim | Assertion headings, an order for the room, a lint pass |
-| **`voicecheck`** | Copy needs auditing, aligning, or de-AI-ing | A `file:line` report, or the rewrite |
-| **`penname`** | Prose must sound like the author, not a model | A draft in persona, linted against its ban/cap rules |
-| **`groundwork`** | A tutorial is about to promise steps | A dated requirements doc, every claim labeled |
-| **`quizmaster`** | Source material should become a runnable exam | Proctor-format JSON, coverage-mapped and validated |
-| **`mascot-forge`** | A character to generate, cut out, and rig | Aligned frames plus a CSS/physics rig |
-| **`secret-safe-reporting`** | A scanner, report, or test suite touches sensitive data | A boundary design, synthetic fixtures, a pre-push sweep |
+| **[`forge`](docs/skills/forge.md)** | You can describe the situation but not name the tool | The route, and the reason |
+| **[`wayfind`](docs/skills/wayfind.md)** | You do not know where a change goes | `.forge/map.md`: areas, path rules, exceptions |
+| **[`untangle`](docs/skills/untangle.md)** | The problem resists a plan | Evidence, or a scored decision, or a coverage map |
+| **[`grill`](docs/skills/grill.md)** | The plan needs arguing with before anyone builds | Rounds of questions, `.forge/context.md`, decision records |
+| **[`atlas`](docs/skills/atlas.md)** | An app needs docs that can be checked | A dependency model, an MkDocs corpus, and answers |
+
+### `during/`
+
+| Skill | Use it when | Produces |
+|---|---|---|
+| **[`task`](docs/skills/task.md)** | A problem to solve, not an edit to make | Working code, plus `.forge/brief.md` |
+| **[`wizard`](docs/skills/wizard.md)** | A step only a human can take | An interactive bash script that walks them through it |
+| **[`handoff`](docs/skills/handoff.md)** | The work is moving to another session | `.forge/handoff-<slug>.md`: state, next action, landmines |
+| **[`repitch`](docs/skills/repitch.md)** | An answer did not land | The same point, with the context you were missing |
+| **[`secret-safe-reporting`](docs/skills/secret-safe-reporting.md)** | Anything touching sensitive data | A boundary design, synthetic fixtures, a pre-push sweep |
+
+### `after/`
+
+| Skill | Use it when | Produces |
+|---|---|---|
+| **[`debrief`](docs/skills/debrief.md)** | You need to present what changed | A deck, built to PDF (slides YAML, Marp, or Markdown) |
+| **[`writeup`](docs/skills/writeup.md)** | You need to publish what changed | `post/POST.md` plus diagrams that cannot drift |
+| **[`deckcraft`](docs/skills/deckcraft.md)** | A deck lists topics instead of making a claim | Assertion headings, an order for the room, a lint pass |
+
+### `craft/`
+
+| Skill | Use it when | Produces |
+|---|---|---|
+| **[`penname`](docs/skills/penname.md)** | Prose must sound like the author, not a model | A draft in persona, linted against its ban/cap rules |
+| **[`voicecheck`](docs/skills/voicecheck.md)** | Copy needs auditing, aligning, or de-AI-ing | A `file:line` report, or the rewrite |
+| **[`groundwork`](docs/skills/groundwork.md)** | A tutorial is about to promise steps | A dated requirements doc, every claim labeled |
+| **[`quizmaster`](docs/skills/quizmaster.md)** | Source material should become a runnable exam | Proctor-format JSON, coverage-mapped and validated |
+| **[`mascot-forge`](docs/skills/mascot-forge.md)** | A character to generate, cut out, and rig | Aligned frames plus a CSS/physics rig |
 
 ## Install
 
@@ -54,7 +75,7 @@ Refresh with `/plugin update neorgon-forge`.
 **With the skills CLI**: for one skill, or for an agent other than Claude Code:
 
 ```bash
-npx skills add LucianoAdonis/neorgon-forge           # all twelve
+npx skills add LucianoAdonis/neorgon-forge           # all eighteen
 npx skills add LucianoAdonis/neorgon-forge -s atlas   # just one
 npx skills add LucianoAdonis/neorgon-forge -l         # list without installing
 ```
@@ -98,7 +119,7 @@ neorgon-forge`, restart, and if it persists, remove and reinstall the plugin. Th
 make install      # symlink skills into ~/.claude/skills
 make refresh      # pull, re-link, report drift, validate
 make validate     # check every skill against the house standard
-make new NAME=my-skill PURPOSE="what it does"
+make new NAME=my-skill BUCKET=during PURPOSE="what it does"
 make status       # what is installed, and from where
 ```
 
@@ -156,17 +177,34 @@ prompt contract and the verification table.
 ## Authoring new skills
 
 ```bash
-make new NAME=my-skill PURPOSE="one-line purpose"
+make new NAME=my-skill BUCKET=during PURPOSE="one-line purpose"
 ```
 
 Scaffolds the directory, frontmatter, and the section headings that make a skill good, with
-`TODO`s rather than plausible filler, because filler gets shipped and questions do not.
+`TODO`s rather than plausible filler, because filler gets shipped and questions do not. Pick the
+bucket by arc position, not by topic: `before` if the skill runs when you have not started,
+`during` while the work happens, `after` when it is done and someone has to hear about it,
+`craft` for standing quality reached for on its own schedule.
+
+A new skill owes five things, and `make validate` fails on four of them: the `SKILL.md`, an
+`agents/openai.yaml` beside it, an entry in `plugin.json`'s `skills` array, a page at
+`docs/skills/<name>.md`, and a line in the **`forge`** router. The last is the one nothing can
+check and the one that decides whether the skill is ever reached for. **`CLAUDE.md`** carries
+these as maintainer rules; **`.agents/invocation.md`** carries the user-invoked versus
+model-invoked test and what each one does to the description.
 
 **`docs/authoring.md`** is the tutorial: when a skill is the right shape at all, how to write the
 description (the part that decides whether it ever fires), progressive disclosure across the four
 tiers, and how to test that it fires when it should and not when it should not.
 
-## Documenting the app: `atlas`
+## In more detail
+
+Each skill has a page under [`docs/skills/`](docs/skills/) covering what it does, when to reach
+for it, and what it looks like when it is working. What follows is the part that does not fit
+there: the specific mechanisms, the numbers behind them, and the failure each one was built
+against.
+
+### `atlas`
 
 Generates every diagram and doc page from one extracted model rather than beside it, because a
 hand-drawn architecture diagram goes stale *silently*. It keeps looking authoritative, and the
@@ -186,7 +224,7 @@ holds the verified Material contract, including the two silent failures: a missi
 `custom_fences` entry renders a diagram as a code block with no warning at all, and a literal
 `\n` in a Mermaid 11 label renders as two characters of text.
 
-## Before the work: `wayfind` and `untangle`
+### `untangle` and `wayfind`
 
 Both exist because the expensive mistakes happen before any code is written: confident motion in
 the wrong direction, and a convention asserted from two files.
@@ -206,7 +244,53 @@ candidate files, `resolve` reports which rules and recorded exceptions govern a 
 flags rules whose glob now matches nothing. A dead rule is worse than a missing one, because a
 missing rule prompts a question and a dead one answers it wrongly.
 
-## After the work: `voicecheck` and `mascot-forge`
+### `grill`
+
+The third `before/` skill, and the one that covers the case the other two do not: the plan is
+stated, the problem is understood, and nobody has argued with it yet.
+
+It collapses three separate ideas into one skill. Asking a whole **frontier** of questions per
+round rather than one at a time, because a plan with fourteen open decisions becomes fourteen
+exchanges otherwise and the user quits at six. Recommending an answer to every question, so the
+user is editing rather than composing. And detecting the repo, so the same interview leaves a
+paper trail (`.forge/context.md` plus numbered decision records) where there is somewhere to
+leave one, and leaves nothing where there is not. It says which of the two it is doing before
+the first round, because a user who expected a paper trail and got none finds out at the end.
+
+`reference/paper-trail.md` holds both formats and the rule that keeps them useful: the
+`_Avoid_` line is the load-bearing part of a glossary entry, and a decision record is written
+only when undoing the decision would be expensive. A directory of forty decision records has
+none, because nobody reads forty.
+
+### `wizard`, `handoff` and `repitch`
+
+The three `during/` additions, each covering a moment the rest of the set walks past.
+
+**`wizard`** generates a bash script for the steps only a human can take. Everything above the
+`STAGES` marker in `scripts/template.sh` is identical in every wizard it writes: stage progress,
+confirmation gates, cross-platform URL opening including WSL, hidden secret entry, idempotent
+`.env` upserts, `gh secret` writes, a closing summary. That sameness is what lets a reviewer
+read the stages and trust the rest. The idempotent upsert is the part that earns its place: it
+is what makes a run that failed at stage four recoverable without retyping stages one to three.
+It is verified statically rather than by running it, since it opens browsers and blocks on human
+input, and the check that matters is that every `set_secret` name matches its `secrets.*`
+reference exactly, because CI reports a mismatch as an empty string rather than an error.
+
+**`handoff`** compacts a session into `.forge/handoff-<slug>.md`, beside the brief rather than
+in a temp directory, so the next agent opens one directory and finds everything. Its rule is
+that artifacts are referenced and never copied: if the brief already records the rejected
+approach, the handoff points at it. That is what keeps it under a page, and what stops two
+copies of one decision drifting until nobody can tell which is current. Its landmines section
+is the part a diff cannot provide, and it is written even when it is unflattering, because an
+omitted failed approach gets retried by the next agent at full cost.
+
+**`repitch`** is the smallest thing here and the one used most often. An answer did not land;
+the agent re-explains, leading with the context it was standing on that you were not, in plain
+language, using `.forge/context.md`'s vocabulary where one exists. It assumes the gap was
+missing context rather than missing intelligence, which is why it is not simply the same
+paragraph more slowly.
+
+### `voicecheck` and `penname`
 
 **`voicecheck`** loads a voice before judging one. A per-project `VOICE.md` overrides a checkable
 baseline; with neither, an audit is just an opinion about someone else's writing. `audit` reports
@@ -214,12 +298,12 @@ baseline; with neither, an audit is just an opinion about someone else's writing
 `diff` compares two projects: the one command that can see drift, since drift is invisible from
 inside a single repo.
 
-**`mascot-forge`** is two halves that fail differently. Generation fails by *drifting*, so frames
+### `mascot-forge`
+
+Two halves that fail differently. Generation fails by *drifting*, so frames
 stop layering; animation fails by looking *pasted on*. Its scripts run from the target project's
 root and write into `./images/mascot/`, so one install serves every project. Art generation needs
 `GEMINI_API_KEY`; `keys.py` is the only place that reads a key, and it never prints one.
-
-## Writing it down: `penname` and `groundwork`
 
 **`penname`** is voicecheck's drafting half. Where voicecheck audits copy that exists, penname
 writes new prose under one of five personas, `ironic` (the author's public voice, toned down),
@@ -238,6 +322,8 @@ persona where they disagree, because it is newer evidence. `feedback-add.sh` app
 rule and refuses a near-duplicate. It compares significant words, so it catches a restatement and
 not a paraphrase, which is why it prints the whole section back and tells you to read it rather
 than claiming the ledger is clean.
+
+### `groundwork` and `quizmaster`
 
 **`groundwork`** comes before any tutorial that promises steps. It walks the acquisition path
 (sign-up → credential → first successful call), provokes limits rather than reading about them
@@ -258,7 +344,7 @@ options) so a plausible-looking exam that would misgrade is caught before a huma
 mechanized: structure (title, hook, headings, example, gotchas, ending) plus rot (every link
 answering, every local image existing).
 
-## The deck itself: `deckcraft`
+### `deckcraft`
 
 `debrief` turns a finished diff into a deck. **`deckcraft`** handles every other deck: one written
 from an idea, or one that already exists and is not landing. It targets the failure the
@@ -279,7 +365,7 @@ columns, missing alt text. `reference/rooms-and-exports.md` carries the part tha
 once a deck leaves the browser: minimum legible size by viewing distance, and exactly what each
 export path drops on the way out.
 
-## Across the work: `secret-safe-reporting`
+### `secret-safe-reporting`
 
 Any pipeline that classifies sensitive data and reports on it will, by default, leak the data
 into the report: in fixtures, in "sample value" tables, in git history. The skill carries one
@@ -307,31 +393,74 @@ matching and the skill silently degraded to plain Markdown without erroring once
 
 ```
 neorgon-forge/
+├── CLAUDE.md                           # maintainer invariants: what a new skill owes
 ├── .claude-plugin/marketplace.json     # so /plugin marketplace add works
+├── .agents/
+│   ├── invocation.md                   # user-invoked vs model-invoked, and the test
+│   ├── writing-docs.md                 # the four-section frame every docs page uses
+│   └── decisions/                      # why the repo is shaped this way
+├── docs/
+│   ├── authoring.md                    # how to write a skill
+│   └── skills/<name>.md                # one human-facing page per skill (flat, 18)
 ├── plugins/neorgon-forge/
-│   ├── .claude-plugin/plugin.json
+│   ├── .claude-plugin/plugin.json      # ships exactly the skills its array lists
 │   └── skills/
-│       ├── wayfind/      SKILL.md, scripts/{orient.sh,map.sh}, reference/tickets.md
-│       ├── untangle/     SKILL.md, scripts/{evidence.sh,survey.sh}, reference/hypotheses.md
-│       ├── atlas/        SKILL.md, scripts/{scan,atlas_model,diagram,build,ask}.py + render.sh
-│       │                 reference/mkdocs.md
-│       ├── task/         SKILL.md, scripts/brief.sh, reference/delegation.md
-│       ├── debrief/      SKILL.md, scripts/collect-changes.sh, reference/
-│       ├── writeup/      SKILL.md, scripts/{check-writeup.sh,diagram-kit.mjs,rasterize.mjs}
-│       ├── deckcraft/    SKILL.md, scripts/deck-lint.sh, reference/rooms-and-exports.md
-│       ├── voicecheck/   SKILL.md, scripts/load-voice.sh, reference/voice-defaults.md
-│       ├── penname/      SKILL.md, personas/{ironic,medium-es,briefing,fieldnote,tutorial}.md,
-│       │                 feedback/medium-es.md, reference/extraction.md,
-│       │                 scripts/{persona-lint.sh,shipcheck.sh,feedback-add.sh}
-│       ├── groundwork/   SKILL.md, scripts/{docrun.sh,stale.sh},
-│       │                 reference/requirements-template.md
-│       ├── quizmaster/   SKILL.md, scripts/validate-exam.mjs, reference/question-patterns.md
-│       ├── mascot-forge/ SKILL.md, scripts/*.py, assets/, reference/prompts/
-│       └── secret-safe-reporting/  SKILL.md, scripts/sweep.sh, reference/shapes.md
+│       ├── before/
+│       │   ├── forge/      SKILL.md                       (the router)
+│       │   ├── wayfind/    SKILL.md, scripts/{orient,map}.sh, reference/tickets.md
+│       │   ├── untangle/   SKILL.md, scripts/{evidence,survey}.sh, reference/hypotheses.md
+│       │   ├── grill/      SKILL.md, reference/paper-trail.md
+│       │   └── atlas/      SKILL.md, scripts/*.py + render.sh, reference/mkdocs.md
+│       ├── during/
+│       │   ├── task/       SKILL.md, scripts/brief.sh,
+│       │   │               reference/{delegation,hazards,deep-modules}.md
+│       │   ├── wizard/     SKILL.md, scripts/template.sh
+│       │   ├── handoff/    SKILL.md
+│       │   ├── repitch/    SKILL.md
+│       │   └── secret-safe-reporting/  SKILL.md, scripts/sweep.sh, reference/shapes.md
+│       ├── after/
+│       │   ├── debrief/    SKILL.md, scripts/collect-changes.sh, reference/
+│       │   ├── writeup/    SKILL.md, scripts/{check-writeup,diagram-kit,rasterize}
+│       │   └── deckcraft/  SKILL.md, scripts/deck-lint.sh, reference/rooms-and-exports.md
+│       └── craft/
+│           ├── penname/    SKILL.md, personas/*.md, feedback/, scripts/*.sh
+│           ├── voicecheck/ SKILL.md, scripts/load-voice.sh, reference/voice-defaults.md
+│           ├── groundwork/ SKILL.md, scripts/{docrun,stale}.sh, reference/
+│           ├── quizmaster/ SKILL.md, scripts/validate-exam.mjs, reference/
+│           └── mascot-forge/ SKILL.md, scripts/*.py, assets/, reference/prompts/
 ├── bin/{install,refresh,validate,new}.sh
-├── docs/authoring.md
 └── Makefile
 ```
+
+Every skill also carries `agents/openai.yaml` beside its `SKILL.md`, so it has an identity in
+Codex and other harnesses rather than only in Claude Code.
+
+**The bucket is repo organisation only.** Skills install **flat**, into
+`~/.claude/skills/<name>/`, so a cross-skill path written in prose never carries a bucket:
+`skills/task/scripts/brief.sh`, never `skills/during/task/scripts/brief.sh`. `bin/validate.sh`
+resolves those by searching the buckets, which is the only reason the two layouts can safely
+disagree.
+
+## What `make validate` enforces
+
+The checks exist because each one has caught something. It fails, not warns, on:
+
+- A **model-invoked description** under 300 characters, or with no trigger phrases, or with no
+  statement of what the skill is *not* for. That string is the entire routing decision.
+- A **user-invoked description** over 320 characters, or carrying trigger phrases. Nothing can
+  ever act on those, so they are noise in the one place a human reads closely.
+- **Invocation disagreeing across harnesses**: `disable-model-invocation` set without
+  `policy.allow_implicit_invocation: false`, or the reverse. A skill closed in one harness and
+  open in the other is reachable through the gap.
+- A **missing `agents/openai.yaml`**, or a **missing docs page**.
+- **`plugin.json` and the skills tree disagreeing.** The plugin ships exactly what the array
+  lists, so a skill missing from it is installed by nobody.
+- A script **writing outside the sanctioned roots** (`.forge/`, `docs/atlas/`, `post/`,
+  `images/`, plus two argued exceptions).
+- An **em dash** in any prose, excluding a line that quotes the character as a glyph in order to
+  ban it.
+- A dead `reference/` or `scripts/` link, a non-executable script, a syntax error, a committed
+  key, a hardcoded home path.
 
 ## License
 

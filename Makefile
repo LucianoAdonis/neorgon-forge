@@ -11,7 +11,8 @@ help:
 	@echo "  make refresh                  pull, re-link, report drift, validate"
 	@echo "  make validate                 check every skill against the house standard"
 	@echo "  make validate SKILL=task      check one"
-	@echo "  make new NAME=x PURPOSE='y'   scaffold a new skill"
+	@echo "  make new NAME=x BUCKET=b PURPOSE='y'   scaffold a new skill"
+	@echo "                                buckets: before during after craft"
 	@echo "  make status                   what is installed, and from where"
 	@echo "  make uninstall                remove the symlinks (leaves the repo alone)"
 
@@ -34,25 +35,30 @@ endif
 
 new:
 ifndef NAME
-	@echo "usage: make new NAME=my-skill PURPOSE=\"one-line purpose\"" && exit 1
+	@echo "usage: make new NAME=my-skill BUCKET=during PURPOSE=\"one-line purpose\"" && exit 1
+endif
+ifndef BUCKET
+	@echo "usage: make new NAME=my-skill BUCKET=during PURPOSE=\"one-line purpose\"" && exit 1
 endif
 ifndef PURPOSE
-	@echo "usage: make new NAME=my-skill PURPOSE=\"one-line purpose\"" && exit 1
+	@echo "usage: make new NAME=my-skill BUCKET=during PURPOSE=\"one-line purpose\"" && exit 1
 endif
-	@bash bin/new.sh "$(NAME)" "$(PURPOSE)"
+	@bash bin/new.sh "$(NAME)" "$(BUCKET)" "$(PURPOSE)"
 
 status:
 	@printf '\033[1mSkills in this repo\033[0m\n'
-	@for d in $(SKILLS)/*/; do printf '  %s\n' "$$(basename $$d)"; done
+	@for b in $(SKILLS)/*/; do \
+		printf '  \033[1m%s\033[0m\n' "$$(basename $$b)"; \
+		for d in $$b*/; do printf '    %s\n' "$$(basename $$d)"; done; done
 	@printf '\n\033[1mInstalled at %s\033[0m\n' "$(DEST)"
-	@for d in $(SKILLS)/*/; do \
+	@for d in $(SKILLS)/*/*/; do \
 		n=$$(basename $$d); t="$(DEST)/$$n"; \
 		if [ -L "$$t" ]; then printf '  \033[32m✓\033[0m %-12s → %s\n' "$$n" "$$(readlink $$t)"; \
 		elif [ -d "$$t" ]; then printf '  \033[33m!\033[0m %-12s (real directory, not a link)\n' "$$n"; \
 		else printf '  \033[2m·\033[0m %-12s not installed\n' "$$n"; fi; done
 
 uninstall:
-	@for d in $(SKILLS)/*/; do \
+	@for d in $(SKILLS)/*/*/; do \
 		n=$$(basename $$d); t="$(DEST)/$$n"; \
 		if [ -L "$$t" ]; then rm "$$t"; printf '  removed %s\n' "$$n"; fi; done
 	@echo "Restart Claude Code to drop them from the session."

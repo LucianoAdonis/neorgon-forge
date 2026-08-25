@@ -1,0 +1,5 @@
+interface:
+  display_name: "Repitch"
+  short_description: "Say that again, with the context I was missing"
+policy:
+  allow_implicit_invocation: false
