@@ -63,6 +63,29 @@ Rough positions are fine; the app's Tidy lays the graph out.
   `decision`. They feed the prompt, tasks.md and the EARS export.
 - Do not encode meaning in `highlight`; it is presentation only.
 
+## The patch (writing results back)
+
+End a reply to an exported brief with a fenced block; the app previews and
+applies it as one undo step. Address blocks by the ids the prompt lists.
+
+```pathfinder-patch
+{
+  "format": "pathfinder-patch",
+  "version": 1,
+  "note": "one line the human sees first",
+  "answers":  [{ "block": "b3", "question": 0, "answer": "..." }],
+  "verify":   [{ "block": "b5", "verdict": "verified|refuted", "evidence": "required" }],
+  "status":   [{ "block": "b2", "status": "done" }],
+  "criteria": [{ "block": "b4", "add": ["..."] }],
+  "blocks":   [{ "id": "n1", "type": "problem", "title": "..." }],
+  "arrows":   [{ "from": "n1", "to": "b2", "label": "explains" }]
+}
+```
+
+A `verify` turns the assumption into a decision in place (arrows survive);
+evidence is required. Never patch in answers you do not have; an empty patch
+is a valid reply.
+
 ## Links
 
 - Share link: `https://pathfinder.neorgon.com/?via=<name>#s=` +

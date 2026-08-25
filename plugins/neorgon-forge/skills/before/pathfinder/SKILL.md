@@ -32,6 +32,10 @@ instead of returning to the map they came from.
 
 Emit one of:
 
+- **A `pathfinder-patch`** when you were handed a brief and did the work: end
+  the reply with the fenced block from `reference/contract.md`, addressing
+  blocks by the ids the brief lists. The app previews it and applies it as
+  one undo step. This is the default way back; a whole canvas is for new maps.
 - **Full canvas JSON** for Export ▾ → Import JSON (replace or merge).
 - **An updated copy of their canvas**: keep every existing block `id` stable
   so a merge stays sane; wire new blocks to existing ids.
