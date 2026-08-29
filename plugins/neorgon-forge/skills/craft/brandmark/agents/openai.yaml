@@ -1,0 +1,3 @@
+interface:
+  display_name: "Brandmark"
+  short_description: "Company logos in a UI, without leaking who uses them"

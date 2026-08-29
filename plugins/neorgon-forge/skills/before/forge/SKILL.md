@@ -87,6 +87,9 @@ These run on their own schedule and belong to no flow.
   dispute.
 - **`/quizmaster`** turns source material into a validated Proctor-format exam.
 - **`/mascot-forge`** generates a character, cuts it out, aligns the frames, and rigs it.
+- **`/brandmark`** puts company logos in a UI: vendored Simple Icons, letter-badge fallback,
+  and an opt-in remote favicon tier, chosen by whether fetching an icon would disclose what
+  the visitor holds.
 - **`/secret-safe-reporting`** sits across everything: any pipeline, report, or test suite that
   reads sensitive data and produces output other people will see. Run its sweep before a repo's
   first push to a new remote, where a find is a squash rather than a rotation.
