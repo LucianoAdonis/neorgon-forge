@@ -36,6 +36,9 @@ always there.
    measured. That file is the reason step 4 reports rather than reconstructs.
 4. **`/debrief`** for a deck, **`/writeup`** for a post. Both read the brief. Ask for one and
    you usually want both.
+5. **`/closeout`** when the work has landed and the question is what is left. It enumerates the
+   pending items from git, the registry and the briefs, numbered with a per-item default, and
+   one reply closes everything the answer does not deny: publishing always its own line.
 
 **The brief is the spine.** Steps 2, 3 and 4 all read or write `.forge/`, which is what stops
 the account of the work being a flattering summary of a diff. Everything else in this repo is
@@ -100,6 +103,7 @@ The overlaps, resolved. This table is the reason to open this skill rather than 
 | `wayfind` | The question is how the whole app fits together rather than where one change goes: `/atlas` |
 | `pathfinder` | The plan itself needs arguing with rather than encoding: `/grill`. The work in the middle is the ask: `/task`, then come back for the write-back |
 | `debrief` | It is a post, not a deck: `/writeup`. It did not come from a diff: `/deckcraft` |
+| `closeout` | Choosing what to build next rather than landing what exists: the queue and `/task` |
 | `writeup` | It is README or docs prose: that is ordinary writing, or `/penname` for voice |
 | `deckcraft` | The deck should report what actually changed in the code: `/debrief` reads the diff |
 | `voicecheck` | The copy does not exist yet: `/penname` writes, `voicecheck` audits |

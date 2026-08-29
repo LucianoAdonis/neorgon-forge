@@ -46,6 +46,7 @@
   "homepage": "https://github.com/LucianoAdonis/neorgon-forge",
   "repository": "https://github.com/LucianoAdonis/neorgon-forge",
   "skills": [
+    "./skills/after/closeout",
     "./skills/after/debrief",
     "./skills/after/deckcraft",
     "./skills/after/writeup",
