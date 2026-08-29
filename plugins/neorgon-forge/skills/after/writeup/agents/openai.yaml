@@ -1,0 +1,3 @@
+interface:
+  display_name: "Writeup"
+  short_description: "Turn finished work into a post, with diagrams that cannot drift"

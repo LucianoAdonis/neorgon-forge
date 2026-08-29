@@ -1,0 +1,3 @@
+interface:
+  display_name: "Tabletop"
+  short_description: "Build a tabletop game whose printed deck and running engine cannot disagree"

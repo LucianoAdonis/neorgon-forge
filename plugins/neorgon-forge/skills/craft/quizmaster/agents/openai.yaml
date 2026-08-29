@@ -1,0 +1,3 @@
+interface:
+  display_name: "Quizmaster"
+  short_description: "Turn source material into a validated exam"

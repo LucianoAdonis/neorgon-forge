@@ -51,7 +51,7 @@ head_ "Stale links elsewhere"
 # A skill directory in ~/.claude/skills that shares a name with one of ours
 # but is not a link into this repo will win or lose unpredictably. Worth
 # knowing about.
-for dir in "$REPO"/plugins/neorgon-forge/skills/*/; do
+for dir in "$REPO"/plugins/neorgon-forge/skills/*/*/; do
   name=$(basename "$dir")
   target="$HOME/.claude/skills/$name"
   if [ -e "$target" ] && [ ! -L "$target" ]; then
@@ -70,7 +70,7 @@ done
 PROJECT_SKILLS="$(dirname "$REPO")/.claude/skills"
 if [ -d "$PROJECT_SKILLS" ]; then
   head_ "Monorepo project skills"
-  for dir in "$REPO"/plugins/neorgon-forge/skills/*/; do
+  for dir in "$REPO"/plugins/neorgon-forge/skills/*/*/; do
     name=$(basename "$dir")
     p="$PROJECT_SKILLS/$name"
     if [ -L "$p" ]; then

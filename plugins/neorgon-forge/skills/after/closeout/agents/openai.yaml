@@ -1,0 +1,3 @@
+interface:
+  display_name: "Closeout"
+  short_description: "Enumerate what is pending, then close what the answer authorises"

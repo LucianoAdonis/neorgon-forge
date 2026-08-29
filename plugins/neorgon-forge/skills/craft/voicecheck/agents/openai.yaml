@@ -1,0 +1,3 @@
+interface:
+  display_name: "Voicecheck"
+  short_description: "Audit copy against the project's voice, by file and line"

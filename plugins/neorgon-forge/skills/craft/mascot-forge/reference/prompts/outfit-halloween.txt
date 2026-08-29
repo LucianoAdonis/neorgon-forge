@@ -1,0 +1,11 @@
+Use the reference image as an exact character sheet. Keep the SAME woman, unchanged in every way except her clothing: same face and age, same side-swept bangs and high side ponytail tied with a black ribbon, same honey-blonde hair colour, same rectangular black-framed glasses, same amber-brown irises with white sclera and a highlight, same gold hoop earrings, same confident half-smile, same arms-folded pose, same waist-up framing, same position and scale on the canvas.
+
+Keep the same hard-edged flat vector rendering: heavy even-weight outlines, flat colours, no gradients, no painterly shading.
+
+Change ONLY her outfit, to the following:
+
+A witch outfit: a black dress with a deep purple sash at the waist, and a wide-brimmed pointed black witch hat with a dark red band. The hat is NOT worn upright on her head. It is tipped right back so the cone lies almost horizontally behind her, pointing backwards past her ponytail.
+
+CRITICAL: the top of the hat must sit no higher than the top of her hair. The cone points backwards and slightly downwards, never upwards. Leave a clear margin of empty white above everything. Nothing may touch the top edge of the image.
+
+Flat pure white background. No drop shadow, no text, no watermark, no border.

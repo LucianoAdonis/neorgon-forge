@@ -1,0 +1,3 @@
+interface:
+  display_name: "Mascot Forge"
+  short_description: "Generate a character, cut it out, align it, rig it"

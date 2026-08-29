@@ -1,0 +1,5 @@
+interface:
+  display_name: "Handoff"
+  short_description: "Compact this session into a doc the next agent can start from"
+policy:
+  allow_implicit_invocation: false

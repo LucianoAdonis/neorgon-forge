@@ -12,6 +12,14 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC="$REPO/plugins/neorgon-forge/skills"
 ONLY="${1:-}"
 
+# Skills live under skills/<bucket>/<name>/ in the repo but install flat, so
+# every lookup by bare name has to search the buckets.
+skill_dir() {
+  local d
+  for d in "$SRC"/*/"$1"; do [ -d "$d" ] && { printf '%s' "$d"; return 0; }; done
+  return 1
+}
+
 red()   { printf '\033[31m%s\033[0m\n' "$1"; }
 green() { printf '\033[32m%s\033[0m\n' "$1"; }
 warn()  { printf '\033[33m%s\033[0m\n' "$1"; }
@@ -34,7 +42,7 @@ fm() {
 }
 
 check_skill() {
-  local dir="$1" name
+  local dir="$1" name em_hits
   name=$(basename "$dir")
   local md="$dir/SKILL.md"
 
@@ -45,11 +53,18 @@ check_skill() {
   # ── Frontmatter presence ────────────────────────────────────
   head -1 "$md" | grep -q '^---$' || { red "  frontmatter must be the first line"; fail=1; }
 
-  local fm_name desc hint invocable
+  local fm_name desc hint invocable nomodel user_invoked
   fm_name=$(fm "$md" name)
   desc=$(fm "$md" description)
   hint=$(fm "$md" argument-hint)
   invocable=$(fm "$md" user-invocable)
+  nomodel=$(fm "$md" disable-model-invocation)
+  # Invocation is the one axis that changes what a good description looks like.
+  # A model-invoked skill's description is the router and is read by nothing
+  # else until it fires; a user-invoked one is a line in a slash-command list
+  # that a person skims, and trigger phrasing in it is noise the model can
+  # never act on.
+  [ "$nomodel" = "true" ] && user_invoked=1 || user_invoked=0
 
   if [ -z "$fm_name" ]; then
     red "  missing: name"; fail=1
@@ -59,12 +74,26 @@ check_skill() {
     green "  name ok"
   fi
 
-  # ── The description is the router ───────────────────────────
+  # ── The description, judged by who can reach the skill ──────
   if [ -z "$desc" ]; then
     red "  missing: description. The skill will never route"; fail=1
-  else
+  elif [ "$user_invoked" -eq 1 ]; then
+    # Human-facing: one line in a slash-command list. Short is correct.
     local len=${#desc}
-    if [ "$len" -lt 120 ]; then
+    if [ "$len" -gt 320 ]; then
+      red "  user-invoked description is ${len} chars: this is read by a person browsing"
+      red "    slash commands, not by a router. One or two sentences (aim under 320)"; fail=1
+    else
+      green "  description length ok for a user-invoked skill (${len})"
+    fi
+    # Trigger phrasing here is dead weight: nothing can ever act on it.
+    grep -qiE "triggers on" <<<"$desc" && {
+      red "  user-invoked description carries trigger phrases, which no model can act on"
+      red "    (drop them, or remove disable-model-invocation)"; fail=1; }
+  else
+    # Model-facing: this string is the whole routing decision.
+    local len=${#desc}
+    if [ "$len" -lt 300 ]; then
       red "  description is ${len} chars: too thin to route on (aim 300-900)"; fail=1
     elif [ "$len" -gt 1400 ]; then
       warn "  description is ${len} chars: long enough to dilute the signal"; warns=$((warns + 1))
@@ -72,22 +101,46 @@ check_skill() {
       green "  description length ok (${len})"
     fi
 
-    # A description that says what a skill *is* routes worse than one
-    # that says when to use it and what not to use it for.
+    # A description that says what a skill *is* routes worse than one that says
+    # when to use it and what not to use it for. For a model-invoked skill
+    # these are the whole product, so they fail rather than warn.
     grep -qiE 'use (this skill )?(when|at|for)|triggers on' <<<"$desc" \
-      || { warn "  description does not say WHEN to use it"; warns=$((warns + 1)); }
+      || { red "  description does not say WHEN to use it"; fail=1; }
     grep -qiE "triggers on" <<<"$desc" \
-      || { warn "  description has no trigger phrases"; warns=$((warns + 1)); }
+      || { red "  description has no trigger phrases"; fail=1; }
     grep -qiE "not for|instead use|rather than|use [a-z-]+ instead" <<<"$desc" \
-      || { warn "  description does not say what it is NOT for (overlap risk)"; warns=$((warns + 1)); }
+      || { red "  description does not say what it is NOT for (overlap risk)"; fail=1; }
   fi
 
   if [ -n "$invocable" ]; then
     green "  user-invocable: $invocable"
   else
-    warn "  no user-invocable: will not appear as /$name"; warns=$((warns + 1))
+    red "  no user-invocable: will not appear as /$name"; fail=1
   fi
   [ -n "$hint" ] && green "  argument-hint ok"
+
+  # ── Invocation agrees across harnesses ──────────────────────
+  # A skill is user-invoked in every harness or in none. Two harnesses
+  # disagreeing means the model can reach through the one that was missed,
+  # which is the failure the whole distinction exists to prevent.
+  local yaml="$dir/agents/openai.yaml"
+  if [ ! -f "$yaml" ]; then
+    red "  no agents/openai.yaml: the skill has no identity outside Claude Code"; fail=1
+  else
+    grep -q '^interface:' "$yaml" || { red "  openai.yaml has no interface block"; fail=1; }
+    grep -q 'display_name:' "$yaml" || { red "  openai.yaml has no display_name"; fail=1; }
+    grep -q 'short_description:' "$yaml" || { red "  openai.yaml has no short_description"; fail=1; }
+    local yaml_closed=0
+    grep -q 'allow_implicit_invocation: *false' "$yaml" && yaml_closed=1
+    if [ "$user_invoked" -eq 1 ] && [ "$yaml_closed" -eq 0 ]; then
+      red "  user-invoked here but model-reachable in Codex: openai.yaml needs"
+      red "    policy.allow_implicit_invocation: false"; fail=1
+    elif [ "$user_invoked" -eq 0 ] && [ "$yaml_closed" -eq 1 ]; then
+      red "  model-invoked here but closed in Codex: the two harnesses disagree"; fail=1
+    else
+      green "  invocation agrees across harnesses ($([ "$user_invoked" -eq 1 ] && echo user-invoked || echo model-invoked))"
+    fi
+  fi
 
   # ── Body ────────────────────────────────────────────────────
   local lines
@@ -98,8 +151,10 @@ check_skill() {
     green "  body length ok (${lines} lines)"
   fi
 
-  grep -q '^## Invariants' "$md" \
-    || { warn "  no Invariants section: the non-negotiables are unstated"; warns=$((warns + 1)); }
+  if [ "$user_invoked" -eq 0 ]; then
+    grep -q '^## Invariants' "$md" \
+      || { warn "  no Invariants section: the non-negotiables are unstated"; warns=$((warns + 1)); }
+  fi
 
   # ── Scripts ─────────────────────────────────────────────────
   if [ -d "$dir/scripts" ]; then
@@ -141,13 +196,19 @@ check_skill() {
   # choice and cannot be judged from here. A path a script only *reads* is also
   # out of scope: build-preview.py loads the project's own js/mascot.js, which is
   # not this skill claiming a root.
+  # Second argued exception: the bare file `.env`. wizard's template upserts
+  # into it, and it is none of the three lifetimes: not ephemeral, not
+  # regenerable, not shipped. It is also not a root at all, but a single
+  # conventional dotfile that already exists in most projects, so it claims no
+  # directory and leaves no rule about what is safe to delete. Allowed as an
+  # exact match only, never as a prefix.
   # One argued exception: scripts/mascot/masters holds mascot-forge's
   # full-resolution masters: paid generation plus hand curation, so not
   # ephemeral; not derivable from source, so not regenerable; deliberately
   # unshipped, so not a deliverable. The argument lives in docs/authoring.md;
   # a new exception goes there first, never just here.
   if [ -d "$dir/scripts" ]; then
-    local roots='^(\.forge|docs/atlas|post|images|scripts/mascot/masters)(/|$)'
+    local roots='^(\.forge|docs/atlas|post|images|scripts/mascot/masters|\.env)$|^(\.forge|docs/atlas|post|images|scripts/mascot/masters)/'
     local bad=()
     while IFS= read -r hit; do bad+=("$hit"); done < <(
       # mkdir -p <literal>, mkdirSync('<literal>'), Path("<literal>").mkdir()
@@ -207,6 +268,29 @@ check_skill() {
     red "  hardcoded home directory path"; fail=1
   fi
 
+  # ── Docs page ───────────────────────────────────────────────
+  # Most of these are reached for by a person who has to remember they exist.
+  # The docs page is what relieves that; a skill without one is invisible
+  # outside the router.
+  if [ -f "$REPO/docs/skills/$name.md" ]; then
+    green "  docs page ok"
+  else
+    red "  no docs page at docs/skills/$name.md (see .agents/writing-docs.md)"; fail=1
+  fi
+
+  # ── Prose ───────────────────────────────────────────────────
+  # No em dashes anywhere in this repo's prose. Checked here rather than
+  # trusted to review, because they arrive one at a time.
+  # A line quoting the character as a glyph (`\u2014` in backticks, or /\u2014/ in a
+  # lint rule) is a rule *about* it, not prose using it. penname's persona
+  # ban lists and voicecheck's defaults both have to name it to forbid it.
+  em_hits=$(grep -rnI $'\u2014' "$dir" 2>/dev/null | grep -vE '`\xe2\x80\x94`|/\xe2\x80\x94/' || true)
+  if [ -n "$em_hits" ]; then
+    red "  contains an em dash: rewrite the sentence, never substitute the character"
+    printf '%s\n' "$em_hits" | head -3 | sed "s|$REPO/||; s/^/      /"
+    fail=1
+  fi
+
   # ── Dead references ─────────────────────────────────────────
   # A SKILL.md pointing at a file that does not exist sends the agent
   # looking for guidance it will not find.
@@ -217,14 +301,26 @@ check_skill() {
   # A reference prefixed with skills/<name>/ belongs to a sibling skill,
   # untangle calls task's brief.sh, so it resolves against the skills root,
   # not against this skill's directory.
+  # A reference followed by `<` is a placeholder the reader fills in
+  # (scripts/setup-<thing>.sh), not a file that should exist. Angle brackets
+  # are the repo's placeholder convention, so drop those lines before matching
+  # rather than teaching every author to phrase around the checker.
   local refs=()
   while IFS= read -r ref; do refs+=("$ref"); done < <(
-    grep -oE '(skills/[A-Za-z0-9._-]+/)?(reference|scripts)/[A-Za-z0-9._-]+' "$md" | sort -u
+    grep -oE '(skills/[A-Za-z0-9._-]+/)?(reference|scripts)/[A-Za-z0-9._-]+<?' "$md" \
+      | grep -v '<$' | sort -u
   )
   for ref in ${refs+"${refs[@]}"}; do
     case "$ref" in
-      skills/*) [ -e "$SRC/${ref#skills/}" ] ||
-        { red "  SKILL.md references missing file: $ref"; fail=1; } ;;
+      skills/*)
+        # SKILL.md prose addresses the *installed* layout, which is flat
+        # (~/.claude/skills/<name>/), so a cross-skill path never carries a
+        # bucket. Resolve it by finding the sibling's bucket here.
+        rest="${ref#skills/}"; sib="${rest%%/*}"; tail_="${rest#*/}"
+        sib_dir=$(skill_dir "$sib")
+        if [ -z "$sib_dir" ] || [ ! -e "$sib_dir/$tail_" ]; then
+          red "  SKILL.md references missing file: $ref"; fail=1
+        fi ;;
       # The argued output root from the roots check above: a path the skill
       # writes into the *worked project*, so it can never exist in the install
       # and is not a reference to skill guidance at all.
@@ -236,10 +332,11 @@ check_skill() {
 }
 
 if [ -n "$ONLY" ]; then
-  [ -d "$SRC/$ONLY" ] || { red "no such skill: $ONLY"; exit 1; }
-  check_skill "$SRC/$ONLY"
+  only_dir=$(skill_dir "$ONLY")
+  [ -n "$only_dir" ] || { red "no such skill: $ONLY"; exit 1; }
+  check_skill "$only_dir"
 else
-  for d in "$SRC"/*/; do check_skill "$d"; done
+  for d in "$SRC"/*/*/; do check_skill "$d"; done
 
   # ── Manifest consistency ──────────────────────────────────────
   head_ "Manifests"
@@ -255,6 +352,29 @@ else
       fi
     fi
   done
+
+  # The plugin ships exactly the skills its manifest lists. A skill added to
+  # the tree and not to the array is installed by nobody; an entry left behind
+  # after a rename breaks the whole plugin load, not just that one skill.
+  if command -v python3 >/dev/null 2>&1; then
+    on_disk=$(cd "$SRC" && for d in */*/; do printf './skills/%s\n' "${d%/}"; done | sort)
+    in_manifest=$(python3 -c "
+import json,sys
+try: d=json.load(open('$REPO/plugins/neorgon-forge/.claude-plugin/plugin.json'))
+except Exception: sys.exit(0)
+print('\n'.join(sorted(d.get('skills',[]))))
+")
+    if [ "$on_disk" = "$in_manifest" ]; then
+      green "  plugin.json lists exactly the $(printf '%s' "$on_disk" | grep -c .) skills on disk"
+    else
+      red "  plugin.json and the skills tree disagree:"
+      comm -23 <(printf '%s\n' "$on_disk") <(printf '%s\n' "$in_manifest") \
+        | sed 's/^/    on disk, not in the manifest: /'
+      comm -13 <(printf '%s\n' "$on_disk") <(printf '%s\n' "$in_manifest") \
+        | sed 's/^/    in the manifest, not on disk: /'
+      fail=1
+    fi
+  fi
 fi
 
 printf '\n'
