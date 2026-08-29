@@ -35,14 +35,14 @@ for p in "${PROJECTS[@]+"${PROJECTS[@]}"}"; do
   dir="$p"; [ -d "projects/$p/.git" ] && dir="projects/$p"
   head_ "$p: git state"
   git -C "$dir" status --porcelain 2>/dev/null | head -10 | sed 's/^/  /'
-  git -C "$dir" log --oneline @{u}..HEAD 2>/dev/null | head -5 | sed 's/^/  unpushed: /'
+  git -C "$dir" log --oneline '@{u}'..HEAD 2>/dev/null | head -5 | sed 's/^/  unpushed: /'
   git -C "$dir" remote get-url origin >/dev/null 2>&1 || echo "  NO REMOTE: never pushed anywhere"
 done
 
 head_ "Root repo: uncommitted and unpushed"
 git status --porcelain 2>/dev/null | head -12 | sed 's/^/  /'
 git status --porcelain 2>/dev/null | wc -l | sed 's/^ */  uncommitted files: /'
-git log --oneline @{u}..HEAD 2>/dev/null | wc -l | sed 's/^ */  unpushed commits: /'
+git log --oneline '@{u}'..HEAD 2>/dev/null | wc -l | sed 's/^ */  unpushed commits: /'
 
 head_ "Registry: sites with a domain and no repo (lifecycle ready)"
 if [ -f docs/site-registry.json ]; then
