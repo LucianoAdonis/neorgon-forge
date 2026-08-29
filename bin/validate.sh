@@ -284,7 +284,14 @@ check_skill() {
   # A line quoting the character as a glyph (`\u2014` in backticks, or /\u2014/ in a
   # lint rule) is a rule *about* it, not prose using it. penname's persona
   # ban lists and voicecheck's defaults both have to name it to forbid it.
-  em_hits=$(grep -rnI $'\u2014' "$dir" 2>/dev/null | grep -vE '`\xe2\x80\x94`|/\xe2\x80\x94/' || true)
+  # Build the glyph with printf rather than $'\u2014': \u needs bash 4.2, and
+  # macOS ships 3.2, where $'\u2014' stays the six-character string "\u2014"
+  # and the search silently matches nothing. printf '\xNN' behaves the same
+  # in both. The exclusions have to be double-quoted for the same reason:
+  # inside single quotes \xe2\x80\x94 reaches grep as literal backslash-x
+  # text, and ERE has no \xNN escape, so the filter never excluded anything.
+  em=$(printf '\xe2\x80\x94')
+  em_hits=$(grep -rnI "$em" "$dir" 2>/dev/null | grep -vE "\`$em\`|/$em/" || true)
   if [ -n "$em_hits" ]; then
     red "  contains an em dash: rewrite the sentence, never substitute the character"
     printf '%s\n' "$em_hits" | head -3 | sed "s|$REPO/||; s/^/      /"
