@@ -210,27 +210,37 @@ check_skill() {
   if [ -d "$dir/scripts" ]; then
     local roots='^(\.forge|docs/atlas|post|images|scripts/mascot/masters|\.env)$|^(\.forge|docs/atlas|post|images|scripts/mascot/masters)/'
     local bad=()
+    # Every comment describing these patterns is deliberately OUTSIDE the
+    # process substitution below. bash 3.2, which is the /bin/bash on a stock
+    # macOS, does not skip # comments when it scans forward for the closing
+    # paren of < <( ... ). A lone apostrophe in prose (as in "a skill's own
+    # root") opens a quote state there, the scan runs on to the next
+    # apostrophe, and the substitution is truncated mid-command. The loop then
+    # reads nothing, `bad` stays empty, and an empty array is indistinguishable
+    # from a clean skill, so this check printed green while doing nothing.
+    #
+    # What the patterns below collect, in order:
+    #   1. mkdir -p <literal>, mkdirSync('<literal>'), Path("<literal>").mkdir()
+    #   2. a module-level constant: OUT_DIR = PROJECT / "images" / "mascot"
+    #   3. the shell equivalent, bare or with an env override as the default:
+    #      DIR="docs/atlas/diagrams"   FORGE_DIR="${FORGE_BRIEF_DIR:-.forge}"
+    #   4. an output path a script defaults to when the caller passes none.
+    #      This is where atlas declares its roots, so missing it would exempt
+    #      the skill with the most generated output. --docs is deliberately
+    #      absent: it names the docs base that a skill root is joined under,
+    #      so docs is right for it and wrong for a write target.
     while IFS= read -r hit; do bad+=("$hit"); done < <(
-      # mkdir -p <literal>, mkdirSync('<literal>'), Path("<literal>").mkdir()
       grep -rhoE "mkdir -p +['\"]?[A-Za-z_.][^\"' )\$]*" "$dir/scripts" 2>/dev/null \
         | sed -E "s/mkdir -p +['\"]?//"
       grep -rhoE "mkdirSync\( *['\"][A-Za-z_.][^\"']*" "$dir/scripts" 2>/dev/null \
         | sed -E "s/mkdirSync\( *['\"]//"
-      # A module-level directory constant: OUT_DIR = PROJECT / "images" / "mascot"
       grep -rhoE '^[A-Z][A-Z0-9_]* *= *(PROJECT|ROOT) */ *"[A-Za-z_.][^"]*"( */ *"[^"]*")*' \
         "$dir/scripts" 2>/dev/null \
         | sed -E 's/^.*(PROJECT|ROOT) *\/ *//; s/" *\/ *"/\//g; s/"//g'
-      # The shell equivalent, bare or with an env override supplying the default:
-      #   DIR="docs/atlas/diagrams"      FORGE_DIR="${FORGE_BRIEF_DIR:-.forge}"
       grep -rhoE '^[A-Z][A-Z0-9_]*="[A-Za-z_.][^"$]*"' "$dir/scripts" 2>/dev/null \
         | sed -E 's/^[^=]*="//; s/"$//'
       grep -rhoE '^[A-Z][A-Z0-9_]*="\$\{[A-Za-z_][A-Za-z0-9_]*:-[A-Za-z_.][^}"]*\}"' \
         "$dir/scripts" 2>/dev/null | sed -E 's/^.*:-//; s/\}"$//'
-      # An output path a script defaults to when the caller does not pass one.
-      # This is where atlas declares its roots, so missing it would exempt the
-      # one skill with the most generated output. `--docs` is deliberately not
-      # here: it names the docs base that a skill's own root is joined *under*,
-      # so `docs` is a correct value for it and a wrong one for a write target.
       grep -rhoE '(option|am_option)\([^)]*"--(out|model)", *"[A-Za-z_.][^"]*"' \
         "$dir/scripts" 2>/dev/null | sed -E 's/^.*, *"//; s/"$//'
     )
@@ -284,7 +294,20 @@ check_skill() {
   # A line quoting the character as a glyph (`\u2014` in backticks, or /\u2014/ in a
   # lint rule) is a rule *about* it, not prose using it. penname's persona
   # ban lists and voicecheck's defaults both have to name it to forbid it.
-  em_hits=$(grep -rnI $'\u2014' "$dir" 2>/dev/null | grep -vE '`\xe2\x80\x94`|/\xe2\x80\x94/' || true)
+  # Build the glyph with printf rather than $'\u2014': \u needs bash 4.2, and
+  # macOS ships 3.2, where $'\u2014' stays the six-character string "\u2014"
+  # and the search silently matches nothing. printf '\xNN' behaves the same
+  # in both. The exclusions have to be double-quoted for the same reason:
+  # inside single quotes \xe2\x80\x94 reaches grep as literal backslash-x
+  # text, and ERE has no \xNN escape, so the filter never excluded anything.
+  em=$(printf '\xe2\x80\x94')
+  # Strip the quoted forms from each line, then look at what is LEFT. Excluding
+  # the whole line instead would let one sentence hide a real dash behind a
+  # glyph mention: "ban the `-` outright - it is prose poison" names the
+  # character once and then uses it, and a line-level filter drops both.
+  em_hits=$(grep -rnI "$em" "$dir" 2>/dev/null \
+    | sed "s|\`$em\`||g; s|/$em/||g" \
+    | grep "$em" || true)
   if [ -n "$em_hits" ]; then
     red "  contains an em dash: rewrite the sentence, never substitute the character"
     printf '%s\n' "$em_hits" | head -3 | sed "s|$REPO/||; s/^/      /"
