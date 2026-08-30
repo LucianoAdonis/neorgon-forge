@@ -1,4 +1,4 @@
-.PHONY: help install refresh validate new status uninstall
+.PHONY: test-brief help install refresh validate new status uninstall
 
 SKILLS := plugins/neorgon-forge/skills
 DEST   := $(HOME)/.claude/skills
@@ -26,7 +26,7 @@ endif
 refresh:
 	@bash bin/refresh.sh
 
-validate:
+validate: test-brief
 ifdef SKILL
 	@bash bin/validate.sh "$(SKILL)"
 else
@@ -62,3 +62,6 @@ uninstall:
 		n=$$(basename $$d); t="$(DEST)/$$n"; \
 		if [ -L "$$t" ]; then rm "$$t"; printf '  removed %s\n' "$$n"; fi; done
 	@echo "Restart Claude Code to drop them from the session."
+
+test-brief:  ## exercise brief.sh: multi-run isolation, TSV integrity, the index
+	@bash bin/test-brief.sh

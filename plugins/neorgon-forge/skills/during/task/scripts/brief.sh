@@ -69,9 +69,21 @@ cmd_init() {
 
   if [ -f "$BRIEF" ]; then
     ok "brief already exists at $BRIEF: appending a new run"
+    # A run gets the whole scaffold, not just a heading. Emitting only
+    # "## Run:" left every later run's notes filing themselves under the
+    # FIRST run's "## Decisions", which put a campaign's decisions above
+    # closed-stamps from weeks earlier and read as that older campaign's work.
     {
       printf '\n---\n\n## Run: %s\n\n' "$(now)"
-      printf '**Problem.** %s\n' "$problem"
+      printf '## Problem\n\n%s\n\n' "$problem"
+      printf '## Done when\n\n<!-- The condition that ends this run. Step 1 asks for it;\n'
+      printf '     without it a run closes green on "all streams done" even when the\n'
+      printf '     agreed bar was "deployed and verified". -->\n\n'
+      printf '## Approach\n\n<!-- What you are doing, in a paragraph. -->\n\n'
+      printf '## Rejected\n\n<!-- The alternative you considered and why it lost. -->\n\n'
+      printf '## Decisions\n\n<!-- Appended by: brief.sh note \"<what you learned>\" -->\n\n'
+      printf '## Measured\n\n<!-- Numbers actually observed, with how. -->\n\n'
+      printf '## Open\n\n<!-- Deferred work, defects that shipped, decisions left to the user. -->\n'
     } >>"$BRIEF"
     return
   fi
@@ -88,6 +100,13 @@ $problem
 <!-- What was wrong *before*. The symptom someone actually experienced, not the
      absence of the solution. debrief opens its deck on this, so vagueness here
      costs a slide later. -->
+
+## Done when
+
+<!-- The condition that ends this run, in one line. task Step 1 asks for it
+     ("tests pass, or deployed and verified") and there was nowhere to put the
+     answer, so a campaign closed green on "all streams done" even when the
+     agreed bar was never met. close reports this back. -->
 
 ## Approach
 
@@ -123,13 +142,18 @@ cmd_note() {
   # Append at the END of the Decisions section, not right after the
   # heading: a decision log reads as a narrative, and newest-first
   # inverts the story it is supposed to tell.
-  local tmp
+  # One line, always: a decision is a markdown bullet, and a pasted multi-line
+  # outcome silently ended the bullet and left the rest as loose prose.
+  text=$(printf '%s' "$text" | tr '\n\t' '  ')
+  local start tmp
+  # The LAST Decisions heading, not the first. Every run has its own.
+  start=$(grep -n '^## Decisions$' "$BRIEF" | tail -1 | cut -d: -f1)
+  [ -n "$start" ] || die "no '## Decisions' section in $BRIEF"
   tmp=$(mktemp)
-  awk -v entry="- \`$(now)\` $text" '
-    /^## / && inside && !placed { print entry; print ""; placed = 1; inside = 0 }
+  awk -v entry="- \`$(now)\` $text" -v start="$start" '
+    NR > start && /^## / && !placed { print entry; print ""; placed = 1 }
     { print }
-    /^## Decisions$/ { inside = 1 }
-    END { if (inside && !placed) print entry }
+    END { if (!placed) print entry }
   ' "$BRIEF" >"$tmp" && mv "$tmp" "$BRIEF"
   ok "noted"
 }
@@ -144,10 +168,14 @@ cmd_correct() {
   [ -n "$old" ] && [ -n "$new" ] ||
     die 'usage: brief.sh correct "<fragment of the wrong note>" "<what is actually true>"'
 
-  local lineno
-  lineno=$(awk -v s="$old" '
-    /^## Decisions$/ { inside = 1; next }
-    /^## /           { inside = 0 }
+  # Scoped to the current run. Latching on the first '## Decisions' would let a
+  # correction strike a note belonging to a campaign that closed weeks earlier.
+  local lineno start
+  start=$(grep -n '^## Decisions$' "$BRIEF" | tail -1 | cut -d: -f1)
+  lineno=$(awk -v s="$old" -v start="${start:-0}" '
+    NR <= start      { next }
+    /^## /           { inside = 0; next }
+    { inside = 1 }
     inside && /^- / && index($0, s) { n = NR }
     END { if (n) print n }
   ' "$BRIEF")
@@ -169,6 +197,10 @@ stream_field() { awk -F'\t' -v n="$1" '$1 == n { print $2 }' "$STREAMS" 2>/dev/n
 
 stream_set() {
   local name="$1" state="$2" detail="${3:-}"
+  # A record is one tab-separated line. A pasted multi-line outcome, which is
+  # exactly the shape a subagent returns, split it into malformed rows that
+  # every later read misparsed.
+  detail=$(printf '%s' "$detail" | tr '\n\t' '  ')
   mkdir -p "$FORGE_DIR"
   touch "$STREAMS"
   local tmp
@@ -223,9 +255,13 @@ cmd_status() {
   # created and never filled, and the deck inherits the emptiness.
   # Reported, never fatal: status is a diagnostic and is expected to run
   # mid-task when sections legitimately are not filled yet.
-  local empty=0
-  for h in Approach Rejected Measured Open; do
-    awk -v h="## $h" '
+  local empty=0 run_start
+  # Sections belong to the newest run. Scanning from the top reported the first
+  # run's Approach as filled while the run in progress had nothing in it.
+  run_start=$(grep -n '^## Run: ' "$BRIEF" | tail -1 | cut -d: -f1)
+  for h in "Done when" Approach Rejected Measured Open; do
+    awk -v h="## $h" -v start="${run_start:-0}" '
+      NR < start { next }
       $0 == h { inside = 1; next }
       /^## / { inside = 0 }
       inside && !/^[[:space:]]*$/ && !/^<!--/ && !/^ *-->/ && !/^ /  { found = 1 }
@@ -269,23 +305,46 @@ cmd_index() {
     printf 'By `brief.sh index`. Grep this instead of recalling a decision:\n'
     printf 'every problem, decision, and open item from every brief under this root.\n'
     while IFS= read -r b; do
-      local repo runs closed state
+      local repo runs state
       repo="${b#"$root"/}"; repo="${repo%/.forge/brief.md}"
-      # grep -c prints the count even when it is 0 (and exits 1), so no fallback.
-      runs=$(grep -cE "^\*\*Problem\.\*\*|^# Brief( $LEGACY_SEP|:) " "$b" 2>/dev/null)
-      # Closed means: a _Closed stamp after the LAST run's problem line,
-      # counting stamps misreports a brief that was closed and then reopened.
-      state=$(awk -v sep="$LEGACY_SEP" '
-        /^\*\*Problem\.\*\*/ || $0 ~ "^# Brief( " sep "|:) " { lastp = NR }
-        /^_Closed /                           { lastc = NR }
+      # Three generations of run marker are on disk in this fleet: the oldest
+      # emitted only '**Problem.**', the next emitted '## Run:' AND
+      # '**Problem.**' together, the current one emits '## Run:' with a full
+      # section scaffold. Count '## Run:' headings plus any '**Problem.**'
+      # that does not belong to one, plus 1 for the file header.
+      runs=$(awk '
+        /^## Run: /        { n++; lastrun = NR; next }
+        /^\*\*Problem\.\*\*/ { if (NR - lastrun > 3) n++ }
+        END { print n + 1 }
+      ' "$b")
+      # Closed means: a _Closed stamp after the LAST run began. Counting
+      # stamps misreports a brief that was closed and then reopened.
+      state=$(awk '
+        /^## Run: / || /^# Brief/ { lastp = NR }
+        /^_Closed /               { lastc = NR }
         END { print (lastc > lastp && lastp) ? "closed" : "open" }
       ' "$b")
-      printf '\n## %s · %s · %s run(s)\n\n' "$repo" "$state" "$runs"
-      grep -E "^# Brief( $LEGACY_SEP|:) |^\*\*Problem\.\*\*" "$b" | sed -E "s/^# Brief( $LEGACY_SEP|:) /- problem: /; s/^\*\*Problem\.\*\* /- problem: /"
+      printf '\n## %s | %s | %s run(s)\n\n' "$repo" "$state" "$runs"
+      # Three problem shapes across the fleet: the file header, the legacy
+      # one-line '**Problem.**' marker, and a run's own '## Problem' section.
+      awk -v sep="$LEGACY_SEP" '
+        $0 ~ "^# Brief( " sep "|:) " { sub("^# Brief( " sep "|:) ", ""); print "- problem: " $0; next }
+        /^\*\*Problem\.\*\* / { sub(/^\*\*Problem\.\*\* /, ""); print "- problem: " $0; next }
+        /^## Problem$/    { want = 1; next }
+        want && NF && !/^<!--/ { print "- problem: " $0; want = 0 }
+      ' "$b"
       awk '
         /^## Decisions$/ { inside = 1; next }
         /^## /           { inside = 0 }
         inside && /^- /  { print }
+      ' "$b"
+      # Rejected is the section that answers "did we already try this?", which
+      # is the whole point of an index meant to prevent re-deciding. It was the
+      # one section the index dropped.
+      awk '
+        /^## Rejected$/ { inside = 1; next }
+        /^## /          { inside = 0 }
+        inside && NF && !/^<!--/ && !/^ *-->/ { print "- rejected: " $0 }
       ' "$b"
       awk '
         /^## Open$/                                    { inside = 1; next }
