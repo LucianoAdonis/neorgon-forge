@@ -26,19 +26,34 @@ it was wrong (the docs path is flat, so a bucket move does not touch it).
 
 ## What a new skill owes
 
-Adding one is five things, and `bin/validate.sh` fails on four of them:
+Adding one is five things, and `bin/validate.sh` fails on all five:
 
 1. `SKILL.md`, with frontmatter whose `name` matches the directory.
 2. `agents/openai.yaml` beside it, so the skill has an identity outside Claude Code.
 3. An entry in `plugins/neorgon-forge/.claude-plugin/plugin.json`'s `skills` array. The plugin
    ships exactly what that array lists; a skill missing from it is installed by nobody.
 4. A docs page at `docs/skills/<name>.md`, following `.agents/writing-docs.md`.
-5. A line in **`before/forge`**, the router. This is the one nothing can check, and the one that
-   decides whether the skill is ever reached for. A router that does not mention a skill is a
-   router that lies, and so is one still routing to a skill that was renamed.
+5. A line in **`before/forge`**, the router, a row in the README's bucket table, and a lane in
+   the README's combos diagram. These decide whether the skill is ever reached for. A router
+   that does not mention a skill is a router that lies, and so is a map that leaves it off. It
+   used to be the item nothing could check; `bin/coverage.py` now checks all three, because
+   four skills were added in one week and the router picked up three of them while the README
+   picked up none.
+
+   A skill that genuinely chains to nothing still gets a lane: trigger on the left, the skill
+   alone on the right. Six of them look like that, and saying so is more honest than inventing
+   a chain to make the picture tidy.
 
 Scaffold with `make new NAME=x BUCKET=during PURPOSE="..."`, which creates 1 and prompts for
 the rest.
+
+## Paths in prose
+
+A `SKILL.md` that names `reference/x.md` or `scripts/x.sh` is naming a file **the skill ships**,
+and `validate.sh` fails when it does not exist. To name a file in the **repo being worked on**,
+root it: `./scripts/prompt.sh`. The leading `./` is the whole convention, and the checker skips
+those. Cross-skill paths use the installed flat layout, `skills/task/scripts/brief.sh`, and the
+checker resolves the bucket itself.
 
 ## Invocation
 
@@ -87,6 +102,11 @@ and is exempt; rewriting it changes the record.
 ## Before committing
 
 ```bash
-make validate        # every skill, the manifests, and that they agree
+make validate        # every skill, the manifests, the router and README coverage
 make install         # re-point the symlinks after any move
 ```
+
+`make validate` has two halves. Everything before `== Coverage` looks at one skill in
+isolation; `bin/coverage.py` looks at the **set**, which is the only place drift between
+skills is visible. When you add, rename or remove a skill, that half is the one that will
+stop you.

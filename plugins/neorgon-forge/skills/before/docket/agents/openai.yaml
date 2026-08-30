@@ -1,0 +1,7 @@
+interface:
+  display_name: Docket
+  short_description: >-
+    Opens a session by building the next-steps slate from ledgers rather than memory: the
+    prompt queue, brief Open sections, unfinished workstreams, the harness ledger and git
+    state. Orders it small items first, then the questions only the user can answer, then
+    the blockers. Recommends a capped slate that one reply approves.

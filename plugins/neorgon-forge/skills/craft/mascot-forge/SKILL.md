@@ -40,7 +40,7 @@ the environment or the nearest `.env` searched upward to the repo boundary. Keys
 printed, and `keys.py` is the only place that reads them.
 
 Where output lands, by lifetime: served frames and the preview in `images/mascot/`
-(shipped); full-resolution masters in `scripts/mascot/masters/` (committed, never served,
+(shipped); full-resolution masters in `./scripts/mascot/masters/` (committed, never served,
 the one argued exception to the three output roots, see the forge's `docs/authoring.md`);
 raw generations and the remove.bg response cache under `.forge/` (ephemeral, safe to
 delete).

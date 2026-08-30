@@ -40,7 +40,7 @@ Two beats, both effectively always present:
   own" (user-invoked), or "Type `/<name>`, or the agent reaches for it when a
   task fits" (model-invoked).
 - **The boundary.** "Reach for this when ...", and where it is confusable with
-  a sibling, the other half: "for X instead, use [sibling](sibling.md)."
+  a sibling, the other half: "for X instead, use [<sibling>](<sibling>.md)."
 
 ## <one or two free-form sections>
 

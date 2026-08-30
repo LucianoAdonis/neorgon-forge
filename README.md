@@ -16,20 +16,88 @@ you actually have when you go looking for one.
 | **`after/`** | It is done and someone has to hear about it |
 | **`craft/`** | Standing quality of the fleet, reached for on its own schedule |
 
-**Start at [`/forge`](docs/skills/forge.md).** It is the router: the main flow, the on-ramps
-that feed it, and a table resolving every pair of skills that sound like each other. Eighteen
-is more than anyone holds in their head, and the one you need is usually the one you forgot you
-had.
+## The map
+
+The arc most work travels. `/task` is the only step always there: everything before it exists
+so you do not solve the wrong problem, and everything after it exists so someone else knows
+what happened. Dotted lines read `.forge/brief.md`, which is why the last steps report rather
+than reconstruct.
+
+```mermaid
+flowchart LR
+    D["<b>/docket</b><br/>what is next"] --> W["<b>/wayfind</b><br/>where does it go"]
+    W --> G["<b>/grill</b><br/>does the plan hold"]
+    G --> T["<b>/task</b><br/>do the work"]
+    T -- a room --> DB["<b>/debrief</b><br/>a deck"]
+    T -- the internet --> WU["<b>/writeup</b><br/>a post"]
+    DB --> C["<b>/closeout</b><br/>land what is left"]
+    WU --> C
+    C -. next session .-> D
+    T == writes, during ==> BR[("<b>.forge/brief.md</b>")]
+    BR -.-> D & DB & WU & C
+
+    classDef before fill:#8957e522,stroke:#8957e5
+    classDef during fill:#1f6feb33,stroke:#1f6feb
+    classDef after  fill:#2da44e22,stroke:#2da44e
+    classDef brief  fill:#bf870022,stroke:#bf8700
+    class D,W,G before
+    class T during
+    class DB,WU,C after
+    class BR brief
+```
+
+**The combos.** The left column is roughly what you would say out loud; the chain is what to
+run. Colours are buckets: `before/` purple, `during/` blue, `after/` green, `craft/` amber.
+Every skill appears exactly where it is actually reached for, and six of them are reached for
+alone, which is the honest answer rather than an invented chain.
+
+```mermaid
+flowchart LR
+    q1("I cannot name the tool") --> n1_0["/forge"]
+    q2("what should I work on") --> n2_0["/docket"] --> n2_1["/task"] --> n2_2["/closeout"]
+    q3("something broke, cause unknown") --> n3_0["/untangle"] --> n3_1["/task"] --> n3_2["/closeout"]
+    q4("a repo I have never seen") --> n4_0["/atlas"] --> n4_1["/wayfind"] --> n4_2["/task"]
+    q5("big change, plan untested") --> n5_0["/grill"] --> n5_1["/task"] --> n5_2["/debrief"]
+    q6("a Pathfinder link arrived") --> n6_0["/pathfinder"] --> n6_1["/task"] --> n6_2["/pathfinder"]
+    q7("a key only a human can fetch") --> n7_0["/wizard"] --> n7_1["/task"]
+    q8("write up what I built") --> n8_0["/task"] --> n8_1["/writeup"] --> n8_2["/voicecheck"]
+    q9("present it to a room") --> n9_0["/task"] --> n9_1["/debrief"]
+    q10("the deck lists topics") --> n10_0["/debrief"] --> n10_1["/deckcraft"]
+    q11("first push of this repo") --> n11_0["/secret-safe-reporting"] --> n11_1["/closeout"]
+    q12("teach someone else this") --> n12_0["/groundwork"] --> n12_1["/penname"] --> n12_2["/quizmaster"]
+    q13("a game that also prints") --> n13_0["/tabletop"] --> n13_1["/task"]
+    q14("a UI needs company logos") --> n14_0["/brandmark"]
+    q15("the site needs a character") --> n15_0["/mascot-forge"]
+    q16("that answer did not land") --> n16_0["/repitch"]
+    q17("the work must move elsewhere") --> n17_0["/handoff"]
+
+    classDef before fill:#8957e522,stroke:#8957e5,stroke-width:1px
+    classDef during fill:#1f6feb33,stroke:#1f6feb,stroke-width:1px
+    classDef after fill:#2da44e22,stroke:#2da44e,stroke-width:1px
+    classDef craft fill:#bf870022,stroke:#bf8700,stroke-width:1px
+    classDef ask fill:#8b949e11,stroke:#8b949e,stroke-dasharray:3 3
+    class q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17 ask
+    class n1_0,n2_0,n3_0,n4_0,n4_1,n5_0,n6_0,n6_2 before
+    class n2_1,n3_1,n4_2,n5_1,n6_1,n7_0,n7_1,n8_0,n9_0,n11_0,n13_1,n16_0,n17_0 during
+    class n2_2,n3_2,n5_2,n8_1,n9_1,n10_0,n10_1,n11_1 after
+    class n8_2,n12_0,n12_1,n12_2,n13_0,n14_0,n15_0 craft
+```
+
+**Start at [`/forge`](docs/skills/forge.md)** when the diagram is not enough. It is the router,
+and it carries the one thing a picture cannot: a table resolving every pair of skills that
+sound like each other.
 
 ### `before/`
 
 | Skill | Use it when | Produces |
 |---|---|---|
 | **[`forge`](docs/skills/forge.md)** | You can describe the situation but not name the tool | The route, and the reason |
+| **[`docket`](docs/skills/docket.md)** | Nothing is in progress and the next thing is unchosen | A slate: small first, questions next, blockers last |
 | **[`wayfind`](docs/skills/wayfind.md)** | You do not know where a change goes | `.forge/map.md`: areas, path rules, exceptions |
 | **[`untangle`](docs/skills/untangle.md)** | The problem resists a plan | Evidence, or a scored decision, or a coverage map |
 | **[`grill`](docs/skills/grill.md)** | The plan needs arguing with before anyone builds | Rounds of questions, `.forge/context.md`, decision records |
 | **[`atlas`](docs/skills/atlas.md)** | An app needs docs that can be checked | A dependency model, an MkDocs corpus, and answers |
+| **[`pathfinder`](docs/skills/pathfinder.md)** | A Pathfinder canvas, brief or link is in play | A canvas that provably loads, or a patch back into one |
 
 ### `during/`
 
@@ -48,6 +116,7 @@ had.
 | **[`debrief`](docs/skills/debrief.md)** | You need to present what changed | A deck, built to PDF (slides YAML, Marp, or Markdown) |
 | **[`writeup`](docs/skills/writeup.md)** | You need to publish what changed | `post/POST.md` plus diagrams that cannot drift |
 | **[`deckcraft`](docs/skills/deckcraft.md)** | A deck lists topics instead of making a claim | Assertion headings, an order for the room, a lint pass |
+| **[`closeout`](docs/skills/closeout.md)** | The work has landed and the question is what is left | A numbered inventory, then the closes one reply authorises |
 
 ### `craft/`
 
@@ -58,6 +127,8 @@ had.
 | **[`groundwork`](docs/skills/groundwork.md)** | A tutorial is about to promise steps | A dated requirements doc, every claim labeled |
 | **[`quizmaster`](docs/skills/quizmaster.md)** | Source material should become a runnable exam | Proctor-format JSON, coverage-mapped and validated |
 | **[`mascot-forge`](docs/skills/mascot-forge.md)** | A character to generate, cut out, and rig | Aligned frames plus a CSS/physics rig |
+| **[`brandmark`](docs/skills/brandmark.md)** | A UI needs recognizable company or service logos | Vendored icons, a letter fallback, and the privacy rule |
+| **[`tabletop`](docs/skills/tabletop.md)** | A game must both print and run without drifting | One source for the components, and a measured balance claim |
 
 ## Install
 
@@ -75,7 +146,7 @@ Refresh with `/plugin update neorgon-forge`.
 **With the skills CLI**: for one skill, or for an agent other than Claude Code:
 
 ```bash
-npx skills add LucianoAdonis/neorgon-forge           # all eighteen
+npx skills add LucianoAdonis/neorgon-forge           # all twenty-three
 npx skills add LucianoAdonis/neorgon-forge -s atlas   # just one
 npx skills add LucianoAdonis/neorgon-forge -l         # list without installing
 ```
@@ -108,7 +179,7 @@ bash bin/install.sh --project ~/code/my-repo
 place their own copy at that name. Whichever lands second wins, and the failure is silent: you
 edit the clone and run the copy. Pick one route per machine.
 
-**If a skill is listed but `/name` says "Unknown skill"** (observed once with `voicecheck` on a
+**If a skill is listed but `/<name>` says "Unknown skill"** (observed once with `voicecheck` on a
 plugin install): the plugin cache is holding a stale or partial copy. `/plugin update
 neorgon-forge`, restart, and if it persists, remove and reinstall the plugin. The skill's
 `SKILL.md` being readable in the cache does not prove it registered, invocation is the test.
@@ -203,6 +274,35 @@ Each skill has a page under [`docs/skills/`](docs/skills/) covering what it does
 for it, and what it looks like when it is working. What follows is the part that does not fit
 there: the specific mechanisms, the numbers behind them, and the failure each one was built
 against.
+
+### `docket` and `closeout`
+
+The two ends of a session, and the reason they are separate skills is the default they carry.
+
+`closeout` runs when work has landed and something is left over. Its list is **debt already
+incurred**, so silence means close it: one reply authorises every item the answer does not
+deny, with publishing always its own numbered line so "wrap up" can never imply making a repo
+public.
+
+`docket` runs when nothing is in flight and the next thing is unchosen. Its list is a **menu
+nobody has committed to**, so silence means leave it alone: only the recommended slate is
+default-yes, and everything below it runs solely if the reply names it.
+
+Both refuse to build their list from recollection. Docket reads the prompt queue with each
+item's age and line count, every brief's Open section, every workstream still `pending` or
+`active`, the harness ledger and git state. The queue it was built against held twenty open
+items, fifteen of them one-liners, four of those 174 days old: none hard, and none ever the
+thing anybody remembered to do. The line count is the size signal that decides the lane, so an
+item that runs to paragraphs is named a campaign and handed to `/task` rather than started.
+
+The ordering rule is the user's, not a heuristic: small items first, then the questions only
+they can answer, then blockers, listed but never offered. A blocker cannot be closed in the
+session that discovers it, so a session that opens on one buys nothing and spends its momentum.
+
+Its first real run found seven workstreams marked `pending` whose work was plainly finished on
+disk, left stale by the session that closed the brief without closing the rows. That is why the
+skill treats a ledger entry as a claim to be checked rather than a fact: offering finished work
+as the next thing to do discredits the rest of the slate.
 
 ### `atlas`
 
@@ -460,7 +560,26 @@ The checks exist because each one has caught something. It fails, not warns, on:
 - An **em dash** in any prose, excluding a line that quotes the character as a glyph in order to
   ban it.
 - A dead `reference/` or `scripts/` link, a non-executable script, a syntax error, a committed
-  key, a hardcoded home path.
+  key, a hardcoded home path. A path in the **worked repo** is written `./scripts/x` and is
+  skipped, which is how a skill names the tools of the repo it operates on without lying.
+
+Everything above judges one skill alone. The last group, in `bin/coverage.py`, judges the
+**set**, which is where the drift that actually happened lives: four skills were added in one
+week, the router picked up three of them, the README none. It fails on:
+
+- A skill **absent from the router**, from the **README**, or from the **README's diagrams**.
+  The last one is separate on purpose: a bucket-table row satisfies the second check while
+  leaving the new skill off the picture everyone actually reads.
+- A **docs page with no skill**, left behind by a rename.
+- A **relative link that resolves to nothing**. This found a docs page linking to
+  `impeccable.md`, a skill that lives outside this plugin and so can never have a page here.
+- A **node on the map coloured as the wrong bucket**, which is worse than an uncoloured one:
+  it asserts something false rather than saying nothing.
+- A **`/<command>` that resolves to nothing**, which is how a combos diagram outlives a rename.
+- A **stated skill count that disagrees with the tree**. Four claim shapes are recognised
+  (`N skills`, `all N`, `over the N`, `N is more than`); a looser rule fired on "owes five
+  things" and was narrowed, because a checker that misfires on good prose is one you learn to
+  switch off.
 
 ## License
 

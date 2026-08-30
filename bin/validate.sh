@@ -258,7 +258,8 @@ check_skill() {
         red "  writes outside the sanctioned roots: $target"
       done
       red "  allowed: .forge/ (ephemeral) · docs/atlas/ (regenerable) · post/, images/ (shipped)"
-      red "  (plus one argued exception: scripts/mascot/masters, see docs/authoring.md)"
+      red "  (plus two argued exceptions: scripts/mascot/masters and the bare .env,"
+      red "   both in docs/authoring.md)"
       fail=1
     else
       green "  output roots ok"
@@ -328,10 +329,16 @@ check_skill() {
   # (scripts/setup-<thing>.sh), not a file that should exist. Angle brackets
   # are the repo's placeholder convention, so drop those lines before matching
   # rather than teaching every author to phrase around the checker.
+  # A reference written `./scripts/x` is a path in the **worked repo**, not a
+  # file the skill ships, and is skipped. Skills legitimately name the tools of
+  # the repo they operate on (docket calls the monorepo's ./scripts/prompt.sh),
+  # and without a way to say so the checker either lies or forces the author to
+  # write a worse sentence. This replaced a hardcoded allowlist for the one
+  # case that had come up so far.
   local refs=()
   while IFS= read -r ref; do refs+=("$ref"); done < <(
-    grep -oE '(skills/[A-Za-z0-9._-]+/)?(reference|scripts)/[A-Za-z0-9._-]+<?' "$md" \
-      | grep -v '<$' | sort -u
+    grep -oE '(\./)?(skills/[A-Za-z0-9._-]+/)?(reference|scripts)/[A-Za-z0-9._-]+<?' "$md" \
+      | grep -v '<$' | grep -v '^\./' | sort -u
   )
   for ref in ${refs+"${refs[@]}"}; do
     case "$ref" in
@@ -344,10 +351,6 @@ check_skill() {
         if [ -z "$sib_dir" ] || [ ! -e "$sib_dir/$tail_" ]; then
           red "  SKILL.md references missing file: $ref"; fail=1
         fi ;;
-      # The argued output root from the roots check above: a path the skill
-      # writes into the *worked project*, so it can never exist in the install
-      # and is not a reference to skill guidance at all.
-      scripts/mascot|scripts/mascot/*) : ;;
       *) [ -e "$dir/$ref" ] ||
         { red "  SKILL.md references missing file: $ref"; fail=1; } ;;
     esac
@@ -397,6 +400,16 @@ print('\n'.join(sorted(d.get('skills',[]))))
         | sed 's/^/    in the manifest, not on disk: /'
       fail=1
     fi
+  fi
+
+  # Every check above looks at one skill alone. This one looks at the set: the
+  # router and the README have to still describe it. That is the drift a
+  # per-skill loop cannot see, and the drift that actually happened.
+  head_ "Coverage"
+  if command -v python3 >/dev/null 2>&1; then
+    SRC="$SRC" REPO="$REPO" python3 "$REPO/bin/coverage.py" || fail=1
+  else
+    warn "  python3 missing: cannot check router and README coverage"; warns=$((warns+1))
   fi
 fi
 

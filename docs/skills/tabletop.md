@@ -20,7 +20,8 @@ Type `/tabletop`, or the agent reaches for it when a task is about a game's rule
 components or balance.
 
 Reach for it when the game has a printed artifact and a running one, and a change has to
-land in both. For the visual design of a card face on its own, use [impeccable](impeccable.md);
+land in both. For the visual design of a card face on its own, use `impeccable`, which lives outside
+this plugin;
 for the rulebook's prose once the rules are settled, use [penname](penname.md) or
 [voicecheck](voicecheck.md). A pure screen loop with nothing to print is not this skill.
 

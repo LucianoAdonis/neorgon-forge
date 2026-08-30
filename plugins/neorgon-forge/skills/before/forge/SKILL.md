@@ -1,6 +1,6 @@
 ---
 name: forge
-description: Ask which forge skill fits the situation. A router over the eighteen, and the flows that connect them.
+description: Ask which forge skill fits the situation. A router over the twenty-three, and the flows that connect them.
 user-invocable: true
 disable-model-invocation: true
 license: MIT
@@ -8,7 +8,7 @@ license: MIT
 
 # forge: which one of these do I want
 
-Eighteen skills is more than anyone holds in their head, and the ones you reach for least are
+Twenty-three skills is more than anyone holds in their head, and the ones you reach for least are
 the ones you most need reminding of. Ask instead.
 
 They sit in four buckets by **where in the work you are**, not by topic.
@@ -20,27 +20,30 @@ They sit in four buckets by **where in the work you are**, not by topic.
 | **`after/`** | It is done and someone has to hear about it |
 | **`craft/`** | Standing quality of the fleet. Reached for at any point, on their own schedule |
 
-## The main flow: a problem arrives, code ships, someone is told
+## The main flow: work is chosen, code ships, someone is told, the rest lands
 
-The route most work travels. Not every step every time; the middle one is the only one that is
+The route most work travels. Not every step every time; `/task` is the only one that is
 always there.
 
-1. **`/wayfind`** when you do not know where the change goes. Produces `.forge/map.md`: areas,
+1. **`/docket`** when nothing is in progress and the next thing is unchosen. It builds the
+   slate from the queue, the briefs and git state rather than from what was discussed most
+   recently, orders it small items first and blockers last, and one reply approves it.
+2. **`/wayfind`** when you do not know where the change goes. Produces `.forge/map.md`: areas,
    path rules, exceptions. Skip it in a repo you already know.
-2. **`/grill`** when the plan needs arguing with before anyone builds it. A round of questions
+3. **`/grill`** when the plan needs arguing with before anyone builds it. A round of questions
    at a time, each with a recommended answer, until the frontier is empty. In a repo it leaves
    `.forge/context.md` and numbered decision records.
-3. **`/task`** does the work. It picks a mode from the size (`quick`, `standard`, `campaign`),
+4. **`/task`** does the work. It picks a mode from the size (`quick`, `standard`, `campaign`),
    splits a campaign into workstreams it can delegate, and keeps `.forge/brief.md` **while the
    work happens**: the symptom before the fix, the alternative that lost, the number actually
-   measured. That file is the reason step 4 reports rather than reconstructs.
-4. **`/debrief`** for a deck, **`/writeup`** for a post. Both read the brief. Ask for one and
+   measured. That file is the reason step 5 reports rather than reconstructs.
+5. **`/debrief`** for a deck, **`/writeup`** for a post. Both read the brief. Ask for one and
    you usually want both.
-5. **`/closeout`** when the work has landed and the question is what is left. It enumerates the
+6. **`/closeout`** when the work has landed and the question is what is left. It enumerates the
    pending items from git, the registry and the briefs, numbered with a per-item default, and
    one reply closes everything the answer does not deny: publishing always its own line.
 
-**The brief is the spine.** Steps 2, 3 and 4 all read or write `.forge/`, which is what stops
+**The brief is the spine.** Steps 3, 4 and 5 all read or write `.forge/`, which is what stops
 the account of the work being a flattering summary of a diff. Everything else in this repo is
 optional; skipping the brief is what makes the last step bad.
 
@@ -87,6 +90,9 @@ These run on their own schedule and belong to no flow.
   dispute.
 - **`/quizmaster`** turns source material into a validated Proctor-format exam.
 - **`/mascot-forge`** generates a character, cuts it out, aligns the frames, and rigs it.
+- **`/tabletop`** is for a game that is both a printed artifact and software: it fixes the
+  order the pieces must be built in, keeps the component count from drifting from the data,
+  and makes a balance claim something measured rather than argued.
 - **`/brandmark`** puts company logos in a UI: vendored Simple Icons, letter-badge fallback,
   and an opt-in remote favicon tier, chosen by whether fetching an icon would disclose what
   the visitor holds.
@@ -102,13 +108,16 @@ The overlaps, resolved. This table is the reason to open this skill rather than 
 |---|---|
 | `untangle` | The cause is already known: that is `/task`. The plan is the doubt, not the cause: that is `/grill` |
 | `grill` | The shape of the problem is unknown, not the plan's soundness: `/untangle` first |
-| `task` | The change is one line you already know how to make: just make it, no skill |
+| `task` | The change is one line you already know how to make: just make it, no skill. Three attempts have each produced a new theory rather than new evidence: the cause was never known, so `/untangle` |
 | `wayfind` | The question is how the whole app fits together rather than where one change goes: `/atlas` |
 | `pathfinder` | The plan itself needs arguing with rather than encoding: `/grill`. The work in the middle is the ask: `/task`, then come back for the write-back |
 | `debrief` | It is a post, not a deck: `/writeup`. It did not come from a diff: `/deckcraft` |
-| `closeout` | Choosing what to build next rather than landing what exists: the queue and `/task` |
+| `closeout` | Choosing what to build next rather than landing what exists: that is `/docket` |
+| `docket` | Something is already in flight and the question is how to land it: `/closeout`. You have already chosen the work: `/task` |
 | `writeup` | It is README or docs prose: that is ordinary writing, or `/penname` for voice |
 | `deckcraft` | The deck should report what actually changed in the code: `/debrief` reads the diff |
+| `tabletop` | Nothing is ever printed and there is no rulebook: that is ordinary `/task` |
+| `brandmark` | The mark is the project's own rather than someone else's: that is `/mascot-forge`, or ordinary design |
 | `voicecheck` | The copy does not exist yet: `/penname` writes, `voicecheck` audits |
 | `groundwork` | The tutorial is written and the question is how it reads: `/voicecheck` |
 | `wizard` | You could do the step yourself: then do it |

@@ -147,8 +147,12 @@ Next:
   2. Fill every TODO. A shipped TODO is worse than a missing section.
   3. Write agents/openai.yaml beside SKILL.md (display_name, short_description,
      plus policy.allow_implicit_invocation: false if it is user-invoked).
-  4. Add a docs page at docs/skills/$NAME.md, and a line in the forge router.
+  4. Add a docs page at docs/skills/$NAME.md, a line in the forge router, and a
+     row in the README's $BUCKET table. make validate fails on all three.
   5. Register it in plugins/neorgon-forge/.claude-plugin/plugin.json's skills array.
+  6. Add a row to the forge router's overlap table naming the nearest skill this
+     could be confused with. Nothing checks this one, and 7 of 23 skills have no
+     row, which is what makes a 23-skill set feel like a pile.
   6. bash bin/validate.sh $NAME
   7. bash bin/install.sh
   8. Restart Claude Code, then try: /$NAME

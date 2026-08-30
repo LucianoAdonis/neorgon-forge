@@ -1,6 +1,6 @@
 {
   "name": "neorgon-forge",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Twenty-two skills for finding your way into hard work, taking it on, then explaining it, arranged by where in the work you are rather than by topic. before/: forge routes over the whole set, wayfind maps an unfamiliar codebase, untangle works a problem whose shape is not known yet, grill argues with a plan a whole round of questions at a time, atlas extracts a dependency model and generates MkDocs pages and Mermaid diagrams from it. during/: task scopes and delegates while keeping a brief on disk, wizard generates a bash walkthrough for the steps only a human can take, handoff compacts a session for the next agent, repitch re-explains an answer that did not land, secret-safe-reporting keeps pipelines from leaking what they read. after/: debrief builds the deck, writeup builds the post, deckcraft repairs a deck whose headings name topics instead of making claims. craft/: penname drafts in the author's voice in English or Spanish, voicecheck audits copy that exists, groundwork dates what a service really requires before a tutorial promises it, quizmaster turns source material into a validated exam, mascot-forge generates and rigs a character, brandmark puts company logos in a UI without leaking who uses them. task, debrief and writeup share one brief written during the work, so the account of it is a record rather than a recollection.",
   "author": {
     "name": "LucianoAdonis",
@@ -51,6 +51,7 @@
     "./skills/after/deckcraft",
     "./skills/after/writeup",
     "./skills/before/atlas",
+    "./skills/before/docket",
     "./skills/before/forge",
     "./skills/before/grill",
     "./skills/before/pathfinder",
