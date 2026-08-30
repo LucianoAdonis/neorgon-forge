@@ -209,7 +209,11 @@ for tens, base in (("twenty", 20), ("thirty", 30), ("forty", 40)):
 
 NUM = "|".join(sorted(WORDS, key=len, reverse=True))
 SHAPES = [
-    rf"\b(?P<n>{NUM}|\d+)\s+skills\s+(?:is|are|arranged|here)\b",
+    # "N skills" in any construction EXCEPT one that counts an event rather
+    # than the set. A whitelist of verbs was tried first and silently missed
+    # plugin.json's "Twenty-three skills for ...", which is the listing text a
+    # plugin directory shows: the one place a stale count survived this check.
+    rf"\b(?P<n>{NUM}|\d+)\s+skills\b(?!\s+(?:were|was|had|have|has)\b)",
     rf"\ball\s+(?P<n>{NUM}|\d+)\b",
     rf"\bover\s+the\s+(?P<n>{NUM}|\d+)\b",
     rf"\b(?P<n>{NUM}|\d+)\s+is\s+more\s+than\b",
@@ -219,6 +223,11 @@ SOURCES = (
     (ROUTER, router),
     ("README.md", readme),
     (".claude-plugin/marketplace.json", read(".claude-plugin/marketplace.json")),
+    # plugin.json's description is the listing text a directory shows, and it
+    # was the one place a stale count survived this check: it said twenty-two
+    # while the tree held twenty-three, found only by preparing a submission.
+    ("plugins/neorgon-forge/.claude-plugin/plugin.json",
+     read("plugins/neorgon-forge/.claude-plugin/plugin.json")),
 )
 
 
