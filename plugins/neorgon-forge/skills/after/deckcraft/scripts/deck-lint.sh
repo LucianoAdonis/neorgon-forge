@@ -14,10 +14,10 @@
 #        deck-lint.sh <directory>
 set -uo pipefail
 
-command -v python3 >/dev/null 2>&1 || { printf 'python3 not found\n' >&2; exit 1; }
+command -v python3 >/dev/null 2>&1 || { printf 'python3 not found\n' >&2; exit 2; }
 
 TARGET="${1:-.}"
-[ -e "$TARGET" ] || { printf 'no such file or directory: %s\n' "$TARGET" >&2; exit 1; }
+[ -e "$TARGET" ] || { printf 'no such file or directory: %s\n' "$TARGET" >&2; exit 2; }
 
 if [ -d "$TARGET" ]; then
   FILES=$(find "$TARGET" -maxdepth 1 -name '*.yaml' -o -maxdepth 1 -name '*.yml' | sort)
@@ -25,10 +25,11 @@ else
   FILES="$*"
 fi
 
-[ -n "$FILES" ] || { printf 'no .yaml files found in %s\n' "$TARGET" >&2; exit 1; }
+[ -n "$FILES" ] || { printf 'no .yaml files found in %s\n' "$TARGET" >&2; exit 2; }
 
 # The deck is read as text rather than parsed: PyYAML is not guaranteed present,
 # and every check here is about surface strings the author actually typed.
+fail=0
 for f in $FILES; do
   python3 - "$f" <<'PYEOF'
 import re, sys, os
@@ -180,8 +181,14 @@ for level, line_no, msg in findings:
     where = f'line {line_no}' if line_no else 'deck'
     print(f'   {level:<5} {where:<9} {msg}')
 print(f'   {len(type_line)} slides · {warns} warning(s) · {len(findings) - warns} note(s)')
+# A warning is a finding. Exiting 0 regardless made this safe to chain
+# behind && in a publishing path, which is the opposite of the truth.
+import sys as _sys; _sys.exit(1 if warns else 0)
 PYEOF
+  [ $? -eq 0 ] || fail=1
 done
 
 printf '\nThese checks are content-shaped and complement validate.mjs, which owns density.\n'
 printf 'Run both: node validate.mjs <deck> for the limits, this for the argument.\n'
+# 0 clean, 1 findings, 2 usage.
+exit "$fail"

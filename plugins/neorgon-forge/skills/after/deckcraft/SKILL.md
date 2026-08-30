@@ -37,6 +37,8 @@ producing.
 bash "$FORGE/skills/deckcraft/scripts/deck-lint.sh" <deck.yaml>
 ```
 
+**Exit contract: 0 clean, 1 findings, 2 usage.** It counted findings and exited 0 regardless until 2026-08-29, so it was safe to chain behind `&&` in a publishing path, which was the opposite of the truth. Treat a non-zero exit as a stop.
+
 Reports what `validate.mjs` structurally cannot: topic-label headings, promises of links that do
 not exist, unlabelled comparison columns, missing alt text, and slides whose heading asserts a
 number the slide never shows. Run it on an existing deck before critiquing it, and on your own

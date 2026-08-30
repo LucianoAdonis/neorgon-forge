@@ -338,3 +338,10 @@ When a skill produces a bad result, the fix is almost always one of:
 
 Record the fix in the skill, not in your head. A skill is a place to put a lesson so it survives
 the session that taught it to you.
+
+## The exit contract every script here follows
+
+`0` clean, `1` findings, `2` usage or environment error. It is not decoration: a checker that
+prints findings and exits 0 is safe to chain behind `&&`, which is exactly how it gets used,
+and two shipped that way in this repo until 2026-08-29, both in a publishing path. If your
+script counts anything, exit on the count.

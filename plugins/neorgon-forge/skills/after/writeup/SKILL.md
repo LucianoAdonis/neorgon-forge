@@ -160,6 +160,8 @@ If you cannot tell whether a phrase is voice or slop, ask. Guessing wrong in the
 `scripts/check-writeup.sh` greps for the mechanical patterns so you spend your attention on the
 judgment calls.
 
+**Exit contract: 0 clean, 1 findings, 2 usage.** It counted findings and exited 0 regardless until 2026-08-29, so it was safe to chain behind `&&` in a publishing path, which was the opposite of the truth. Treat a non-zero exit as a stop.
+
 ## Step 6: Translate (neutral Spanish)
 
 Only when asked. Neutral means it reads naturally to a reader in Mexico, Colombia, Argentina and

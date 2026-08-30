@@ -6,7 +6,7 @@
 set -uo pipefail
 
 DIR="${1:-post}"
-[ -d "$DIR" ] || { echo "no such directory: $DIR"; exit 1; }
+[ -d "$DIR" ] || { echo "no such directory: $DIR" >&2; exit 2; }
 
 red()  { printf '\033[31m%s\033[0m\n' "$1"; }
 green(){ printf '\033[32m%s\033[0m\n' "$1"; }
@@ -78,7 +78,11 @@ fi
 echo
 if [ "$fail" -eq 0 ]; then
   green "All mechanical checks passed."
-else
-  red "Some checks flagged: see above."
+  exit 0
 fi
-exit 0
+red "Some checks flagged: see above."
+# 0 clean, 1 findings, 2 usage: the contract penname states and every other
+# checker here follows. This script counted failures and then exited 0 anyway,
+# so `check-writeup.sh post && publish` shipped a post with a broken image
+# reference, which this script itself calls the most common defect.
+exit 1
