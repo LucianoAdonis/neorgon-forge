@@ -74,6 +74,17 @@ Cheapest and most reversible first, so a failure late in the run strands as litt
 | 4 | Pushes to existing remotes |
 | 5 | Publishes: new public repos, Pages, DNS, per the operations runbook, never from memory |
 
+Row 5 has one precondition it must not skip. A site repo has to be **public** for Pages on the
+free plan, so publishing publishes the source. Before a first push to a new remote:
+
+```bash
+bash "$FORGE/skills/secret-safe-reporting/scripts/sweep.sh" . --history
+```
+
+A credential found in an unpushed history is a squash; found after the push, it is a rotation.
+`/task` requires this at the same boundary, and this is where publishing actually happens, so
+it has to be required in both places rather than remembered in one.
+
 A failed gate at row 3 stops rows 4 and 5 for that repo and is reported as the reason. Never
 reorder a publish above its verification.
 

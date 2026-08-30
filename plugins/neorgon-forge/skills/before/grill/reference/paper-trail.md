@@ -13,7 +13,7 @@ documentation of the system; it is documentation of the *language*, and it is sh
 
 ## Language
 
-**<Term>**:
+**<Term>** · agreed <YYYY-MM-DD>:
 What it is, in one or two sentences, in the words a person would use out loud.
 _Avoid_: <the words this must not be called>, <and this one>
 
@@ -26,6 +26,10 @@ _Avoid_: <the words this must not be called>, <and this one>
 
 - "<word>" was used for both <X> and <Y>. Resolved: <X> is **<Term>**; <Y> is **<Other term>**.
 ```
+
+The date is one field, not two, and it is re-stamped **in place** when a definition is
+corrected. `atlas` uses it to say which of a disagreeing pair is older, and a term carrying
+both an original and a revision date would let it order the code against the wrong event.
 
 Three rules that decide whether it stays useful:
 

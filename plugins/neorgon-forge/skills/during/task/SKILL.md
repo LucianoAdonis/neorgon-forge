@@ -29,10 +29,19 @@ wastes the user's time, and a campaign run as a quick fix produces half a migrat
 | `quick` | One file, cause already known, under ~30 lines | No brief, no plan | No |
 | `standard` | A few files, one subsystem, cause needs confirming | Brief + inline plan | Only for research |
 | `campaign` | Many files or subsystems, or work spanning sessions | Brief + tracked workstreams | Yes, per workstream |
+| `refine` | A **working** thing that should be better, with no defect to fix and no feature to add | Brief + a baseline nobody argues with | Yes, and verification costs more than the research |
 
 Escalate mid-flight when a `standard` task turns out to touch nine files, say so and start the
 brief rather than pressing on. Never silently downgrade a `campaign`; if it is smaller than it
 looked, say that too.
+
+**Escalate by kind, not only by size.** Mode is about how big the work is; it has nothing to
+say about a fix that is not converging. After **three** attempts at the same failure that each
+produce a new theory rather than new evidence, stop and hand it to `/untangle`. That is not a
+bigger task, it is a different one: the cause was never actually known, and `/task` was the
+wrong skill from the first attempt. The count is deliberate. An agent inside a fix loop is the
+worst-placed observer of it, and "am I going in circles" asked as a judgment call is answered
+"no" every time.
 
 One environment check before any mode: if the working tree lives inside a cloud-sync
 folder: iCloud's `Mobile Documents`, Dropbox, OneDrive, Google Drive, stop and say so
@@ -43,7 +52,30 @@ finished work: rebase-abort deletions, stale artifacts posing as results, a shel
 drops PATH in loops: live in `reference/hazards.md`; read it when any of its symptoms
 appears.
 
-`quick` skips to Step 3. The rest of this applies to `standard` and `campaign`.
+`quick` skips to Step 3. The rest of this applies to `standard`, `campaign` and `refine`.
+
+**`refine` is a campaign pointed at something that already works**, which changes what can go
+wrong. There is no failing test to anchor on, so the work drifts toward whatever is easiest to
+have an opinion about. Five rules keep it honest, and they come from a real refinement run
+where seven subagents and outside research produced roughly forty findings:
+
+1. **Establish a baseline nobody argues with first**: what exists, what already passes, and the
+   command that proves it. Without it, every later claim is a matter of taste.
+2. **Label every claim** `verified` (measured in this repo), `cited` (a primary source was read),
+   or `inferred` (someone's reasoning). Ask each research stream for a ranked **do not build**
+   list with the evidence against, which is often where the value turns out to be.
+3. **Verify every claim before acting.** About one in five did not survive checking in that run,
+   including a confident "this is dead code" about code that was live, and a report that cited
+   the wrong file while describing the right defect.
+4. **Fix in severity order**, blockers before polish.
+5. **Leave a mechanical check** for each class of defect, so it cannot come back.
+
+And check the **artifact**, not only the source. The worst defects of that run were invisible in
+the browser and obvious in the export: images that were SVG bytes under a `.png` name, an author's
+home directory in an alt-text field, a canvas a third too wide.
+
+The honest answer is sometimes that the thing is already good enough. Say that rather than
+manufacturing forty findings to justify the run.
 
 ## Step 1: Resolve ambiguity, once
 
@@ -136,7 +168,12 @@ that determines the shape of the result.
 
 Each subagent prompt must carry, because it inherits none of your context:
 
-1. The goal, as a done condition
+1. The goal, as a done condition, **and the cheap way to satisfy it, forbidden by name**.
+   Every done condition worth stating is a mechanical check: an empty grep, a passing suite, a
+   count. Each one is satisfiable by changing what is checked rather than what is wrong, by
+   widening an ignore rule, moving the offending values into an exempted file, or deleting the
+   failing case. Say which of those is off the table, because a subagent optimising for a green
+   check is not being dishonest, it is being literal
 2. The constraints: conventions to follow, files not to touch
 3. The return contract: what to report back, in what shape
 4. Explicitly: **report what you could not do**, rather than working around it
@@ -158,6 +195,12 @@ needs verifying, not applying. Neither half is a formality:
 - Look for the thing it did not mention. Silence about a hard case usually means it was skipped.
 - Reconcile against the convention. Independent streams drift apart; a stream that invented its
   own naming needs fixing before the next one copies it.
+- **Check what was added, not only what was missed.** Every check above hunts a deficit: what
+  was skipped, what went unmentioned, what count was rounded up. None of them fires on a file
+  the stream created that nobody asked for, a dependency it introduced, or a second problem it
+  fixed on the way past. Read the diff for additions with the same suspicion as omissions. A
+  subagent with a bounded task and spare capacity will widen the task, and it will report that
+  as thoroughness.
 
 Record each stream's outcome with `stream done` **including what it got wrong**. A campaign's
 value at the end is largely in knowing which parts were verified and which were taken on trust.
@@ -165,7 +208,14 @@ value at the end is largely in knowing which parts were verified and which were 
 ## Step 5: Verify, then report honestly
 
 Run whatever the project actually has: tests, linter, build, the page in a browser. State what
-you ran and what it said. "Should work" is not verification, and neither is a passing test for
+you ran and what it said.
+
+**"The page in a browser" is the fleet's dominant case and needs its own bar**, because roughly
+70 zero-build static sites have no suite at all. Loading it is not verification. The check is:
+the page renders, the browser console has **zero errors**, the network tab shows no failed
+request, and you exercised the specific control the change touched and saw the specific thing
+it was supposed to do. Report those four, the way you would report a runner's output. "Looks
+right" from a screenshot is the visual equivalent of a test that was written and never run. "Should work" is not verification, and neither is a passing test for
 code you did not exercise.
 
 **If you added a guard, a check, or a refusal, write the test that trips it.** A guard you

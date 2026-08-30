@@ -223,6 +223,12 @@ directions:
   the project decided against. That is a rename someone owes, and naming it is cheaper than
   rediscovering it.
 
+**On saying which one is older.** A term carries `· agreed <date>`, and that date against the
+file's git history is what lets the report say which side moved. Where the term has no date,
+which is every hand-written glossary today, report the disagreement **without** the ordering
+and say the date is missing. Never guess which side moved: `.forge/` is ephemeral and gitignored
+by the worked repo, so there is no history to fall back on.
+
 **Report it, never rewrite it.** Renaming a module to match a glossary is a change to the code,
 which is `task`'s job and needs the user's agreement. Atlas's job ends at saying the two
 disagree, and at which one is older.

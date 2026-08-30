@@ -57,6 +57,20 @@ Apply what `audit` would report. Rewrite in place, preserving meaning and the au
 intent, and show a before/after per change. Preserving intent is the constraint that
 matters: a rewrite that reads better and says something different is a defect, not a fix.
 
+Its only stated scope was semantic ("user-facing copy"), which is a judgment the rewrite
+makes about itself. The byte-level version, because a banned-word substitution inside an
+`href` or a class name breaks a live site while the audit report shows nothing:
+
+- **The text surface**, which `align` and `detox` may rewrite: visible text nodes, the
+  `content=` of description / `og:` / `twitter:` metas, the text of `<title>`, the values of
+  `alt` / `aria-label` / `placeholder` / `title`, and user-visible string literals in JS.
+- **Not the text surface**, ever: attribute *names*, `class` / `id` / `data-*` values,
+  `href` / `src` / `srcset`, anything inside `<script>` or `<style>`, fenced and inline code
+  in Markdown, version and date stamps, and JSON or YAML *keys* and i18n message ids.
+- **File type decides nothing.** A large share of this fleet's user-facing copy lives in
+  `.yaml` and `.json`: slides decks, Proctor exams, Resume Forge documents. The rule is the
+  surface, not the extension.
+
 ### `teach <project-dir>`
 
 Interview to author a project `VOICE.md`. **One question at a time**, audience, register,
@@ -94,6 +108,9 @@ same rules: the rules live in `reference/voice-defaults.md`, not in the delegate
 
 ## Invariants
 
+- **`align` and `detox` rewrite prose, never structure.** A rewrite that changes a byte
+  outside the text surface is a defect even when the copy improved. This applies to a
+  rewrite you delegate and to one you make yourself; re-audit either before accepting it.
 - **Load context before judging.** An audit against a remembered voice is an opinion.
 - **Report `file:line`.** A finding nobody can locate does not get fixed.
 - **Project `VOICE.md` wins over the baseline**: except for chrome invariants an overlay
