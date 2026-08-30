@@ -7,17 +7,21 @@ This file records how to submit and what was verified, so a resubmission or an
 audit does not start from scratch. Source of truth for the process:
 https://claude.com/docs/plugins/submit
 
-## Readiness, verified 2026-08-21
+## Readiness, verified 2026-08-29
 
 | Requirement | State |
 |---|---|
 | Public repo (closed-source is rejected) | yes: https://github.com/LucianoAdonis/neorgon-forge |
-| `claude plugin validate .` (marketplace manifest) | passes |
-| `claude plugin validate ./plugins/neorgon-forge` (plugin manifest) | passes |
-| `make validate` (house standard, 13 skills) | passes |
+| `claude plugin validate . --strict` (marketplace manifest) | passes |
+| `make validate` (house standard, 23 skills, set-level coverage included) | passes |
+| `npx skills@latest add . -l` (the skills CLI reads the bucket layout) | lists 23 |
 | License | MIT |
-| Every skill has a `SKILL.md` | 13 of 13 |
+| Every skill has a `SKILL.md`, an `agents/openai.yaml` and a docs page | 23 of 23 |
 | Bundled MCP connectors (extra review, more user warnings) | none |
+| Version | 2.2.0 |
+
+Previously verified 2026-08-21 at 13 skills, before the arc-position buckets,
+the `forge` router and the README map existed.
 
 The plugin bundles skills only, no MCP connectors, so it avoids the connector
 review path entirely. `secret-safe-reporting` is about not leaking sensitive
@@ -32,7 +36,8 @@ As an individual author (no Team/Enterprise org), use the Console form:
    Console org; individual authors sign up there).
 2. Open https://platform.claude.com/plugins/submit
 3. Paste the repo link: https://github.com/LucianoAdonis/neorgon-forge
-4. Submit. Review times vary with queue volume; basic automated review runs
+4. Submit. **Push first**, always: the directory reads the public repo, so
+   submitting ahead of a push lists a version nobody can install. Review times vary with queue volume; basic automated review runs
    first, and an "Anthropic Verified" badge, if it ever comes, is a separate,
    additional review with no guarantee.
 
