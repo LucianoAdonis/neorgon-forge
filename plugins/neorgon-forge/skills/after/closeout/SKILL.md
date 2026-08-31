@@ -25,7 +25,8 @@ Name the project repos the session touched; add `--fleet` only when the question
 (it runs one git per repo and is slow). The script reports: git state of the root and each named
 project (dirty files, unpushed commits, **no-remote repos**), registry sites at `lifecycle:
 ready` (a domain reserved with nothing served), hub cards still marked Soon, `.forge/brief.md`
-`## Open` sections, the harness ledger's pending sweeps, and the prompt-queue count.
+`## Open` sections, the harness ledger's pending sweeps, whether the fleet news feed is behind
+the newest hub ship date (landed work nobody announced), and the prompt-queue count.
 
 Then add what only the session knows: items deferred out loud during the work, checks that ran
 partially ("validated but never clicked through"), and anything a report of yours promised.
@@ -44,7 +45,9 @@ Present a numbered list. Every item carries three things:
 
 Publishing is always its own numbered item when it applies, never folded into another one:
 "push" and "publish a site to a public repo" are different magnitudes of irreversible and the
-user must be able to deny one without the other. Ambient items from other efforts (another
+user must be able to deny one without the other. An undrafted-news item is the opposite case
+and defaults to `do`: `/newsroom` writes only gitignored drafts, and the stories themselves
+publish at the desk, never as part of a closeout. Ambient items from other efforts (another
 session's campaign, the queue) are `parked` by default: closing someone else's in-progress work
 is how two sessions corrupt each other.
 

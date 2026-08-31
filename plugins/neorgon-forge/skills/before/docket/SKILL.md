@@ -27,8 +27,10 @@ bash "$FORGE/skills/docket/scripts/collect.sh" [root] [project ...] [--fleet]
 
 Read-only: it closes nothing and writes nothing. It reports the prompt queue with each item's
 **age and line count**, every `.forge/brief.md` `## Open` section, every `streams.tsv` entry
-still `pending` or `active`, the harness ledger's open runs, and uncommitted or unpushed git
-state. Add `--fleet` only when the question is fleet-wide; it runs one git per repo.
+still `pending` or `active`, the harness ledger's open runs, whether the fleet news feed is
+behind the newest hub ship date (a stale feed is a natural `small` item: `/newsroom` drafts,
+the desk approves), and uncommitted or unpushed git state. Add `--fleet` only when the
+question is fleet-wide; it runs one git per repo.
 
 Outside a monorepo the queue and the harness are absent and the script says so rather than
 inventing a substitute. Briefs and git state alone still make a usable docket.

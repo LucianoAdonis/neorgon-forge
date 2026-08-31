@@ -90,6 +90,26 @@ done
 [ "$found" -eq 0 ] && echo "  (no unfinished workstreams)"
 
 # ── The harness, where a run left open is a result nobody read ────────
+head_ "Dispatch: undrafted news (newest story vs newest hub ship date)"
+# A ship date newer than the newest story is landed work nobody announced:
+# a natural small-lane item, since /newsroom only writes gitignored drafts
+# and the done condition is one line (a draft exists per ship date).
+if [ -f projects/dispatch-site/data/posts.json ] && [ -f projects/neorgon-site/index.html ]; then
+  python3 - <<'PY' 2>/dev/null || echo "  (could not compare feed and hub)"
+import json, re
+posts = json.load(open('projects/dispatch-site/data/posts.json')).get('posts', [])
+story = max((p.get('date', '') for p in posts), default='')
+added = re.findall(r'data-added="(\d{4}-\d{2}-\d{2})"', open('projects/neorgon-site/index.html').read())
+ship = max(added, default='')
+if ship > story:
+    print(f"  STALE: newest story {story or 'none'}, newest hub ship date {ship}")
+else:
+    print(f"  current: newest story {story or 'none'}, newest hub ship date {ship or 'n/a'}")
+PY
+else
+  echo "  (no dispatch here)"
+fi
+
 head_ "Harness ledger"
 if [ -f neorgon-harness/bin/run.py ]; then
   # A run left open is a result nobody read. --table because the default

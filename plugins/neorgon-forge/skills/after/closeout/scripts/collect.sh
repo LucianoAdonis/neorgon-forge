@@ -83,6 +83,28 @@ fi
 head_ "Hub: cards still marked Soon"
 grep -h "Currently Soon" .claude/HUB_REGISTRY.md 2>/dev/null | sed 's/^/  /' || echo "  (no hub registry here)"
 
+head_ "Dispatch: undrafted news (newest story vs newest hub ship date)"
+# Ship dates live on the hub cards (data-added); stories live in the news
+# site's committed feed. A ship date newer than the newest story is landed
+# work nobody announced. /newsroom only writes gitignored drafts, so the
+# close is reversible; publication stays at the desk.
+if [ -f projects/dispatch-site/data/posts.json ] && [ -f projects/neorgon-site/index.html ]; then
+  python3 - <<'PY' 2>/dev/null || echo "  (could not compare feed and hub)"
+import json, re
+posts = json.load(open('projects/dispatch-site/data/posts.json')).get('posts', [])
+story = max((p.get('date', '') for p in posts), default='')
+added = re.findall(r'data-added="(\d{4}-\d{2}-\d{2})"', open('projects/neorgon-site/index.html').read())
+ship = max(added, default='')
+if ship > story:
+    print(f"  STALE: newest story {story or 'none'}, newest hub ship date {ship}")
+    print("  default close: /newsroom drafts the missing stories; the desk approves")
+else:
+    print(f"  current: newest story {story or 'none'}, newest hub ship date {ship or 'n/a'}")
+PY
+else
+  echo "  (no dispatch here)"
+fi
+
 head_ "Briefs with an Open section (.forge/brief.md)"
 found=0
 for f in .forge/brief.md projects/*/.forge/brief.md; do

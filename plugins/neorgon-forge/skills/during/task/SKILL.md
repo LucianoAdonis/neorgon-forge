@@ -277,12 +277,18 @@ grep-able file. Cheaper than recollection and immune to it.
 is the case the brief was built for: read it before touching anything, and trust it over your
 recollection where they disagree.
 
-## Handing off to debrief and writeup
+## Handing off to debrief, writeup and the newsroom
 
-Both read `.forge/brief.md` when it exists. What makes their output good is the material only
-this skill can capture: the symptom before the fix, the alternative that lost, the number that
-was actually measured. Write those down as they occur and the deck writes itself; leave them
-implicit and the deck becomes a flattering summary of a diff.
+Debrief and writeup both read `.forge/brief.md` when it exists. What makes their output good is
+the material only this skill can capture: the symptom before the fix, the alternative that
+lost, the number that was actually measured. Write those down as they occur and the deck writes
+itself; leave them implicit and the deck becomes a flattering summary of a diff.
+
+One more hand-off, conditional: when the finished work shipped something a visitor can see on a
+live site (a launch, a feature, a fix worth telling) and the `/newsroom` command exists in the
+repo, offer it alongside the other two. It drafts a Dispatch story from the same brief and git
+history into the news site's gitignored drafts; nothing publishes until the desk approves.
+Internal tooling, refactors, and work on unpublished sites get no story.
 
 ## Invariants
 
