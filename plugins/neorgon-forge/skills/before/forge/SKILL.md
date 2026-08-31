@@ -1,6 +1,6 @@
 ---
 name: forge
-description: Ask which forge skill fits the situation. A router over the twenty-three, and the flows that connect them.
+description: Ask which forge skill fits the situation. A router over the twenty-four, and the flows that connect them.
 user-invocable: true
 disable-model-invocation: true
 license: MIT
@@ -8,7 +8,7 @@ license: MIT
 
 # forge: which one of these do I want
 
-Twenty-three skills is more than anyone holds in their head, and the ones you reach for least are
+Twenty-four skills is more than anyone holds in their head, and the ones you reach for least are
 the ones you most need reminding of. Ask instead.
 
 They sit in four buckets by **where in the work you are**, not by topic.
@@ -93,6 +93,9 @@ These run on their own schedule and belong to no flow.
 - **`/tabletop`** is for a game that is both a printed artifact and software: it fixes the
   order the pieces must be built in, keeps the component count from drifting from the data,
   and makes a balance claim something measured rather than argued.
+- **`/sigil`** gives a Neorgon site its own mark: the 24x24 card glyph, the accent, and the
+  generated favicon set, with the measured thresholds that say whether a drawing survives a
+  16px tab before it ships to a repo.
 - **`/brandmark`** puts company logos in a UI: vendored Simple Icons, letter-badge fallback,
   and an opt-in remote favicon tier, chosen by whether fetching an icon would disclose what
   the visitor holds.
@@ -117,7 +120,8 @@ The overlaps, resolved. This table is the reason to open this skill rather than 
 | `writeup` | It is README or docs prose: that is ordinary writing, or `/penname` for voice |
 | `deckcraft` | The deck should report what actually changed in the code: `/debrief` reads the diff |
 | `tabletop` | Nothing is ever printed and there is no rulebook: that is ordinary `/task` |
-| `brandmark` | The mark is the project's own rather than someone else's: that is `/mascot-forge`, or ordinary design |
+| `brandmark` | The mark is the project's own rather than someone else's: that is `/sigil` for a site icon, `/mascot-forge` for a character |
+| `sigil` | The logo belongs to another company: `/brandmark`. It is an illustrated character: `/mascot-forge`. You are sweeping many sites that already have marks: that is a loop, not a skill |
 | `voicecheck` | The copy does not exist yet: `/penname` writes, `voicecheck` audits |
 | `groundwork` | The tutorial is written and the question is how it reads: `/voicecheck` |
 | `wizard` | You could do the step yourself: then do it |

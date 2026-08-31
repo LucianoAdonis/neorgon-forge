@@ -67,6 +67,7 @@ flowchart LR
     q12("teach someone else this") --> n12_0["/groundwork"] --> n12_1["/penname"] --> n12_2["/quizmaster"]
     q13("a game that also prints") --> n13_0["/tabletop"] --> n13_1["/task"]
     q14("a UI needs company logos") --> n14_0["/brandmark"]
+    q14b("a site needs its own mark") --> n14b_0["/sigil"]
     q15("the site needs a character") --> n15_0["/mascot-forge"]
     q16("that answer did not land") --> n16_0["/repitch"]
     q17("the work must move elsewhere") --> n17_0["/handoff"]
@@ -128,6 +129,7 @@ sound like each other.
 | **[`quizmaster`](docs/skills/quizmaster.md)** | Source material should become a runnable exam | Proctor-format JSON, coverage-mapped and validated |
 | **[`mascot-forge`](docs/skills/mascot-forge.md)** | A character to generate, cut out, and rig | Aligned frames plus a CSS/physics rig |
 | **[`brandmark`](docs/skills/brandmark.md)** | A UI needs recognizable company or service logos | Vendored icons, a letter fallback, and the privacy rule |
+| **[`sigil`](docs/skills/sigil.md)** | A site needs its own mark: glyph, accent, favicon set | A linted glyph and six generated files, wired on every page |
 | **[`tabletop`](docs/skills/tabletop.md)** | A game must both print and run without drifting | One source for the components, and a measured balance claim |
 
 ## Install
@@ -146,7 +148,7 @@ Refresh with `/plugin update neorgon-forge`.
 **With the skills CLI**: for one skill, or for an agent other than Claude Code:
 
 ```bash
-npx skills add LucianoAdonis/neorgon-forge           # all twenty-three
+npx skills add LucianoAdonis/neorgon-forge           # all twenty-four
 npx skills add LucianoAdonis/neorgon-forge -s atlas   # just one
 npx skills add LucianoAdonis/neorgon-forge -l         # list without installing
 ```
@@ -404,6 +406,14 @@ Two halves that fail differently. Generation fails by *drifting*, so frames
 stop layering; animation fails by looking *pasted on*. Its scripts run from the target project's
 root and write into `./images/mascot/`, so one install serves every project. Art generation needs
 `GEMINI_API_KEY`; `keys.py` is the only place that reads a key, and it never prints one.
+
+**`sigil`** is the other half of `brandmark`: that one borrows someone else's logo, this one
+authors the project's own. Its content is the judgement neither the kit README nor the icon
+lint can hold, which is *which drawing to choose*, decided at 16 pixels and measured rather
+than argued: ink above 55% of a glyph's own bounding box reads heavy at any size, and zero
+enclosed counters at that size means the drawing has closed into a blob unless it is open by
+construction. The monorepo's own `new-project` and `add-to-hub` commands call it, so a site is never
+born without a mark.
 
 **`penname`** is voicecheck's drafting half. Where voicecheck audits copy that exists, penname
 writes new prose under one of five personas, `ironic` (the author's public voice, toned down),

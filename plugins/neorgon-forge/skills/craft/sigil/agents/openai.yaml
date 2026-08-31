@@ -1,0 +1,3 @@
+interface:
+  display_name: "Sigil"
+  short_description: "A site's own mark: the glyph, the accent, and the favicon set"

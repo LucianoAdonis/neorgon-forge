@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "neorgon-forge",
-  "description": "Twenty-three skills arranged by where in the work you are: before/ (forge, docket, wayfind, untangle, grill, atlas, pathfinder), during/ (task, wizard, handoff, repitch, secret-safe-reporting), after/ (debrief, writeup, deckcraft, closeout), craft/ (penname, voicecheck, groundwork, quizmaster, mascot-forge, brandmark, tabletop). Start at /forge, which routes over the rest and resolves the overlaps.",
+  "description": "Twenty-four skills arranged by where in the work you are: before/ (forge, docket, wayfind, untangle, grill, atlas, pathfinder), during/ (task, wizard, handoff, repitch, secret-safe-reporting), after/ (debrief, writeup, deckcraft, closeout), craft/ (penname, voicecheck, groundwork, quizmaster, mascot-forge, brandmark, tabletop). Start at /forge, which routes over the rest and resolves the overlaps.",
   "owner": {
     "name": "LucianoAdonis",
     "url": "https://neorgon.com"
