@@ -18,32 +18,80 @@ you actually have when you go looking for one.
 
 ## The map
 
-The arc most work travels. `/task` is the only step always there: everything before it exists
-so you do not solve the wrong problem, and everything after it exists so someone else knows
-what happened. Dotted lines read `.forge/brief.md`, which is why the last steps report rather
-than reconstruct.
+**How a session actually runs.** Five questions in order, and the skills that answer each one.
+Only ③ is always there: everything left of it exists so you do not solve the wrong problem,
+everything right of it exists so someone else knows what happened.
+
+Most sessions skip most of the boxes. The dotted shortcut is the common case, straight from ①
+to ③ when the work is already scoped. `.forge/brief.md` is what makes ④ and ⑤ possible: it is
+written *during* the work, so the deck and the post report what happened instead of
+reconstructing it from a diff afterwards.
 
 ```mermaid
 flowchart LR
-    D["<b>/docket</b><br/>what is next"] --> W["<b>/wayfind</b><br/>where does it go"]
-    W --> G["<b>/grill</b><br/>does the plan hold"]
-    G --> T["<b>/task</b><br/>do the work"]
-    T -- a room --> DB["<b>/debrief</b><br/>a deck"]
-    T -- the internet --> WU["<b>/writeup</b><br/>a post"]
-    DB --> C["<b>/closeout</b><br/>land what is left"]
-    WU --> C
-    C -. next session .-> D
-    T == writes, during ==> BR[("<b>.forge/brief.md</b>")]
-    BR -.-> D & DB & WU & C
+    subgraph S1["① what should I work on?"]
+        direction TB
+        docket["/docket"]
+    end
+    subgraph S2["② do I understand it yet?"]
+        direction TB
+        atlas["/atlas<br/><i>the whole app</i>"]
+        wayfind["/wayfind<br/><i>where it goes</i>"]
+        untangle["/untangle<br/><i>cause unknown</i>"]
+        grill["/grill<br/><i>plan untested</i>"]
+        pathfinder["/pathfinder<br/><i>a canvas arrived</i>"]
+    end
+    subgraph S3["③ do the work"]
+        direction TB
+        task["<b>/task</b><br/>quick · standard<br/>campaign · refine"]
+        brief[("<b>.forge/brief.md</b><br/>written during ③<br/>read by ④ and ⑤")]
+    end
+    subgraph S5["⑤ what is left?"]
+        direction TB
+        closeout["/closeout"]
+        again(["next session<br/>opens at /docket"])
+    end
+    subgraph S4["④ who has to hear?"]
+        direction TB
+        debrief["/debrief<br/><i>a deck</i>"]
+        writeup["/writeup<br/><i>a post</i>"]
+        deckcraft["/deckcraft<br/><i>it says nothing yet</i>"]
+    end
+
+    docket --> atlas
+    docket --> untangle
+    docket --> grill
+    docket --> pathfinder
+    docket -. "already scoped" .-> task
+    atlas --> wayfind
+    wayfind --> task
+    untangle --> task
+    grill --> task
+    pathfinder --> task
+    task == during ==> brief
+    task --> debrief
+    task --> writeup
+    debrief --> deckcraft
+    brief -. read by .-> debrief
+    debrief --> closeout
+    writeup --> closeout
+    closeout --> again
 
     classDef before fill:#8957e522,stroke:#8957e5
     classDef during fill:#1f6feb33,stroke:#1f6feb
     classDef after  fill:#2da44e22,stroke:#2da44e
-    classDef brief  fill:#bf870022,stroke:#bf8700
-    class D,W,G before
-    class T during
-    class DB,WU,C after
-    class BR brief
+    classDef store  fill:#bf870022,stroke:#bf8700,stroke-dasharray:4 3
+    classDef exit   fill:#8b949e11,stroke:#8b949e,stroke-dasharray:3 3
+    class docket,untangle,atlas,wayfind,grill,pathfinder before
+    class task during
+    class debrief,writeup,closeout,deckcraft after
+    class brief store
+    class again exit
+    style S1 fill:#8b949e0d,stroke:#8b949e55
+    style S2 fill:#8b949e0d,stroke:#8b949e55
+    style S3 fill:#8b949e0d,stroke:#8b949e55
+    style S4 fill:#8b949e0d,stroke:#8b949e55
+    style S5 fill:#8b949e0d,stroke:#8b949e55
 ```
 
 **The combos.** The left column is roughly what you would say out loud; the chain is what to
