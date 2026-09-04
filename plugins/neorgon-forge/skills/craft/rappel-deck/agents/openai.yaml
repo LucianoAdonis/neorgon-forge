@@ -1,0 +1,3 @@
+interface:
+  display_name: "Rappel Deck"
+  short_description: "Turn a word list into a validated spaced repetition deck"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Runcible Book"
+  short_description: "Turn a subject into a Book Runcible can load"

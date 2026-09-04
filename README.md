@@ -119,17 +119,19 @@ flowchart LR
     q15("the site needs a character") --> n15_0["/mascot-forge"]
     q16("that answer did not land") --> n16_0["/repitch"]
     q17("the work must move elsewhere") --> n17_0["/handoff"]
+    q18("teach Runcible a new subject") --> n18_0["/runcible-book"] --> n18_1["/rappel-deck"]
+    q19("a word list should be flashcards") --> n18_1
 
     classDef before fill:#8957e522,stroke:#8957e5,stroke-width:1px
     classDef during fill:#1f6feb33,stroke:#1f6feb,stroke-width:1px
     classDef after fill:#2da44e22,stroke:#2da44e,stroke-width:1px
     classDef craft fill:#bf870022,stroke:#bf8700,stroke-width:1px
     classDef ask fill:#8b949e11,stroke:#8b949e,stroke-dasharray:3 3
-    class q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17 ask
+    class q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19 ask
     class n1_0,n2_0,n3_0,n4_0,n4_1,n5_0,n6_0,n6_2 before
     class n2_1,n3_1,n4_2,n5_1,n6_1,n7_0,n7_1,n8_0,n9_0,n11_0,n13_1,n16_0,n17_0 during
     class n2_2,n3_2,n5_2,n8_1,n9_1,n10_0,n10_1,n11_1 after
-    class n8_2,n12_0,n12_1,n12_2,n13_0,n14_0,n15_0 craft
+    class n8_2,n12_0,n12_1,n12_2,n13_0,n14_0,n15_0,n18_0,n18_1 craft
 ```
 
 **Start at [`/forge`](docs/skills/forge.md)** when the diagram is not enough. It is the router,
@@ -179,6 +181,8 @@ sound like each other.
 | **[`brandmark`](docs/skills/brandmark.md)** | A UI needs recognizable company or service logos | Vendored icons, a letter fallback, and the privacy rule |
 | **[`sigil`](docs/skills/sigil.md)** | A site needs its own mark: glyph, accent, favicon set | A linted glyph and six generated files, wired on every page |
 | **[`tabletop`](docs/skills/tabletop.md)** | A game must both print and run without drifting | One source for the components, and a measured balance claim |
+| **[`runcible-book`](docs/skills/runcible-book.md)** | A subject should become a Runcible Book | A manifest, a chapter file each, and one catalog line |
+| **[`rappel-deck`](docs/skills/rappel-deck.md)** | A word list should become spaced repetition cards | One deck document whose note ids never move, plus the embed snippet |
 
 ## Install
 
@@ -196,7 +200,7 @@ Refresh with `/plugin update neorgon-forge`.
 **With the skills CLI**: for one skill, or for an agent other than Claude Code:
 
 ```bash
-npx skills add LucianoAdonis/neorgon-forge           # all twenty-four
+npx skills add LucianoAdonis/neorgon-forge           # all twenty-six
 npx skills add LucianoAdonis/neorgon-forge -s atlas   # just one
 npx skills add LucianoAdonis/neorgon-forge -l         # list without installing
 ```
@@ -498,6 +502,30 @@ misconceptions, an explanation that teaches on every question, and `validate-exa
 checks the JSON against the format (answer keys in range, exact-set multi answers, no duplicate
 options) so a plausible-looking exam that would misgrade is caught before a human loads it.
 
+### `runcible-book` and `rappel-deck`
+
+Both write data for a site that reads it, and both import that site's own
+validator rather than holding a second opinion about what valid means. A second
+validator for one schema is how a file renders fine in the generator and is
+refused by the thing it was generated for.
+
+**`runcible-book`** turns a subject into a Book for the
+[Runcible](https://runcible.neorgon.com) shell: a manifest, a chapter file per
+chapter, one line in the catalog. Its bar is the shell's own claim, that adding a
+Book is one array entry plus a directory with no file under `js/` changing, so a
+subject that seems to need a shell change is reported rather than accommodated.
+Every chapter goal is stated as something the learner can be seen to do and
+carries the evidence that decides when it is passed, and a goal whose evidence
+names a skill no exercise in the Book produces is an error rather than a note,
+because that one looks perfect on screen.
+
+**`rappel-deck`** turns a word list into a deck for
+[Rappel](https://rappel.neorgon.com), which schedules it with FSRS-6. It exists
+for one string: a card is `noteId:templateId`, and the review ledger keys on it,
+so a deck rebuilt with renumbered notes validates perfectly, looks identical, and
+silently sets every card back to new. `--against` reads the previous version and
+proves no id vanished or changed hands.
+
 **penname's `shipcheck.sh`** closes the writing loop: the author's own "ship it" checklist
 mechanized: structure (title, hook, headings, example, gotchas, ending) plus rot (every link
 answering, every local image existing).
@@ -559,7 +587,7 @@ neorgon-forge/
 │   └── decisions/                      # why the repo is shaped this way
 ├── docs/
 │   ├── authoring.md                    # how to write a skill
-│   └── skills/<name>.md                # one human-facing page per skill (flat, 18)
+│   └── skills/<name>.md                # one human-facing page per skill (flat, one each)
 ├── plugins/neorgon-forge/
 │   ├── .claude-plugin/plugin.json      # ships exactly the skills its array lists
 │   └── skills/
@@ -585,7 +613,9 @@ neorgon-forge/
 │           ├── voicecheck/ SKILL.md, scripts/load-voice.sh, reference/voice-defaults.md
 │           ├── groundwork/ SKILL.md, scripts/{docrun,stale}.sh, reference/
 │           ├── quizmaster/ SKILL.md, scripts/validate-exam.mjs, reference/
-│           └── mascot-forge/ SKILL.md, scripts/*.py, assets/, reference/prompts/
+│           ├── mascot-forge/ SKILL.md, scripts/*.py, assets/, reference/prompts/
+│           ├── runcible-book/ SKILL.md, scripts/{scaffold,validate}-book.mjs, reference/
+│           └── rappel-deck/  SKILL.md, scripts/{build,validate}-deck.mjs, reference/
 ├── bin/{install,refresh,validate,new}.sh
 └── Makefile
 ```

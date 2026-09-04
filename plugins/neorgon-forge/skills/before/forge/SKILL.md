@@ -1,6 +1,6 @@
 ---
 name: forge
-description: Ask which forge skill fits the situation. A router over the twenty-four, and the flows that connect them.
+description: Ask which forge skill fits the situation. A router over the twenty-six, and the flows that connect them.
 user-invocable: true
 disable-model-invocation: true
 license: MIT
@@ -8,7 +8,7 @@ license: MIT
 
 # forge: which one of these do I want
 
-Twenty-four skills is more than anyone holds in their head, and the ones you reach for least are
+Twenty-six skills is more than anyone holds in their head, and the ones you reach for least are
 the ones you most need reminding of. Ask instead.
 
 They sit in four buckets by **where in the work you are**, not by topic.
@@ -99,6 +99,13 @@ These run on their own schedule and belong to no flow.
 - **`/brandmark`** puts company logos in a UI: vendored Simple Icons, letter-badge fallback,
   and an opt-in remote favicon tier, chosen by whether fetching an icon would disclose what
   the visitor holds.
+- **`/runcible-book`** turns a subject into a Runcible Book: the ladder of chapters, a goal per
+  chapter stated as something the learner can do, and the data pointers for corpora it refuses to
+  invent. Its bar is that adding the Book touched the catalog and one directory and no file under
+  `js/`.
+- **`/rappel-deck`** turns a word list into a Rappel deck. It exists for one number: a card is
+  `noteId:templateId`, so a rebuild that renumbers the notes validates perfectly and discards a
+  person's whole study history.
 - **`/secret-safe-reporting`** sits across everything: any pipeline, report, or test suite that
   reads sensitive data and produces output other people will see. Run its sweep before a repo's
   first push to a new remote, where a find is a squash rather than a rotation.
@@ -122,6 +129,8 @@ The overlaps, resolved. This table is the reason to open this skill rather than 
 | `tabletop` | Nothing is ever printed and there is no rulebook: that is ordinary `/task` |
 | `brandmark` | The mark is the project's own rather than someone else's: that is `/sigil` for a site icon, `/mascot-forge` for a character |
 | `sigil` | The logo belongs to another company: `/brandmark`. It is an illustrated character: `/mascot-forge`. You are sweeping many sites that already have marks: that is a loop, not a skill |
+| `runcible-book` | The deck a chapter embeds is the ask: `/rappel-deck`. It is one page of copy rather than a ladder: ordinary writing |
+| `rappel-deck` | It is a graded test rather than a study aid: `/quizmaster`. The chapters around the deck are the ask: `/runcible-book` |
 | `voicecheck` | The copy does not exist yet: `/penname` writes, `voicecheck` audits |
 | `groundwork` | The tutorial is written and the question is how it reads: `/voicecheck` |
 | `wizard` | You could do the step yourself: then do it |
