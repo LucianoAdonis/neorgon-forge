@@ -18,7 +18,7 @@ description still routing to a forge skill that was renamed.
 | `mermaid-diagrams` | A separate user skill for diagram syntax | atlas |
 | `c4-architecture` | A separate user skill for C4 model diagrams | atlas |
 | `commit-work` | A separate user skill for commit hygiene | debrief |
-| `copywriting` | A separate user skill for marketing copy | voicecheck |
+| `board-game-design` | A separate user skill for physical board game design, playtesting and manufacturing | tabletop |
 | `crafting-effective-readmes` | A separate user skill for README structure | writeup |
 
 Adding a row is the cheap half. Before you do, check the harder question: a name only belongs

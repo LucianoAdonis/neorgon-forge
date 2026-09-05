@@ -1,6 +1,6 @@
 ---
 name: task
-description: "Use when the user brings a problem to solve rather than an edit to make, anything phrased as a goal instead of a diff. Triggers on: 'implement X', 'add support for Y', 'refactor Z', 'migrate A to B', 'build me a', 'I want to build', 'figure out why W is broken', 'take on this whole thing', 'this is a big one'. Fits a feature, a refactor, a migration, or a bug with an unclear cause. Scopes the work before writing code, splits large work into workstreams that can be delegated to subagents and verified against the diff rather than the report, and keeps a brief on disk so the reasoning survives the session, which is what debrief and writeup read afterwards. Not for a one-line change you already know how to make, not for reviewing existing code (use code-review), and not when the shape of the problem is still unknown (use untangle first)."
+description: "Use when the user brings a problem to solve rather than an edit to make, anything phrased as a goal instead of a diff. Triggers on: 'implement X', 'add support for Y', 'refactor Z', 'migrate A to B', 'build me a', 'I want to build', 'fix the bug in X, the cause is known', 'take on this whole thing', 'this is a big one'. Fits a feature, a refactor, a migration, or a bug whose cause is already established. Scopes the work before writing code, splits large work into workstreams that can be delegated to subagents and verified against the diff rather than the report, and keeps a brief on disk that debrief and writeup read afterwards. Not for a one-line change you already know how to make, not for reviewing existing code (use code-review), not when the plan needs arguing with (use grill), and not for 'figure out why W is broken' when nobody has established the cause (use untangle first)."
 argument-hint: "[problem] [--scope quick|standard|campaign] [--resume]"
 user-invocable: true
 license: MIT
@@ -140,6 +140,7 @@ Work the plan. The invariants:
   comments for *why*, where the reason is not recoverable from the code.
 - **No compatibility shims, no defensive fallbacks** unless asked. A fallback that masks a
   failure converts a loud bug into a silent one.
+- **A step you cannot take is not a step to narrate.** When the work needs a browser session, a two-factor prompt, or a dashboard with no API, stop and call the Skill tool with "wizard" to generate the script that walks the human through it. Click paths typed into chat are followed once and then lost.
 - **Record decisions as they happen.** `brief.sh note "…"` when you reject an approach, hit a
   constraint, or discover the problem is not what it looked like. This is the material the
   downstream skills cannot get anywhere else.
@@ -276,6 +277,8 @@ grep-able file. Cheaper than recollection and immune to it.
 `--resume` reads `.forge/brief.md` and picks up from stream state. A campaign spanning sessions
 is the case the brief was built for: read it before touching anything, and trust it over your
 recollection where they disagree.
+
+When the window is about to end with the work half-finished, tell the user to run `/handoff` before it closes. It writes `.forge/handoff-<slug>.md` beside the brief and carries the three things the brief does not: what is half-done right now, the single next action, and the landmines already paid for. Never call it yourself: it is user-invoked. Say the command and let them run it.
 
 ## Handing off to debrief, writeup and the newsroom
 
