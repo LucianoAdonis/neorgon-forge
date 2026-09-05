@@ -213,7 +213,12 @@ SHAPES = [
     # than the set. A whitelist of verbs was tried first and silently missed
     # plugin.json's "Twenty-three skills for ...", which is the listing text a
     # plugin directory shows: the one place a stale count survived this check.
-    rf"\b(?P<n>{NUM}|\d+)\s+skills\b(?!\s+(?:were|was|had|have|has)\b)",
+    # "zero skills" is never a claim about how many this plugin has, so it is
+    #  excluded outright: a repo with zero skills needs no guard. This shape has
+    #  now misfired three times on ordinary prose that happened to count
+    #  something else, and each narrowing has been to exclude a construction
+    #  that cannot be a set-size claim rather than to guess at intent.
+    rf"\b(?!zero\b)(?P<n>{NUM}|\d+)\s+skills\b(?!\s+(?:were|was|had|have|has)\b)",
     rf"\ball\s+(?P<n>{NUM}|\d+)\b",
     rf"\bover\s+the\s+(?P<n>{NUM}|\d+)\b",
     rf"\b(?P<n>{NUM}|\d+)\s+is\s+more\s+than\b",
