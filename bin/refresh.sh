@@ -90,3 +90,6 @@ head_ "Validation"
 bash "$REPO/bin/validate.sh" | tail -20 | sed 's/^/  /'
 
 printf '\nRestart Claude Code to pick up changed skills.\n'
+
+printf '\n\033[1m== Install state\033[0m\n'
+python3 "$(dirname "$0")/check-install.py" || true

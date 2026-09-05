@@ -669,6 +669,27 @@ week, the router picked up three of them, the README none. It fails on:
   things" and was narrowed, because a checker that misfires on good prose is one you learn to
   switch off.
 
+## When the model is not reading this repo
+
+Twelve skills were once installed twice: as symlinks from `~/.claude/skills` into this repo,
+and again from a plugin cache frozen at v1.9.0 while the repo was at v2.3.0. Both registered,
+under `name` and `neorgon-forge:name`, so the model saw two entries per skill with different
+text. Eleven of the twelve cached descriptions had drifted, and every drifted one still carried
+the em dashes this repo had banned and swept weeks earlier.
+
+A description is the entire routing decision, so editing one here changed half of what the
+router read. It also means any measurement of which skills fire, taken in that state, was
+measured against a table that is not this repo.
+
+```bash
+make check-install
+```
+
+It passes on a machine with no plugin cache, which is the CI case, and fails when a cached copy
+of a skill disagrees with the repo. `bin/refresh.sh` reports it too. The fix is to push, then
+`/plugin update neorgon-forge` from an interactive terminal, or to drop the plugin install
+entirely and keep the symlinks `bin/install.sh` makes.
+
 ## License
 
 MIT

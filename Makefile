@@ -1,4 +1,4 @@
-.PHONY: test-brief test-collect help install refresh validate new status uninstall
+.PHONY: check-install test-brief test-collect help install refresh validate new status uninstall
 
 SKILLS := plugins/neorgon-forge/skills
 DEST   := $(HOME)/.claude/skills
@@ -62,6 +62,9 @@ uninstall:
 		n=$$(basename $$d); t="$(DEST)/$$n"; \
 		if [ -L "$$t" ]; then rm "$$t"; printf '  removed %s\n' "$$n"; fi; done
 	@echo "Restart Claude Code to drop them from the session."
+
+check-install:  ## is what the model reads actually this repo, or a stale second copy
+	@python3 bin/check-install.py
 
 test-collect:  ## exercise closeout/collect.sh: the run it reads, the repos it names
 	@bash bin/test-collect.sh
