@@ -10,7 +10,7 @@
     {
       "name": "neorgon-forge",
       "source": "./plugins/neorgon-forge",
-      "description": "Skills for finding your way into hard work, taking it on, then explaining it. The buckets are arc position, not topic, so the layout tells you when to reach for something rather than what department it belongs to. /forge is the router: it holds the main flow (wayfind, grill, task, then debrief or writeup), the on-ramps that feed it, and a table resolving every pair of skills that look like each other. Underneath all of them is .forge/: a brief written while the work happens, a glossary, a map, so the account of the work afterwards is a record rather than a recollection.",
+      "description": "Twenty-six skills for finding your way into hard work, taking it on, then explaining it. The buckets are arc position, not topic, so the layout tells you when to reach for something rather than what department it belongs to. /forge is the router, and /docket answers the question that opens most sessions: what should I do now. The main flow is wayfind, grill, task, then debrief or writeup, with closeout to land what is left. Underneath all of them is .forge/: a brief written while the work happens, a glossary, a map, so the account of the work afterwards is a record rather than a recollection.",
       "author": {
         "name": "LucianoAdonis"
       },
