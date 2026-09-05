@@ -707,8 +707,17 @@ measured against a table that is not this repo.
 make check-install
 ```
 
-It passes on a machine with no plugin cache, which is the CI case, and fails when a cached copy
-of a skill disagrees with the repo. `bin/refresh.sh` reports it too. The fix is to push, then
+It passes on a machine with no plugin cache, which is the CI case, and when the plugin is
+switched off in settings, since a cache that is present but not loaded is not a routing
+problem. It fails when a cached copy of a skill is actually loaded and disagrees with the
+repo.
+
+The resolution here was to switch the plugin off and keep the symlinks `bin/install.sh`
+makes, because the plugin copy contributed twelve duplicate registrations and zero skills
+the symlinks did not already serve. The underlying cause is worth knowing if you install
+plugins from your own account: the marketplace clone lives outside the `gitdir` scope that
+supplies the SSH key, so its fetch fails with `Permission denied (publickey)` and the cache
+can never advance. `bin/refresh.sh` reports it too. The fix is to push, then
 `/plugin update neorgon-forge` from an interactive terminal, or to drop the plugin install
 entirely and keep the symlinks `bin/install.sh` makes.
 

@@ -53,9 +53,34 @@ def description(p):
         return None
 
 
+def plugin_enabled():
+    """None when we cannot tell, else whether the plugin is switched on."""
+    for name in ("settings.json", "settings.local.json"):
+        f = pathlib.Path(os.path.expanduser(f"~/.claude/{name}"))
+        if not f.exists():
+            continue
+        try:
+            plugins = json.loads(f.read_text()).get("enabledPlugins", {})
+        except Exception:
+            continue
+        for key, value in plugins.items():
+            if key.split("@")[0] == "neorgon-forge":
+                return bool(value)
+    return None
+
+
 def main():
     if not CACHE_ROOT.exists():
         green("  no plugin cache on this machine: the symlinked repo is the only copy")
+        return 0
+
+    # A cache that is present but not loaded is not a routing problem. Reporting
+    # it anyway would make this check cry wolf, which is the failure it exists to
+    # prevent in the first place.
+    if plugin_enabled() is False:
+        green("  plugin disabled in settings: the symlinked repo is the only copy that loads")
+        print("    a stale cache is still on disk at "
+              f"{CACHE_ROOT}, harmless but deletable")
         return 0
 
     repo_desc = {}
