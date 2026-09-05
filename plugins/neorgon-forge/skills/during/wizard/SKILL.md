@@ -104,6 +104,38 @@ A wizard is **ephemeral by default**: built for one run, written to `scripts/`, 
 the job is done. Commit it only when the procedure recurs, and then link it from the README so
 the next person runs the script instead of asking an agent.
 
+## Step 5: If it was a credential, deposit it where it will be found again
+
+A wizard that walks someone through minting an API key, an OAuth session, an SSH key or an IP
+whitelist has just produced the only thing anyone will want the next time it expires: the real
+steps, the trap that cost you twenty minutes, and how to tell it worked. That knowledge dies in
+the script unless it is deposited.
+
+The fleet has a home for it, `echeance-site`, which tracks credential expiry and feeds
+`llms.txt` so a future agent session reads it too:
+
+```bash
+python3 ./scripts/add-tutorial.py entry.json --check   # from projects/echeance-site
+python3 ./scripts/add-tutorial.py entry.json
+make llms
+```
+
+The entry is one JSON object: `id`, `title`, `service`, `applies_to` (`api-key`,
+`oauth-session`, `ssh-key`, `ip-whitelist`), `signals`, `steps`, `verify`, `revoke`, `insights`,
+and optional `links`. The writer refuses a duplicate id, a missing field, and, because the file
+is published, anything shaped like a token, an IP address or an email address.
+
+Two rules that decide whether the deposit is worth making:
+
+- **Only steps you actually walked.** A stage the person completed in front of you is a step. A
+  stage you inferred from a vendor page is not, and belongs in `insights` as what the docs
+  claim, or nowhere.
+- **`insights` is where the value is.** The steps are re-derivable from the dashboard; the trap
+  is not. "Create the replacement before revoking the old one" is worth more than the click
+  path, and it is the line nobody writes down.
+
+Skip this entirely when the wizard was not about a credential. Most are not.
+
 ## Invariants
 
 - **Never generate a wizard for work the agent can do.** A human in the loop is the entry
@@ -113,3 +145,5 @@ the next person runs the script instead of asking an agent.
 - **`confirm` before anything irreversible**, and name what is about to happen in the prompt.
 - **Never invent a menu path.** Check it, or ask, or say the step is unverified in the script
   itself.
+- **A credential procedure ends in `echeance-site`, not only in the script.** The trap you
+  hit is the part nobody writes down, and it is the part the next expiry needs.

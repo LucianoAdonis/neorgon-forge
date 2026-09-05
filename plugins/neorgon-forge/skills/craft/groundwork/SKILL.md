@@ -104,6 +104,32 @@ a real value and never a truncated real value, truncation is not redaction. If t
 investigation's scratch files touched real secrets, they stay out of the doc and out of
 git; `secret-safe-reporting`'s sweep covers the repo before any first push.
 
+## Step 6: If the investigation was about a credential, deposit it
+
+Step 2 walks the acquisition path: sign-up, credential minting, the first successful call. When
+that path was about an API key, an OAuth session, an SSH key or an IP whitelist, the walk has
+produced a renewal tutorial whether or not anyone asked for one, and the requirements doc is the
+wrong place for it to live. A requirements doc is read once, before writing a tutorial. A
+renewal is needed months later, by someone who has forgotten everything.
+
+`echeance-site` is where that goes. It tracks credential expiry and feeds `llms.txt`, so a
+future agent session reads it without being told:
+
+```bash
+python3 ./scripts/add-tutorial.py entry.json --check   # from projects/echeance-site
+python3 ./scripts/add-tutorial.py entry.json
+make llms
+```
+
+The label ladder decides what may go in. A step you **walked** is a step. A step that is only
+**documented** goes in `insights` phrased as what the vendor claims, never in `steps` phrased as
+an instruction, because `steps` reads as a walked path and the whole point of the ladder is that
+the reader can tell the difference. Nothing **inferred** goes in at all.
+
+The writer refuses a duplicate id, a missing field, and anything shaped like a token, an IP
+address or an email address, since the file is published. That is the same hygiene Credential
+hygiene already requires of the requirements doc, enforced this time rather than asked for.
+
 ## Invariants
 
 - **Every limit carries value, scope, source, and date.** Undated limits do not ship.
@@ -113,6 +139,9 @@ git; `secret-safe-reporting`'s sweep covers the repo before any first push.
 - **Dead ends ship verbatim.** They are the most reusable output of the investigation.
 - **No real credential material in the doc, ever**: synthetic same-shape placeholders
   only.
+- **A credential walk ends in `echeance-site`.** The requirements doc is read once,
+  before the tutorial is written. The renewal is needed months later, by someone who has
+  forgotten it, and that reader is not looking in `docs/`.
 - **Provenance decides whether a block is runnable.** A fenced block you ran yourself against
   a named setup is `verified` and ships as runnable bash. A block copied from a vendor
   quickstart, a dashboard, a support answer or a forum is `documented` and ships as
