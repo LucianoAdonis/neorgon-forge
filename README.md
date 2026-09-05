@@ -669,6 +669,28 @@ week, the router picked up three of them, the README none. It fails on:
   things" and was narrowed, because a checker that misfires on good prose is one you learn to
   switch off.
 
+## Which skills actually fire
+
+```bash
+make reach
+```
+
+Counts real invocations from local transcripts. A description is the whole routing decision,
+and nothing here could previously tell you whether one had ever won. The first run found **17
+of 26 skills had never been invoked once** across 2,212 transcripts, and that `/task` held 151
+of them. Six routing collisions and a stale duplicate install came out of chasing that number.
+
+Zero is not automatically a defect. A skill whose situation has not arisen is correctly quiet,
+and padding its triggers to chase the number would be a lie. It is a defect when the situation
+did arise and something else won, which is what the router's overlap table and
+`make check-install` exist to catch.
+
+It counts two structural signals only: a `Skill` tool_use matched on its whole shape, and the
+harness's command-name block. A bare `"skill"` key is not enough, and that was the first
+version's own bug: any transcript that merely discusses skills in JSON writes that key, an
+audit of these very descriptions included, which inflated every count from 112 to 259. Over-
+counting cannot invent a zero, so it never faked a quiet skill, but it flattered the busy ones.
+
 ## When the model is not reading this repo
 
 Twelve skills were once installed twice: as symlinks from `~/.claude/skills` into this repo,

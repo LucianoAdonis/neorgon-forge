@@ -1,4 +1,4 @@
-.PHONY: check-install test-brief test-collect help install refresh validate new status uninstall
+.PHONY: reach check-install test-brief test-collect help install refresh validate new status uninstall
 
 SKILLS := plugins/neorgon-forge/skills
 DEST   := $(HOME)/.claude/skills
@@ -62,6 +62,9 @@ uninstall:
 		n=$$(basename $$d); t="$(DEST)/$$n"; \
 		if [ -L "$$t" ]; then rm "$$t"; printf '  removed %s\n' "$$n"; fi; done
 	@echo "Restart Claude Code to drop them from the session."
+
+reach:  ## which skills actually fire, counted from local transcripts
+	@bash bin/reach.sh
 
 check-install:  ## is what the model reads actually this repo, or a stale second copy
 	@python3 bin/check-install.py
