@@ -49,17 +49,23 @@ else
 fi
 
 head_ "Image references resolve"
+# The loop must run in THIS shell, not on the right of a pipeline: a subshell
+# discards fail=1, which is how a MISS printed in red and still exited 0.
+seen=0
 for f in "$DIR"/POST*.md; do
   [ -f "$f" ] || continue
-  grep -oE '\]\(([^)]+\.(png|svg|jpg))\)' "$f" | sed -E 's/^\]\(//;s/\)$//' | sort -u | while read -r p; do
+  while IFS= read -r p; do
+    [ -n "$p" ] || continue
+    seen=1
     if [ -f "$DIR/$p" ]; then
       printf '  ok    %s → %s\n' "$(basename "$f")" "$p"
     else
       red "  MISS  $(basename "$f") → $p"
+      fail=1
     fi
-  done
+  done < <(grep -oE '\]\(([^)]+\.(png|svg|jpg))\)' "$f" | sed -E 's/^\]\(//;s/\)$//' | sort -u)
 done
-grep -rqE '\]\([^)]+\.(png|svg|jpg)\)' "$DIR"/POST*.md 2>/dev/null || echo "  (no image references)"
+[ "$seen" -eq 0 ] && echo "  (no image references)"
 
 head_ "Generated assets fresher than their generator"
 if [ -f "$DIR/build-visuals.mjs" ]; then

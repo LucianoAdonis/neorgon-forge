@@ -33,7 +33,7 @@ red()   { printf '\033[31m%s\033[0m\n' "$1"; }
 
 # One pattern per shape, alternated. Fixed provider prefixes are the strongest
 # signals; bare hex runs are word-bounded to cut noise from minified assets.
-PATTERN='AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{36}|xox[baprs]-[A-Za-z0-9-]{10}|sk-[A-Za-z0-9_-]{20}|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|[a-z+]+://[^/:[:space:]]+:[^@[:space:]]+@|[^0-9a-fA-F][0-9a-fA-F]{32}([^0-9a-fA-F]|$)'
+PATTERN='AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{36}|xox[baprs]-[A-Za-z0-9-]{10}|sk-[A-Za-z0-9_-]{20}|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|[a-z+]+://[^/:[:space:]]+:[^@[:space:]]+@|(^|[^0-9a-fA-F])[0-9a-fA-F]{32,}([^0-9a-fA-F]|$)'
 
 findings=0
 
