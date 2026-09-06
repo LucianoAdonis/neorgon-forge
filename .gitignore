@@ -3,3 +3,12 @@
 node_modules/
 __pycache__/
 *.pyc
+
+# Playwright MCP (Claude Code browser automation: screenshots, logs).
+# Already in _template/.gitignore for every site; this repo predates it and
+# was showing the directory as untracked on every status.
+.playwright-mcp/
+
+# Numbered screenshots a browser review drops in the repo root.
+[0-9][0-9]-*.jpeg
+[0-9][0-9]-*.png
