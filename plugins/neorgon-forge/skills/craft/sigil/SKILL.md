@@ -96,15 +96,33 @@ changes what the audit measures.
 ## When a site has no card
 
 The hub is the source of truth, so a site that is not on it cannot resolve a
-mark. That is a legitimate state, not an error: a freshly scaffolded project
-carries the template's brand default and `--check` reports it as "not on the
-kit yet" without failing.
+mark. That is a legitimate state, not an error, but do not read `--check`'s
+green line as "this site is fine". It decides with `is_template_default()`,
+one byte comparison of the site's `favicon.svg` against `_template/favicon.svg`.
+A match reports "not on the kit yet" and passes, so a genuine scaffold, a
+project the registry has never heard of (no folder, nothing compared), and any
+site whose set happens to equal the template's are all reported the same way.
+Anything else fails, including a site carrying no `favicon.svg` at all, which
+is reported as having "a generated favicon" whose hub card no longer resolves.
 
 To give it one, either add the hub card, or add a `NO_CARD` entry in
 `generate.py` naming its glyph and accent. Infrastructure surfaces (the hub,
 the CDN, ops-console) take the Energon mark itself rather than a tool glyph,
 and a brand mark becomes the whole silhouette with no tile and no spark:
 nesting a hexagon inside a hexagon is redundant at 96px and mush at 16.
+
+**Delete that `NO_CARD` line as soon as the site gets a real card**, in the
+same change that writes the card. `model()` reads the table before it looks for
+a card and returns on the first hit, so a stale entry would otherwise outrank
+the card you just wrote and the site would keep generating the generic mark.
+
+The generator now refuses that state instead of resolving it: a project holding
+both a card and a `NO_CARD` entry exits non-zero, on a build and on `--check`
+alike, naming the line to delete. It is a refusal rather than a preference
+because the failure it replaces was invisible from both sides. The page looks
+fine, and `--check` cannot see it either: that check compares the files on disk
+against what the current config produces, and with the stale entry in place
+they agree exactly.
 
 ## What this skill does not decide
 
