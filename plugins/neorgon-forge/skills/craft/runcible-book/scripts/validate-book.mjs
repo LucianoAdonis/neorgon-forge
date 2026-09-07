@@ -230,7 +230,57 @@ for (const { doc, file } of chapterDocs) {
 for (const m of manifest.modules || []) {
   for (const id of (m.provides && m.provides.exercises) || []) {
     warn(`${relative(join(bookDir, 'book.json'))}: modules`, `registers the custom exercise type "${id}". C9.3 rule 3 `
-      + 'asks for one sentence saying which of the eight generic types cannot express this drill');
+      + 'asks for one sentence saying which of the nine generic types cannot express this drill');
+  }
+}
+
+// ── C9.3 rule 4: a quiz round agrees with the set it embeds ─────
+// Cross-document, which is why it is here rather than in the site validator:
+// that one judges the Book, and every fact below lives in the set file. A game
+// that disagrees with its set is quiz:error { code: "game-mismatch" } at run
+// time, so the round never starts, nothing is recorded, and the chapter simply
+// stops filling its evidence with no error anywhere in the Book.
+const declaredPaths = new Set((manifest.data || []).map((d) => d && d.src).filter(Boolean));
+const declaredFor = new Map((manifest.data || []).filter((d) => d && d.src).map((d) => [d.src, d]));
+for (const { doc, file } of chapterDocs) {
+  const chapterData = new Set(doc.data || []);
+  for (const rung of doc.rungs || []) {
+    for (const ex of rung.exercises || []) {
+      if (!ex || ex.type !== 'quiz' || typeof ex.src !== 'string') continue;
+      // The engine fetches an embed's src across origins, so it needs the
+      // manifest's permission and never a place in the chapter's fetch list.
+      if (chapterData.has(ex.src)) {
+        warn(`${file}: ${ex.id}`, `lists ${ex.src} in this chapter's data[], which makes the shell fetch a set `
+          + 'it never reads. The Quiz frame fetches it. The manifest entry is the one that is needed');
+      }
+      if (!declaredPaths.has(ex.src)) continue; // the site validator owns that error
+      let set = null;
+      try { set = await readJson(join(site, ex.src)); } catch (e) {
+        warn(`${file}: ${ex.id}`, `src ${ex.src} could not be read here (${e.message}), so the game and the set `
+          + 'were not compared. Run this from the site, or check the path');
+        continue;
+      }
+      if (set.format !== 'neo-quiz-set/1') {
+        err(`${file}: ${ex.id}`, `src ${ex.src} is ${JSON.stringify(set.format)}, not "neo-quiz-set/1"`);
+        continue;
+      }
+      if (set.game !== ex.game) {
+        err(`${file}: ${ex.id}`, `asks for the "${ex.game}" game and ${ex.src} is a "${set.game}" set. The engine `
+          + 'answers quiz:error game-mismatch, so the round never starts and nothing is recorded');
+      }
+      const n = Array.isArray(set.items) ? set.items.length : 0;
+      if (Number.isInteger(ex.limit) && ex.limit > n) {
+        warn(`${file}: ${ex.id}`, `limit is ${ex.limit} and ${ex.src} carries ${n} item(s). The engine caps the `
+          + 'round at the set length, so the round is shorter than the chapter says');
+      }
+      const entry = declaredFor.get(ex.src) || {};
+      const setScreen = (set.licence && set.licence.screen) || 'none';
+      if (setScreen !== (entry.screen || 'none')) {
+        warn(`${relative(join(bookDir, 'book.json'))}: data`, `declares ${ex.src} with screen `
+          + `${JSON.stringify(entry.screen || 'none')} while the set's own licence says ${JSON.stringify(setScreen)}. `
+          + 'The frame renders the set\'s wording either way, so the Book is the copy that is wrong');
+      }
+    }
   }
 }
 

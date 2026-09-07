@@ -17,7 +17,7 @@ and it is not a format anything else in the fleet knows.
 | the manifest's `chapters[]` | Built from each chapter's `id`, `requires` and `state` |
 | each chapter's `src` | `chapters/<id>.json`, matching the file it writes |
 | the chapter file's `id` | Copied from the plan, so the two copies agree |
-| a chapter's `data[]` | Gathered from the pointers that chapter actually uses |
+| a chapter's `data[]` | Gathered from the pointers that chapter actually uses, and never a `deck` or `quiz` `src` |
 | a `planned` chapter | Entry with `"src": null` carrying `title` and `note`, and no file |
 | the catalog line | Printed, and applied with `--index` |
 | `modules`, `data`, `credits` | Default to empty arrays when the plan omits them |
@@ -64,6 +64,11 @@ and it is not a format anything else in the fleet knows.
 Everything under `book` is a manifest field and everything under `chapters` is a
 chapter field, so `reference/manifest.md` and `reference/chapter.md` are the
 whole vocabulary. There is nothing else to learn.
+
+One entry the script cannot gather for you: an embedded engine's `src`. A `deck`
+or a `quiz` exercise is fetched by that engine rather than by the shell, so the
+path never lands in a chapter's `data[]` and has to be written into `book.data`
+by hand. Leave it out and the chapter is a load error naming `book.json`.
 
 ## Running it
 

@@ -21,9 +21,15 @@ card in it back to new.
 Type `/rappel-deck`, or the agent reaches for it when asked to turn terms,
 vocabulary or a glossary into flashcards.
 
-Reach for it when the material exists and the deck does not. For a graded test
-rather than a study aid, use [`quizmaster`](quizmaster.md). For the chapters and
-goals a deck sits inside, use [`runcible-book`](runcible-book.md).
+Reach for it when the material exists and the deck does not, and when the answer
+to remembering it is a schedule.
+
+| The ask | The skill |
+|---|---|
+| Carry it for months, a few cards a day | `rappel-deck` |
+| Drill it now in a short round that explains a miss | [`quiz-set`](quiz-set.md) |
+| Grade it once, as a test | [`quizmaster`](quizmaster.md) |
+| Build the chapters and goals the deck sits inside | [`runcible-book`](runcible-book.md) |
 
 ## Templates are the cost, not the feature
 

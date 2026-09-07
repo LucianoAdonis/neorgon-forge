@@ -78,7 +78,7 @@ visible line naming anything it could not draw.
 validator refuses a tag. Content is authored by a skill and the shell has to be
 safe against it.
 
-## The nine exercise types
+## The ten exercise types
 
 None of them names a subject. That is the whole design: a Book supplies
 material, the shell supplies drills.
@@ -93,6 +93,7 @@ material, the shell supplies drills.
 | `listen` | speech, then pick or type | yes | `items`, `speak`, `answer`, `respond` |
 | `speak` | speech modelled, said back | never | `items`, `expect` |
 | `deck` | an embedded Rappel session | yes | `src`, optional `limit`, `mode` |
+| `quiz` | an embedded Quiz round | yes | `game`, `src`, optional `limit` |
 | `custom` | a module the Book ships | module decides | `module`, optional `props` |
 
 Every exercise also needs `id` and `skill`. `read` and `speak` record
@@ -101,8 +102,73 @@ refused.
 
 **Reach for `custom` last.** It is the only field in the format that makes a
 Book carry code, and code is the thing that does not travel. Before writing a
-module, say in one sentence which of the eight others cannot express the drill.
+module, say in one sentence which of the nine others cannot express the drill.
 "More attractive" is not that sentence.
+
+## The quiz exercise, and when a round beats a generic drill
+
+An embedded round from the Quiz engine, contract `neo-quiz-set/1` and
+`neo-quiz-embed/1`, both published at `https://quiz.neorgon.com/llms.txt`.
+
+```json
+{ "id": "e-beats", "type": "quiz", "game": "beats", "skill": "jp.mora.count",
+  "src": "books/japanese/sets/jp-loanwords-beats.json", "limit": 10,
+  "title": { "en": "Count the beats", "es": "Cuenta los pulsos" } }
+```
+
+| Field | Rule |
+|---|---|
+| `game` | Required, one of `beats`, `sound`, `pairs`, `order`. Any other value is refused before the frame mounts |
+| `src` | Required. A `neo-quiz-set/1` document **on Runcible's own origin**, and declared in the manifest's `data[]` |
+| `skill` | Required. Every `quiz:answer` is recorded as one attempt under **this** string |
+| `limit` | Optional positive integer, capped at the set's own length |
+
+Three rules ride along, and each is a rule the `deck` exercise already has:
+
+1. **The `src` is declared or the chapter does not load.** An undeclared path is
+   a load error naming `book.json`, not a missing game. C1.3 rule 2 makes no
+   exception for an embed.
+2. **The attempt is recorded under the spec's `skill`, never the set's.** The
+   set's `skill` is informational and the engine only echoes it. Recording under
+   the engine's is how a whole term of reviews lands nowhere.
+3. **The skill rule is the deck's, unchanged.** It should be this chapter's
+   `goal.evidence.skill`; a skill some other goal or non-quiz exercise reads is
+   allowed and warned, so the choice is visible; a skill nothing in the Book
+   reads is an error, because the attempts are recorded and never counted.
+
+**Prefer a quiz round whenever a set exists or can be generated for the
+material.** Over a generic `choice`, `match` or `order` on the same items, the
+round buys two things the generic types do not have: it shows the **reason** on a
+wrong answer (the beats cut into tiles and the rule named, the kana's own row
+drawn out of the set, the pair side by side, the correct line with the first
+misplaced piece marked), and it **keeps the answer off the prompt** by holding
+the romaji, the note and the gloss back until the answer is in. A `choice`
+exercise over the same word list can do neither, so it is the right call only
+when no set exists and none can be generated.
+
+`quiz` is not a subject in the shell any more than `deck` is. Both are one
+iframe and one postMessage vocabulary, so a Book that adds a round still changes
+no file under `js/`.
+
+### Where a set comes from
+
+**A set is generated from the Book's own corpus, not written by hand.**
+`./tools/build-sets.mjs` reads `./tools/selection/sets.json`, one row per set,
+and writes each set twice from the one source: into Quiz's own library and into
+`books/<id>/sets/`, so the two copies cannot drift. Adding a set to a Book that
+already has the corpus is a row in that selection file and a re-run, then
+`quiz-site`'s `tools/validate-set.mjs` over what it wrote.
+
+Two facts make it a generator rather than a convenience. An item id is derived
+from the corpus id of the record it came from, never from a position, because
+`quiz:answer` carries that id as `itemId` and this Book stores it as evidence: an
+id that moves between runs orphans every attempt a learner made on that item, and
+nothing reports it. And the generator supplies no language of its own, so a
+gloss, a lyric or an explain line it cannot find in the corpus comes out `null`
+rather than invented.
+
+For material with no corpus behind it, the set is authored by `quiz-set`, which
+owns the format and the validator. This skill owns the chapter around the round.
 
 ## Pointing at data
 
@@ -113,9 +179,9 @@ for a top level map: `strokes.json#あ`.
 A chapter's own `data[]` lists the files it needs when it opens, which is what
 lets the shell fetch them together rather than one at a time. The scaffold
 gathers that list from the pointers the chapter actually uses, so it is one less
-thing to keep in sync by hand. A `deck` exercise's `src` is **not** in it: the
-engine fetches that across origins, so it needs the manifest's permission but
-not a place in the chapter's fetch list.
+thing to keep in sync by hand. A `deck` or `quiz` exercise's `src` is **not** in
+it: the engine fetches that across origins, so it needs the manifest's
+permission but not a place in the chapter's fetch list.
 
 ## Typing, transforms and comparison
 

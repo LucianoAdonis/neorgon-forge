@@ -1,0 +1,3 @@
+interface:
+  display_name: "Quiz Set"
+  short_description: "Turn material into a validated Quiz game set"

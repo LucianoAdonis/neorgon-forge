@@ -121,17 +121,19 @@ flowchart LR
     q17("the work must move elsewhere") --> n17_0["/handoff"]
     q18("teach Runcible a new subject") --> n18_0["/runcible-book"] --> n18_1["/rappel-deck"]
     q19("a word list should be flashcards") --> n18_1
+    n18_0 --> n20_0["/quiz-set"]
+    q20("a list should be a drillable round") --> n20_0
 
     classDef before fill:#8957e522,stroke:#8957e5,stroke-width:1px
     classDef during fill:#1f6feb33,stroke:#1f6feb,stroke-width:1px
     classDef after fill:#2da44e22,stroke:#2da44e,stroke-width:1px
     classDef craft fill:#bf870022,stroke:#bf8700,stroke-width:1px
     classDef ask fill:#8b949e11,stroke:#8b949e,stroke-dasharray:3 3
-    class q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19 ask
+    class q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19,q20 ask
     class n1_0,n2_0,n3_0,n4_0,n4_1,n5_0,n6_0,n6_2 before
     class n2_1,n3_1,n4_2,n5_1,n6_1,n7_0,n7_1,n8_0,n9_0,n11_0,n13_1,n16_0,n17_0 during
     class n2_2,n3_2,n5_2,n8_1,n9_1,n10_0,n10_1,n11_1 after
-    class n8_2,n12_0,n12_1,n12_2,n13_0,n14_0,n15_0,n18_0,n18_1 craft
+    class n8_2,n12_0,n12_1,n12_2,n13_0,n14_0,n15_0,n18_0,n18_1,n20_0 craft
 ```
 
 **Start at [`/forge`](docs/skills/forge.md)** when the diagram is not enough. It is the router,
@@ -183,6 +185,7 @@ sound like each other.
 | **[`tabletop`](docs/skills/tabletop.md)** | A game must both print and run without drifting | One source for the components, and a measured balance claim |
 | **[`runcible-book`](docs/skills/runcible-book.md)** | A subject should become a Runcible Book | A manifest, a chapter file each, and one catalog line |
 | **[`rappel-deck`](docs/skills/rappel-deck.md)** | A word list should become spaced repetition cards | One deck document whose note ids never move, plus the embed snippet |
+| **[`quiz-set`](docs/skills/quiz-set.md)** | Material should become a short game round that explains a miss | One `neo-quiz-set/1` document, validated, plus the embed snippet |
 
 ## Install
 
@@ -200,7 +203,7 @@ Refresh with `/plugin update neorgon-forge`.
 **With the skills CLI**: for one skill, or for an agent other than Claude Code:
 
 ```bash
-npx skills add LucianoAdonis/neorgon-forge           # all twenty-six
+npx skills add LucianoAdonis/neorgon-forge           # all twenty-seven
 npx skills add LucianoAdonis/neorgon-forge -s atlas   # just one
 npx skills add LucianoAdonis/neorgon-forge -l         # list without installing
 ```

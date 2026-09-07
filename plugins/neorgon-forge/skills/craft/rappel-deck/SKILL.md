@@ -1,6 +1,6 @@
 ---
 name: rappel-deck
-description: "Use when a word list, glossary, term sheet or vocabulary set should become spaced repetition flashcards. Triggers on: 'make a deck from this list', 'turn these terms into flashcards', 'build a Rappel deck', 'anki deck from this csv', 'add these words to the deck'. Builds one neo-deck/1 JSON document with stable note ids, templates that earn their place, and the licence the source requires on screen, then validates it with Rappel's own validator rather than a second opinion, and hands back the iframe snippet. Not for an exam or a graded test, use quizmaster; not for the chapters and goals around the deck, that is runcible-book."
+description: "Use when a word list, glossary, term sheet or vocabulary set should become spaced repetition flashcards. Triggers on: 'make a deck from this list', 'turn these terms into flashcards', 'build a Rappel deck', 'anki deck from this csv', 'add these words to the deck'. Builds one neo-deck/1 JSON document with stable note ids, templates that earn their place, and the licence the source requires on screen, then validates it with Rappel's own validator rather than a second opinion, and hands back the iframe snippet. Not for an exam or a graded test, use quizmaster; not for a short drilled round that shows the reason on a wrong answer, that is quiz-set; not for the chapters and goals around the deck, that is runcible-book."
 argument-hint: "[word list or file] [deck id]"
 user-invocable: true
 license: MIT
@@ -31,7 +31,29 @@ Without it the deck can still be built, and `validate-deck.mjs` exits 2 rather
 than passing, because a run that checked nothing must never read as a pass. Say
 so instead of delivering an unchecked deck.
 
-## Step 2: Decide the fields before touching the list
+## Step 2: Is a schedule what this material needs?
+
+A deck is a promise about months. Cards come back on their own, a few a day,
+until they stop coming back, and that is worth paying for only where the material
+has to be *held*, not merely learned once. Before the fields, settle that:
+
+| The material is | Build |
+|---|---|
+| An inventory a person carries indefinitely: vocabulary, terms, signatures | This deck |
+| A rule with an explanation, drilled now in a round of ten | A Quiz set, with `quiz-set` |
+| Something graded once, with a score at the end | An exam, with `quizmaster` |
+
+The tell is what a wrong answer owes the learner. A deck answers with the card's
+own back and moves the interval; a Quiz round answers with the reason the answer
+is what it is, built out of the set. Where the material has a reason worth
+showing, and no month of reviews behind it, the round is the honest tool and this
+skill is the expensive one.
+
+Both can be true. A chapter that drills the kana in a round and then carries the
+vocabulary for a term uses one of each, and they share a skill string, so the
+attempts land in the same evidence.
+
+## Step 3: Decide the fields before touching the list
 
 `fields[]` names the columns, and every template is written against those names,
 so a field renamed later rewrites every template. Two are usually enough: the
@@ -41,7 +63,7 @@ the notes, because a group is what makes plausible distractors possible.
 The first field is the note's identity. Pick the one that will not change: a
 word, not a translation of it.
 
-## Step 3: Templates earn their place, one at a time
+## Step 4: Templates earn their place, one at a time
 
 | Template | Add it when |
 |---|---|
@@ -59,7 +81,7 @@ Distractors come from siblings wherever a tag or a grouping field exists. Drawn
 from the whole deck they are noise, and a wrong option nobody would pick is a
 free point.
 
-## Step 4: Ask about the licence rather than guessing
+## Step 5: Ask about the licence rather than guessing
 
 If the material is not the user's own, the deck carries `licence`,
 `attribution` and `source`. When the licence starts with `CC-BY`, the exact
@@ -70,7 +92,7 @@ paraphrase it.
 If the material is the user's own, say so in `licence` anyway. A deck with no
 licence is one nobody else can reuse.
 
-## Step 5: Build, keeping every id that already exists
+## Step 6: Build, keeping every id that already exists
 
 `$FORGE` is the directory containing `skills/`: `~/.claude` after `bin/install.sh`, `plugins/neorgon-forge` inside this repo.
 
@@ -86,7 +108,7 @@ keeps each existing id attached to the same first field and numbers only what is
 new. The script reads Anki's `#separator:` and `#columns:` headers, so a TSV
 exported from Anki needs no reshaping.
 
-## Step 6: Validate, and prove the ids survived
+## Step 7: Validate, and prove the ids survived
 
 ```bash
 node "$FORGE/skills/rappel-deck/scripts/validate-deck.mjs" es-core-verbs.json --against previous.json
@@ -98,7 +120,7 @@ vanished, a note id now holding different material, a missing licence, a choice
 template ignoring its siblings, a card count that is a month of work, an em
 dash. Errors are always fixed. Warnings are fixed or answered in one sentence.
 
-## Step 7: Hand back something runnable
+## Step 8: Hand back something runnable
 
 A deck file is not a delivery. Give the iframe snippet from
 `reference/embed.md` with the right one of `?deck=`, `?src=` or `#d=` chosen by
@@ -114,6 +136,7 @@ that the host reads it off `rappel:answer`.
 | One note per dictionary sense | One note per thing a learner has to tell apart. Two senses nobody confuses are one note |
 | A translation as the note identity | The word as the identity. Translations get edited, and an id that moves is a lost card |
 | Adding `recall` because it exists | Adding it when producing the item is a separate skill from recognising it |
+| A deck because the material is a list | A deck because the material has to be held for months. A rule with an explanation is a Quiz round |
 | A definition long enough to read | An answer short enough to grade. Typed comparison is exact after the compare tokens |
 | Rebuilding the deck from the list each time | Rebuilding with `--against`, so the ids and the history survive |
 

@@ -1,6 +1,6 @@
 ---
 name: runcible-book
-description: "Use when a subject should become a Runcible Book: a topic, a syllabus, a table of contents, or new chapters for a Book that already exists. Triggers on: 'add a book to Runcible', 'teach Runcible music theory', 'make a Runcible book', 'turn this syllabus into chapters', 'new chapter for the japanese book'. Plans the ladder, states every chapter goal as something the learner can do and backs it with evidence, scaffolds the directory with scripts/scaffold-book.mjs, then judges the result with the site's own validator rather than a second opinion. Not for the flashcard deck a chapter embeds, that is rappel-deck; not for shell code or a new exercise type, since the nine generic ones are the point."
+description: "Use when a subject should become a Runcible Book: a topic, a syllabus, a table of contents, or new chapters for a Book that already exists. Triggers on: 'add a book to Runcible', 'teach Runcible music theory', 'make a Runcible book', 'turn this syllabus into chapters', 'new chapter for the japanese book'. Plans the ladder, states every chapter goal as something the learner can do and backs it with evidence, scaffolds the directory with scripts/scaffold-book.mjs, then judges the result with the site's own validator rather than a second opinion. Not for the flashcard deck a chapter embeds, that is rappel-deck; not for shell code or a new exercise type, since the ten generic ones are the point; not for the Quiz game set a quiz round embeds, that is quiz-set."
 argument-hint: "[subject or syllabus] [chapter count]"
 user-invocable: true
 license: MIT
@@ -19,7 +19,7 @@ need a shell change, that is the finding: say it out loud rather than making the
 change quietly.
 
 The format is frozen. `reference/manifest.md` is the manifest, `reference/chapter.md`
-is the chapter and the nine exercise types, `reference/plan.md` is the input the
+is the chapter and the ten exercise types, `reference/plan.md` is the input the
 scaffold takes. Read the first two before writing anything.
 
 ## Step 1: Find the site, or say you could not
@@ -70,15 +70,33 @@ a stub Book with no exercises, and it is a defect anywhere else.
 
 ## Step 4: Prefer a generic type, every time
 
-Nine types ship in the shell and none of them names a subject. Pick from the
+Ten types ship in the shell and none of them names a subject. Pick from the
 table in `reference/chapter.md`. A `custom` module is the last resort, and
-proposing one costs a sentence naming which of the eight cannot express the
+proposing one costs a sentence naming which of the nine cannot express the
 drill. That sentence is the rule that keeps the shell topic agnostic, and
 "it would feel nicer" is not it.
 
-Where a chapter wants spaced repetition over an item inventory, the answer is a
-`deck` exercise pointing at a Rappel deck, not a new exercise type. Build the
-deck with `rappel-deck`.
+Two of the ten are embeds, and each answers a want that would otherwise look
+like a reason to write a module:
+
+| The chapter wants | The exercise | Built by |
+|---|---|---|
+| Spaced repetition over an item inventory | `deck`, pointing at a Rappel deck | `rappel-deck` |
+| A short drilled round that explains a miss | `quiz`, pointing at a Quiz set | `quiz-set`, or the corpus generator |
+
+**Reach for a `quiz` round whenever a set exists for the material or can be
+generated from the Book's corpus.** Against a generic `choice`, `match` or
+`order` over the same items it buys two things they cannot: the round shows the
+**reason** on a wrong answer, built from the set itself, and it **keeps the
+answer off the prompt**, holding the romaji, the note and the gloss back until
+the answer is in. A generic type is the right call when no set exists and none
+can be generated, not as a default.
+
+The trade is real and worth naming: a `quiz` round is an iframe on another
+origin, so it costs a handshake, and a frame that stops answering leaves a game
+that still plays while nothing is recorded. That is why the shell times the
+silence and why `src` and `skill` are both required. It is not a reason to
+prefer a weaker drill.
 
 ## Step 5: Declare data, never invent it
 
@@ -91,6 +109,15 @@ carries.
 wrong, and it arrives wearing a licence claim that is also wrong. Where the
 licence starts with `CC-BY`, the attribution wording is required on every screen
 that shows the data, so it goes in `credits[]` and the `data[]` entry names it.
+
+**A Quiz set is generated from that corpus, not written beside it.**
+`./tools/build-sets.mjs` reads `./tools/selection/sets.json` and writes each set
+twice from one source, into Quiz's library and into `books/<id>/sets/`, so the
+two copies cannot drift and an item id stays derived from the corpus record it
+came from rather than from a row number. Adding a round for material the Book
+already carries is a row in that selection file and a re-run. Only material with
+no corpus behind it is authored, and `quiz-set` owns that, the set format and the
+set validator. Either way the `src` needs its line in the manifest's `data[]`.
 
 ## Step 6: Scaffold, then validate
 
@@ -124,6 +151,8 @@ through from a syllabus in JSON.
 | Prose that explains everything before the first exercise | One rung of prose, then a drill. Reading is not evidence and `read` records nothing |
 | Ten distractors drawn from the whole corpus | Distractors from siblings. A wrong option nobody would pick is a free point |
 | A `custom` module for the interesting drill | The interesting drill in `choice` or `typed` first. Ship it, then argue for the module with a real complaint |
+| A `choice` over a word list a set already covers | The `quiz` round. Same items, but a miss shows the reason and the prompt never carries the answer |
+| A hand-written set beside a corpus that has a generator | A row in the selection file and a re-run, so the Book's copy and Quiz's copy stay one document |
 | Filling every chapter to the same depth | The later chapters as `planned` entries with a note. A visible gap beats invented filler |
 
 **Say what you did not build.** A `planned` chapter with an honest note is part
@@ -135,7 +164,8 @@ of the ladder. Silence is the thing that reads as an oversight later.
   to report, not a change to make.
 - **Every goal is an act, and every goal carries evidence** whose skill some
   exercise in the Book actually produces.
-- **A generic type unless a sentence says why not.** The nine are the product.
+- **A generic type unless a sentence says why not.** The ten are the product, and
+  a `quiz` round is the first choice wherever a set exists or can be generated.
 - **Content is declared, never invented.** The skill writes pointers and licence
   entries; a human writes the corpus.
 - **The `es` half of every `{en, es}` string is neutral Spanish with correct

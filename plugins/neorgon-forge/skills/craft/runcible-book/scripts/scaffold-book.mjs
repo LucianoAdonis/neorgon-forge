@@ -94,8 +94,10 @@ function pointersIn(chapter) {
     }
     for (const ex of rung.exercises || []) {
       if (typeof ex.items === 'string') add(ex.items);
-      // A deck src is fetched by the engine across origins, not by the shell
-      // when the chapter opens, so it never belongs in the chapter's data[].
+      // A deck or quiz src is fetched by the embedded engine across origins,
+      // not by the shell when the chapter opens, so it never belongs in the
+      // chapter's data[]. It still needs its line in the manifest's data[],
+      // which is a permission list rather than a fetch list.
     }
   }
   return [...out].sort();

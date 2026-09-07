@@ -65,7 +65,9 @@ loudly rather than making the change.
   "data": [
     { "src": "data/theory/intervals.json", "licence": "public-domain", "screen": "none" },
     { "src": "data/theory/chorales.json",  "licence": "CC-BY-SA-4.0", "screen": "required",
-      "attribution": "imslp" }
+      "attribution": "imslp" },
+    { "src": "books/music-theory/sets/intervals-sound.json", "licence": "public-domain",
+      "screen": "none" }
   ],
   "credits": [
     { "id": "imslp", "name": "IMSLP, Petrucci Music Library" }
@@ -81,7 +83,11 @@ loudly rather than making the change.
 2. **`data[]` is a permission list, not documentation.** The shell resolves a
    `src` named by a chapter only if that exact path appears here. An undeclared
    path is a load error naming the file. This is what lets a Book and a data
-   corpus be authored by different people without either trusting the other.
+   corpus be authored by different people without either trusting the other. It
+   covers an embed's `src` as well as a chapter's own pointers: a `deck` and a
+   `quiz` each need their line here, and neither belongs in the chapter's own
+   `data[]`, since the engine fetches it across origins rather than the shell
+   fetching it when the chapter opens.
 3. **`requires` is an array or an object keyed by track id.** The first three
    chapters must use the array form: the foundation is fixed across tracks. The
    object form must cover every declared track, with no extra keys.

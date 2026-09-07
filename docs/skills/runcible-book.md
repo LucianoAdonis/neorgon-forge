@@ -10,9 +10,12 @@ file each, and validates the result with the site's own validator.
 The defining constraint is that the shell must stay ignorant of the subject.
 Adding a Book is one entry in the catalog plus a directory, and no file under
 `js/` changes. Everything the skill does follows from that: the drills come from
-the nine generic exercise types rather than from code the Book ships, the
+the ten generic exercise types rather than from code the Book ships, the
 corpora are declared as pointers rather than embedded, and a subject that seems
 to need a shell change is reported as a finding instead of quietly getting one.
+Two of the ten are embeds of another engine, a Rappel deck and a Quiz round, and
+both stay inside the rule: an iframe and a postMessage vocabulary are not a shell
+change.
 
 ## When to reach for it
 
@@ -20,8 +23,9 @@ Type `/runcible-book`, or the agent reaches for it when asked to add a subject,
 a syllabus or a set of chapters to Runcible.
 
 Reach for it when the subject exists and the Book does not. For the flashcard
-deck a chapter embeds, use [`rappel-deck`](rappel-deck.md), which is a different
-format with a different validator.
+deck a chapter embeds, use [`rappel-deck`](rappel-deck.md); for the game set a
+quiz round embeds, use [`quiz-set`](quiz-set.md). Both are different formats with
+their own engines and their own validators.
 
 ## The ladder is the design
 
