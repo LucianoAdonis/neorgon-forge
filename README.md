@@ -680,7 +680,7 @@ make reach
 
 Counts real invocations from local transcripts. A description is the whole routing decision,
 and nothing here could previously tell you whether one had ever won. The first run found **17
-of 27 skills had never been invoked once** across 2,212 transcripts, and that `/task` held 151
+of 26 skills had never been invoked once** across 2,212 transcripts, and that `/task` held 151
 of them. Six routing collisions and a stale duplicate install came out of chasing that number.
 
 Zero is not automatically a defect. A skill whose situation has not arisen is correctly quiet,
