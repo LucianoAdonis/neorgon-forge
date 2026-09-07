@@ -92,6 +92,14 @@ answer off the prompt**, holding the romaji, the note and the gloss back until
 the answer is in. A generic type is the right call when no set exists and none
 can be generated, not as a default.
 
+**One set, one filter per rung.** A rung drilling the k row does not need its
+own five item set: it embeds the whole table with `"filter": "row:k"`, and the
+rung after it changes one label. The grammar is the engine's,
+`<field>:<value>[,<value>...]` over `row`, `column`, `group` or `rule`. The
+distractors and the feedback strip still come from the whole set, so a five item
+round shows all five cells of its row, and the validator refuses a filter that
+matches too few items rather than letting the learner meet an empty round.
+
 The trade is real and worth naming: a `quiz` round is an iframe on another
 origin, so it costs a handshake, and a frame that stops answering leaves a game
 that still plays while nothing is recorded. That is why the shell times the
@@ -152,6 +160,7 @@ through from a syllabus in JSON.
 | Ten distractors drawn from the whole corpus | Distractors from siblings. A wrong option nobody would pick is a free point |
 | A `custom` module for the interesting drill | The interesting drill in `choice` or `typed` first. Ship it, then argue for the module with a real complaint |
 | A `choice` over a word list a set already covers | The `quiz` round. Same items, but a miss shows the reason and the prompt never carries the answer |
+| One set per rung, cut from the same table | One set and a `filter` per rung. Same ids, same score key, one licence, and the feedback still draws on the whole table |
 | A hand-written set beside a corpus that has a generator | A row in the selection file and a re-run, so the Book's copy and Quiz's copy stay one document |
 | Filling every chapter to the same depth | The later chapters as `planned` entries with a note. A visible gap beats invented filler |
 

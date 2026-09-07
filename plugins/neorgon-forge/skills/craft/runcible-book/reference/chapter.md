@@ -93,7 +93,7 @@ material, the shell supplies drills.
 | `listen` | speech, then pick or type | yes | `items`, `speak`, `answer`, `respond` |
 | `speak` | speech modelled, said back | never | `items`, `expect` |
 | `deck` | an embedded Rappel session | yes | `src`, optional `limit`, `mode` |
-| `quiz` | an embedded Quiz round | yes | `game`, `src`, optional `limit` |
+| `quiz` | an embedded Quiz round | yes | `game`, `src`, optional `limit` and `filter` |
 | `custom` | a module the Book ships | module decides | `module`, optional `props` |
 
 Every exercise also needs `id` and `skill`. `read` and `speak` record
@@ -114,6 +114,10 @@ An embedded round from the Quiz engine, contract `neo-quiz-set/1` and
 { "id": "e-beats", "type": "quiz", "game": "beats", "skill": "jp.mora.count",
   "src": "books/japanese/sets/jp-loanwords-beats.json", "limit": 10,
   "title": { "en": "Count the beats", "es": "Cuenta los pulsos" } }
+
+{ "id": "e-k-read", "type": "quiz", "game": "sound", "skill": "kana.hiragana.read",
+  "src": "books/japanese/sets/jp-hiragana-sound.json", "limit": 5,
+  "filter": "row:k", "title": { "en": "The k row" } }
 ```
 
 | Field | Rule |
@@ -121,7 +125,24 @@ An embedded round from the Quiz engine, contract `neo-quiz-set/1` and
 | `game` | Required, one of `beats`, `sound`, `pairs`, `order`. Any other value is refused before the frame mounts |
 | `src` | Required. A `neo-quiz-set/1` document **on Runcible's own origin**, and declared in the manifest's `data[]` |
 | `skill` | Required. Every `quiz:answer` is recorded as one attempt under **this** string |
-| `limit` | Optional positive integer, capped at the set's own length |
+| `limit` | Optional positive integer, capped at the length of the set, or of the filtered part of it |
+| `filter` | Optional. `<field>:<value>[,<value>...]`, one field, from `row`, `column`, `group` and `rule`. Narrows the round to the part of the set this rung taught |
+
+**A filter is how one set serves a whole chapter.** The rung that teaches the k
+row embeds the whole hiragana table with `"filter": "row:k"`, and the rung that
+drills greetings embeds the whole word list with `"filter": "group:greetings"`.
+Two things make this better than one set per rung: the distractors and the
+`sound` game's feedback strip are drawn from the **whole** set, so a five item
+round still shows all five cells of its row, and the score, the ids and the
+licence stay in one document instead of fifteen.
+
+The filter is on the frame and on the "Open in Quiz" link beside it, so the
+escape hatch is the same round rather than a different exercise.
+`tools/validate-book.mjs` reads the grammar and then opens the set and counts:
+under four matches is an error for `pairs`, whose board is four pairs, under
+three for the other games, since a kana row ships whole even when it is short.
+A filter matching nothing would be the engine's `filter-empty` screen, so it is
+a build error and never a learner's.
 
 Three rules ride along, and each is a rule the `deck` exercise already has:
 

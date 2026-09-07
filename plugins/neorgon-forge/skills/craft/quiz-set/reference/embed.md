@@ -29,6 +29,7 @@ which is what lets Runcible on `:8878` embed Quiz on `:8880` for real.
 | `game` | `beats`, `sound`, `pairs`, `order` | Optional when `set` is given: the set's own game is used |
 | `set` | id or encoded URL | The set. Absent in embed is `quiz:error { code: "no-set" }` |
 | `limit` | integer | Items per round, default 10, capped at the set's length |
+| `filter` | `<field>:<value>[,<value>...]` | Keeps only the items whose field equals one of the values: `row:k`, `row:k,s`, `group:greetings`. One field per round, from `row`, `column`, `group` and `rule`. An unknown field or a match of zero items is `quiz:error { code: "filter-empty" }` |
 | `seed` | any string | Makes the shuffle, the numeral window and the sound direction deterministic, so a host can replay a round |
 | `skill` | a dotted string | Overrides the set's own `skill` on every `quiz:answer` |
 | `lang` | `en`, `es` | UI language |
@@ -55,10 +56,10 @@ frame.addEventListener('load', () => {
 
 | Message | Payload | Why a host wants it |
 |---|---|---|
-| `quiz:ready` | `{ setId, setVersion, game, name, total, store }` | The round length after `limit`, and whether this frame persists at all |
+| `quiz:ready` | `{ setId, setVersion, game, name, total, store }` | The round length after `filter` and `limit`, and whether this frame persists at all |
 | `quiz:answer` | `{ setId, game, itemId, skill, correct, ms, chosen, expected }` | One per item. **This is the evidence.** `itemId` is the set's own item id |
 | `quiz:session-end` | `{ setId, game, answered, correct, wrong, ms, medianMs, bestStreak, total, complete }` | Once per round. `complete` is false when the learner left early |
-| `quiz:error` | `{ code, message }` | `no-set`, `set-fetch-failed`, `set-invalid`, `game-unknown`, `game-mismatch` |
+| `quiz:error` | `{ code, message }` | `no-set`, `set-fetch-failed`, `set-invalid`, `game-unknown`, `game-mismatch`, `filter-empty` |
 | `quiz:resize` | `{ height }` | Debounced 120ms. Clamp it; the frame does not |
 
 Inbound, all three accepted from any origin because they are read-only or
@@ -99,9 +100,18 @@ silence, and converts every `quiz:answer` into one attempt:
 { "id": "e-beats", "type": "quiz", "game": "beats", "skill": "jp.mora.count",
   "src": "books/japanese/sets/jp-loanwords-beats.json", "limit": 10,
   "title": { "en": "Count the beats", "es": "Cuenta los pulsos" } }
+
+{ "id": "e-k-read", "type": "quiz", "game": "sound", "skill": "kana.hiragana.read",
+  "src": "books/japanese/sets/jp-hiragana-sound.json", "limit": 5,
+  "filter": "row:k", "title": { "en": "The k row" } }
 ```
 
 - `game` and `src` are required, `skill` is required, `limit` is optional
+- `filter` is optional and is the URL grammar above. It is what lets one set
+  serve a whole chapter: the rung that taught the k row embeds the whole table
+  with `"filter": "row:k"`. The shell puts it on the frame and on the Open in
+  Quiz link, and `tools/validate-book.mjs` refuses a filter matching too few
+  items of `src`, so `filter-empty` is a build error and never a learner's screen
 - `src` is a `neo-quiz-set/1` document **on Runcible's own origin**, and it must
   appear in the manifest's `data[]`. An undeclared `src` is a load error naming
   `book.json`, exactly as it is for a deck

@@ -20,6 +20,7 @@ One JSON object, one game, at least one item.
     "attribution": "Word list by ...",
     "source": "https://..."
   },
+  "groups": { "greetings": { "en": "Greetings", "es": "Saludos" } },
   "items": []
 }
 ```
@@ -34,11 +35,18 @@ One JSON object, one game, at least one item.
 | `lang` | BCP 47 tag of the content, default `"ja"` |
 | `skill` | A dotted string echoed on every `quiz:answer`, unless the URL passes `?skill=`. With neither it is `quiz.<game>` |
 | `licence` | `{ spdx, screen, attribution, source }`. `spdx` and `screen` are required; `attribution` is required when `screen` is `"required"` |
+| `groups` | Optional `{ "<id>": name }`, name a string or `{ "en", "es" }`. The words a round header shows for `filter=group:<id>`; an item's `group` is one of these keys |
 | `items` | At least 1, ids unique inside the set, in the same character set as the set id |
 
 Two rules apply to every string in the document: **no markup** (a `<` followed by
 a letter anywhere is an error), and every learner-facing string is a bilingual
 value, where a bare string means English.
+
+`row`, `column`, `group` and `rule` are the exception and are not prose at all.
+They are labels, ASCII letters, digits and dashes, and they are what `?filter=`
+matches exactly, so a host can play one row or one group of a set that holds the
+whole table. Name a group in `groups` and its round header reads Greetings; leave
+it unnamed and the header shows the label.
 
 A field the format does not know is ignored by the engine and warned by the
 validator. A field prefixed `_` is exempt, which is where a generator parks its
@@ -77,13 +85,23 @@ the rule does not cover.
 - `kana` and `sound` are the two faces. The engine asks in either direction,
   chosen per item by seed, so both have to stand alone as a prompt
 - `row` is a label shared by one row of the grid; `column` is `a`, `i`, `u`, `e`,
-  `o`, or `null` for a symbol that is a row by itself
+  `o` in a plain row, `ya`, `yu`, `yo` in a yoon row, or `null` for a symbol
+  that is a row by itself. A row holds one kind of column and no cell twice
 - `distractors` is optional, 3 or more sounds. Without it the engine draws three
   from the same row or column **in this set**
 
 **The feedback is the set's own siblings.** The strip under a miss is built from
-the items sharing `row`, ordered `a i u e o`, so a row shipped with holes in it
-renders with holes in it. Ship whole rows.
+the items sharing `row`, ordered `a i u e o`, or `ya yu yo` in a yoon row (three
+cells, not five), so a row shipped with holes in it renders with holes in it.
+Ship whole rows.
+
+**`row` and `column` are also what a host filters on**, which is the second
+reason to ship the table whole rather than one set per row. A Runcible rung that
+drills the k row embeds this set with `filter=row:k`, and the strip and the
+distractors still draw from every item, so the five item round shows all five
+cells. The same applies to `group` on a `pairs` set and `rule` on a `beats` set:
+they are labels, ASCII letters, digits and dashes, matched exactly. Never put
+prose in one.
 
 ## pairs
 
@@ -96,7 +114,10 @@ renders with holes in it. Ship whole rows.
   is the rule keeping the answer off the visible text, and the format enforces it
 - `note` is shown only in the feedback after a miss. The reading goes here
 - A board is four pairs, so the set needs at least 4 items, and no two `right`
-  values may fold to the same string
+  values may fold to the same string in the same language
+- `group` (optional) is a key of the set's `groups`, what `filter=group:`
+  matches. A kana pairs item carries `row` and `column` as its sound sibling
+  does
 
 ## order
 

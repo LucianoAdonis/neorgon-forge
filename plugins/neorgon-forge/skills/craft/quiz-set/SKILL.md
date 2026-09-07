@@ -77,6 +77,11 @@ Two rules fall out of that table and are worth stating before you write anything
   sampled renders with holes the writing system does not have. A row that is
   genuinely short is not a hole: the y row really has three kana. Take the rows
   the source has, all of them, or leave a row out entirely.
+- **A label is a handle, so write it as one.** `row`, `column`, `group` and
+  `rule` are what `?filter=` matches, exactly and after trim, which is how one
+  set serves a chapter that drills a row at a time. Keep them ASCII letters,
+  digits and dashes, keep them stable across rebuilds the way an id is, and put
+  the words a reader sees in `groups` rather than in the label.
 - **`order` refuses a two-piece line and refuses a repeated piece.** Two pieces is
   a coin flip, and two identical pieces have no wrong order. Split a long line
   into two items; merge a repeat with its neighbour.
@@ -182,6 +187,7 @@ the path that persists.
 | The temptation | What to do instead |
 |---|---|
 | Every row in the source | The rows that carry the distinction. A round is ten items; a set of 400 is a picker nobody reads |
+| One small set per row, so a chapter can drill each one | One set holding the whole grid, and a `filter` on the host's side. `?filter=row:k` is a k row round, and the distractors and the row strip still draw from the whole set |
 | Four games from one list, because the format has four | The one game the material can explain. A `pairs` set forced into `sound` has no row to draw |
 | A `sound` set sampled across the table | Whole rows. The feedback strip is the set's own siblings, so a partial row teaches a gap |
 | Distractors from anywhere in the set | Siblings: same row, same column, same tag. A wrong option nobody would pick is a free point |
