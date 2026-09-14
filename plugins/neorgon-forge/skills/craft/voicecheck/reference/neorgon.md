@@ -41,8 +41,8 @@ title is truncated and a dash looks like a broken sentence.
 
 ## Source of truth
 
-`PROJECTS.md` §3 (Brand Guide) and §6 (Copy Style Guide) are canonical for the suite voice.
-`voice-defaults.md` restates those rules in checkable form. **If `PROJECTS.md` changes, update
+`PROJECTS.md` §3 (Brand Guide) and `docs/references/new-project-context.md` (Copy; it replaced PROJECTS.md §6 in 2026-08) are canonical for the suite voice.
+`voice-defaults.md` restates those rules in checkable form. **If either of them changes, update
 `voice-defaults.md` to match**: the drift runs in that direction, and a stale baseline
 silently passes copy that the brand guide now forbids.
 
