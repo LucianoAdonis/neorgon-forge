@@ -26,7 +26,9 @@ Name the project repos the session touched; add `--fleet` only when the question
 project (dirty files, unpushed commits, **no-remote repos**), registry sites at `lifecycle:
 ready` (a domain reserved with nothing served), hub cards still marked Soon, `.forge/brief.md`
 `## Open` sections, the harness ledger's pending sweeps, whether the fleet news feed is behind
-the newest hub ship date (landed work nobody announced), and the prompt-queue count.
+the newest hub ship date (landed work nobody announced), the prompt-queue count, and, when an
+Antenne submit key exists, the desk queue's counts and whether the last publish run failed
+(fail-soft within 5 s, absent without a key).
 
 Then add what only the session knows: items deferred out loud during the work, checks that ran
 partially ("validated but never clicked through"), and anything a report of yours promised.
@@ -46,10 +48,18 @@ Present a numbered list. Every item carries three things:
 Publishing is always its own numbered item when it applies, never folded into another one:
 "push" and "publish a site to a public repo" are different magnitudes of irreversible and the
 user must be able to deny one without the other. An undrafted-news item is the opposite case
-and defaults to `do`: `/newsroom` writes only gitignored drafts, and the stories themselves
-publish at the desk, never as part of a closeout. Ambient items from other efforts (another
-session's campaign, the queue) are `parked` by default: closing someone else's in-progress work
-is how two sessions corrupt each other.
+and defaults to `do`: `/newsroom` only submits to the private desk queue, where a reviewer can
+still spike any story, and a story publishes only after a reviewer approves it at the desk,
+never as part of a closeout. Closeout never approves. A failed publish run is a surface-only
+item in lane `yours`: list it with its run link and leave the retry to an owner or editor at
+the desk. The desk queue's pending and approved counts are the reviewers' work: context for the
+list, never an item. The collector reads that queue only through the root's
+`./scripts/antenne_trust.py`, which runs dispatch-site's client only while it matches the sha256
+pins the owner wrote after reading it; when it does not, the line reads `desk queue: not read`
+and names the pin command. That is a `yours` item: pinning is the owner's review of the diff,
+never something a closeout runs. Ambient items from other efforts (another session's campaign,
+the prompt queue) are `parked` by default: closing someone else's in-progress work is how two
+sessions corrupt each other.
 
 ## Step 3: Read the answer as the authorisation
 
@@ -107,5 +117,7 @@ summary this repo exists to prevent.
 - **Publishing is its own line item.** It is never implied by "wrap up".
 - **`yours` items are never attempted.** Credentials, dashboards, whitelists, destructive
   choices: reported with the step, left alone.
+- **Closeout never approves a story.** Undrafted news closes by submitting to the desk queue;
+  approving, retrying and releasing belong to the desk.
 - **Report by the same numbers.** The user checked boxes; the report must be checkable against
   them.

@@ -290,8 +290,10 @@ itself; leave them implicit and the deck becomes a flattering summary of a diff.
 One more hand-off, conditional: when the finished work shipped something a visitor can see on a
 live site (a launch, a feature, a fix worth telling) and the `/newsroom` command exists in the
 repo, offer it alongside the other two. It drafts a Dispatch story from the same brief and git
-history into the news site's gitignored drafts; nothing publishes until the desk approves.
-Internal tooling, refactors, and work on unpublished sites get no story.
+history and submits it to the desk queue, the private Antenne queue reviewed at
+`https://dispatch.neorgon.com/desk.html`; nothing publishes until a reviewer approves it there,
+and publishing is automatic after that. Internal tooling, refactors, and work on unpublished
+sites get no story.
 
 ## Invariants
 

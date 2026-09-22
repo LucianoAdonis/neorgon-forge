@@ -28,9 +28,22 @@ bash "$FORGE/skills/docket/scripts/collect.sh" [root] [project ...] [--fleet]
 Read-only: it closes nothing and writes nothing. It reports the prompt queue with each item's
 **age and line count**, every `.forge/brief.md` `## Open` section, every `streams.tsv` entry
 still `pending` or `active`, the harness ledger's open runs, whether the fleet news feed is
-behind the newest hub ship date (a stale feed is a natural `small` item: `/newsroom` drafts,
-the desk approves), and uncommitted or unpushed git state. Add `--fleet` only when the
-question is fleet-wide; it runs one git per repo.
+behind the newest hub ship date (a stale feed is a natural `small` item: `/newsroom` submits to
+a private queue, and nothing publishes without a reviewer), and uncommitted or unpushed git
+state. Add `--fleet` only when the question is fleet-wide; it runs one git per repo.
+
+When an Antenne submit key exists, the collector adds one line from the desk queue: pending
+count, oldest age, approved waiting, and the last publish run's state. It is fail-soft within
+5 s and absent without a key. That queue is the reviewers' work, not the session's: show the
+line, and never offer approving from a docket. A failed last run is `blocked` until someone
+reads the run and presses Retry at the desk.
+
+The line comes from dispatch-site's own client, which the collector runs only through the
+root's `./scripts/antenne_trust.py`: others can push to dispatch-site, so its scripts must match
+the sha256 pins the owner wrote after reading them. When they do not, the line reads `desk
+queue: not read`, says the scripts changed since that review and names the pin command, and
+nothing from dispatch-site runs. Show that line as it is. Pinning is the owner's review of the
+diff, so it is a `blocked` item for the owner, never something to run from the docket.
 
 Outside a monorepo the queue and the harness are absent and the script says so rather than
 inventing a substitute. Briefs and git state alone still make a usable docket.

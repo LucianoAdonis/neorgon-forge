@@ -83,26 +83,102 @@ fi
 head_ "Hub: cards still marked Soon"
 grep -h "Currently Soon" .claude/HUB_REGISTRY.md 2>/dev/null | sed 's/^/  /' || echo "  (no hub registry here)"
 
-head_ "Dispatch: undrafted news (newest story vs newest hub ship date)"
+head_ "Dispatch: undrafted news and the desk queue"
 # Ship dates live on the hub cards (data-added); stories live in the news
 # site's committed feed. A ship date newer than the newest story is landed
-# work nobody announced. /newsroom only writes gitignored drafts, so the
-# close is reversible; publication stays at the desk.
+# work nobody announced. /newsroom only submits to the private desk queue,
+# where a reviewer can still spike any story, so the close stays `do`;
+# publication needs a reviewer's approval at the desk, never a closeout. The
+# newest story is read from origin/main when the clone has it: the publish
+# workflow commits upstream as a bot, and a clone that fetched but did not
+# pull is not behind.
 if [ -f projects/dispatch-site/data/posts.json ] && [ -f projects/neorgon-site/index.html ]; then
   python3 - <<'PY' 2>/dev/null || echo "  (could not compare feed and hub)"
-import json, re
-posts = json.load(open('projects/dispatch-site/data/posts.json')).get('posts', [])
+import json, os, re, subprocess
+doc, source = None, 'origin/main'
+if os.path.exists('projects/dispatch-site/.git'):
+    try:
+        p = subprocess.run(['git', '-C', 'projects/dispatch-site', 'show', 'origin/main:data/posts.json'],
+                           stdin=subprocess.DEVNULL, capture_output=True, timeout=5,
+                           env=dict(os.environ, GIT_OPTIONAL_LOCKS='0'))
+        doc = json.loads(p.stdout.decode('utf-8')) if p.returncode == 0 else None
+    except (OSError, subprocess.SubprocessError, ValueError):
+        doc = None
+if not isinstance(doc, dict):
+    doc, source = json.load(open('projects/dispatch-site/data/posts.json')), 'working copy'
+posts = doc.get('posts', [])
 story = max((p.get('date', '') for p in posts), default='')
 added = re.findall(r'data-added="(\d{4}-\d{2}-\d{2})"', open('projects/neorgon-site/index.html').read())
 ship = max(added, default='')
 if ship > story:
-    print(f"  STALE: newest story {story or 'none'}, newest hub ship date {ship}")
-    print("  default close: /newsroom drafts the missing stories; the desk approves")
+    print(f"  STALE: newest story {story or 'none'} ({source}), newest hub ship date {ship}")
+    print("  default close (do): /newsroom submits the missing stories to the private desk queue;"
+          " a reviewer approves them at the desk")
 else:
-    print(f"  current: newest story {story or 'none'}, newest hub ship date {ship or 'n/a'}")
+    print(f"  current: newest story {story or 'none'} ({source}), newest hub ship date {ship or 'n/a'}")
 PY
 else
   echo "  (no dispatch here)"
+fi
+# The desk queue, only when a submit key exists (ANTENNE_KEY or
+# ~/.config/antenne/submit-key), fail-soft inside a 5 s budget. Its counts
+# are the reviewers' work and are listed, never closed. A failed publish run
+# is a surface-only item: the owner reads the run and retries it at the desk,
+# and closeout never approves, retries or releases anything.
+# dispatch-site's client runs only through the root's scripts/antenne_trust.py,
+# which first checks it against the owner's reviewed pins: others can push to
+# dispatch-site main, and this runs beside every credential on the machine.
+# When the check fails, the one line says the scripts changed since review and
+# names the pin command, and nothing from dispatch-site runs.
+if [ -f projects/dispatch-site/scripts/submit-drafts.py ]; then
+  python3 - <<'PY' 2>/dev/null || echo "  (could not read the desk queue)"
+import json, os, subprocess, sys, time
+if not (os.environ.get('ANTENNE_KEY', '').strip()
+        or os.path.isfile(os.path.expanduser('~/.config/antenne/submit-key'))):
+    raise SystemExit(0)
+trust, site = 'scripts/antenne_trust.py', 'projects/dispatch-site'
+if not os.path.isfile(trust):
+    print(f"  desk queue: not read, there is no {trust} here to check dispatch-site's scripts against their review")
+    raise SystemExit(0)
+start = time.monotonic()
+# 4.5 s for the check and the request, so the line, every interpreter's start included, fits in 5 s.
+try:
+    c = subprocess.run([sys.executable, trust, 'check', site], stdin=subprocess.DEVNULL,
+                       capture_output=True, text=True, timeout=2)
+    if c.returncode != 0:
+        why = (c.stderr.strip().splitlines() or ['the check failed'])[-1]
+        why = why.replace('antenne_trust: ', '', 1).replace('refused: ', '', 1)
+        print(f"  desk queue: not read, {why.replace(os.path.expanduser('~'), '~')[:400]}")
+        raise SystemExit(0)
+    p = subprocess.run([sys.executable, trust, 'run', site, 'scripts/submit-drafts.py', '--status'],
+                       stdin=subprocess.DEVNULL, capture_output=True, text=True,
+                       timeout=max(0.5, 4.5 - (time.monotonic() - start)))
+except subprocess.TimeoutExpired:
+    print('  desk queue: no answer within 5 s')
+    raise SystemExit(0)
+if p.returncode != 0:
+    why = (p.stderr.strip().splitlines() or ['no reason given'])[-1].replace('submit-drafts: ', '', 1)
+    why = why.replace(os.path.expanduser('~'), '~').split('; ')[0]
+    print(f'  desk queue: unavailable, {why[:160]}')
+    raise SystemExit(0)
+s = json.loads(p.stdout)
+counts = s.get('counts') or {}
+run = s.get('lastRun') if isinstance(s.get('lastRun'), dict) else {}
+ages = [q['ageMs'] for q in s.get('queue') or []
+        if isinstance(q, dict) and q.get('status') == 'pending' and isinstance(q.get('ageMs'), int)]
+def age(ms):
+    m = ms // 60000
+    return f'{m // 1440}d {m % 1440 // 60}h' if m >= 1440 else f'{m // 60}h {m % 60}m' if m >= 60 else f'{m}m'
+oldest = f' (oldest {age(max(ages))})' if ages else ''
+print(f"  desk queue: {counts.get('pending', 0)} pending{oldest}, {counts.get('approved', 0)} approved waiting,"
+      f" last run {run.get('state') or 'none'} (reviewers approve at the desk; never a closeout item)")
+if run.get('state') == 'failed':
+    where = run.get('runUrl') or (f"run {run['runId']}" if run.get('runId') else 'the last run')
+    error = f", error {run['error']}" if run.get('error') else ''
+    print(f"  SURFACE ONLY: the last publish run failed ({where}{error})")
+    print("  lane yours: an owner or editor reads the run and presses Retry at the desk;"
+          " closeout never approves, retries or releases")
+PY
 fi
 
 head_ "Briefs with an Open section (.forge/brief.md)"
