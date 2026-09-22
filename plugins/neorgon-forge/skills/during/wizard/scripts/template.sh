@@ -119,8 +119,12 @@ write_env() {
   local key="$1" val="$2"
   touch "$ENV_FILE"
   if grep -q "^$key=" "$ENV_FILE" 2>/dev/null; then
-    local tmp; tmp=$(mktemp)
-    grep -v "^$key=" "$ENV_FILE" > "$tmp" && mv "$tmp" "$ENV_FILE"
+    # grep -v exits 1 when it selects nothing, which is what a file holding only
+    # this key looks like. Gating mv on that status kept the old line and the new
+    # one was appended after it, so the stalest value won every later read.
+    local tmp status; tmp=$(mktemp)
+    grep -v "^$key=" "$ENV_FILE" > "$tmp"; status=$?
+    if [ "$status" -le 1 ]; then mv "$tmp" "$ENV_FILE"; else rm -f "$tmp"; fi
   fi
   printf '%s=%s\n' "$key" "$val" >> "$ENV_FILE"
   CAPTURED+=("$key -> $ENV_FILE")
