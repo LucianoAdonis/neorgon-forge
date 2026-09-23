@@ -43,7 +43,7 @@ find_dispatch() {
   # Both names, never a swap: the folder is being renamed from dispatch-site to
   # antenne-site, and knowing only one of them breaks on one side of the rename.
   local candidate
-  for candidate in "$1/projects/antenne-site" "$1/projects/dispatch-site"; do
+  for candidate in "$1/projects/antenne-site" "$1/projects/antenne-site"; do
     if [ -d "$candidate" ]; then printf '%s' "$candidate"; return 0; fi
   done
   return 1
@@ -195,7 +195,7 @@ selftest() {
   nokey="$sandbox/key/absent"
   scratch="$sandbox/stories"
   ran="$sandbox/client-ran"
-  mkdir -p "$fake/scripts" "$fake/projects/dispatch-site/scripts" "$sandbox/key" "$scratch"
+  mkdir -p "$fake/scripts" "$fake/projects/antenne-site/scripts" "$sandbox/key" "$scratch"
   printf 'PROJECTS.md stand-in\n' >"$fake/PROJECTS.md"
 
   cat >"$fake/scripts/antenne_trust.py" <<'PY'
@@ -205,7 +205,7 @@ import os, subprocess, sys
 if os.environ.get("fake_refuse"):
     print("antenne_trust: refused: scripts/submit-drafts.py does not match its pin; the reviewed "
           "dispatch-site commit is 0123456789ab; review the diff, then run "
-          "`python3 scripts/antenne_trust.py pin projects/dispatch-site`.", file=sys.stderr)
+          "`python3 scripts/antenne_trust.py pin projects/antenne-site`.", file=sys.stderr)
     sys.exit(3)
 if len(sys.argv) < 4:
     sys.exit(2)
@@ -215,7 +215,7 @@ if mode == "check":
 sys.exit(subprocess.call([sys.executable, os.path.join(where, script)] + sys.argv[4:]))
 PY
 
-  cat >"$fake/projects/dispatch-site/scripts/submit-drafts.py" <<'PY'
+  cat >"$fake/projects/antenne-site/scripts/submit-drafts.py" <<'PY'
 #!/usr/bin/env python3
 """Stand-in for Antenne's client: same argv, same JSON shapes, no network."""
 import json, os, re, sys

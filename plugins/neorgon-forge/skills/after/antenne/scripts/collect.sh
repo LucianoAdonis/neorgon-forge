@@ -101,7 +101,7 @@ fi
 # broken on one side of that rename with nothing to say so.
 dispatch=""
 if [ -n "$root" ]; then
-  for candidate in "$root/projects/antenne-site" "$root/projects/dispatch-site"; do
+  for candidate in "$root/projects/antenne-site" "$root/projects/antenne-site"; do
     if [ -d "$candidate" ]; then dispatch="$candidate"; break; fi
   done
 fi

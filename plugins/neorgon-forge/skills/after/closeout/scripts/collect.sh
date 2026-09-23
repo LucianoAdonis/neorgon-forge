@@ -92,20 +92,20 @@ head_ "Dispatch: undrafted news and the desk queue"
 # newest story is read from origin/main when the clone has it: the publish
 # workflow commits upstream as a bot, and a clone that fetched but did not
 # pull is not behind.
-if [ -f projects/dispatch-site/data/posts.json ] && [ -f projects/neorgon-site/index.html ]; then
+if [ -f projects/antenne-site/data/posts.json ] && [ -f projects/neorgon-site/index.html ]; then
   python3 - <<'PY' 2>/dev/null || echo "  (could not compare feed and hub)"
 import json, os, re, subprocess
 doc, source = None, 'origin/main'
-if os.path.exists('projects/dispatch-site/.git'):
+if os.path.exists('projects/antenne-site/.git'):
     try:
-        p = subprocess.run(['git', '-C', 'projects/dispatch-site', 'show', 'origin/main:data/posts.json'],
+        p = subprocess.run(['git', '-C', 'projects/antenne-site', 'show', 'origin/main:data/posts.json'],
                            stdin=subprocess.DEVNULL, capture_output=True, timeout=5,
                            env=dict(os.environ, GIT_OPTIONAL_LOCKS='0'))
         doc = json.loads(p.stdout.decode('utf-8')) if p.returncode == 0 else None
     except (OSError, subprocess.SubprocessError, ValueError):
         doc = None
 if not isinstance(doc, dict):
-    doc, source = json.load(open('projects/dispatch-site/data/posts.json')), 'working copy'
+    doc, source = json.load(open('projects/antenne-site/data/posts.json')), 'working copy'
 posts = doc.get('posts', [])
 story = max((p.get('date', '') for p in posts), default='')
 added = re.findall(r'data-added="(\d{4}-\d{2}-\d{2})"', open('projects/neorgon-site/index.html').read())
@@ -130,13 +130,13 @@ fi
 # dispatch-site main, and this runs beside every credential on the machine.
 # When the check fails, the one line says the scripts changed since review and
 # names the pin command, and nothing from dispatch-site runs.
-if [ -f projects/dispatch-site/scripts/submit-drafts.py ]; then
+if [ -f projects/antenne-site/scripts/submit-drafts.py ]; then
   python3 - <<'PY' 2>/dev/null || echo "  (could not read the desk queue)"
 import json, os, subprocess, sys, time
 if not (os.environ.get('ANTENNE_KEY', '').strip()
         or os.path.isfile(os.path.expanduser('~/.config/antenne/submit-key'))):
     raise SystemExit(0)
-trust, site = 'scripts/antenne_trust.py', 'projects/dispatch-site'
+trust, site = 'scripts/antenne_trust.py', 'projects/antenne-site'
 if not os.path.isfile(trust):
     print(f"  desk queue: not read, there is no {trust} here to check dispatch-site's scripts against their review")
     raise SystemExit(0)

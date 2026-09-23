@@ -61,12 +61,12 @@ Both commands go through the root's trust wrapper, never at the client directly,
 Antenne repo is public and more than the owner can push to its main branch:
 
 ```bash
-python3 scripts/antenne_trust.py run projects/dispatch-site scripts/submit-drafts.py --dry-run <scratch>/<id>.json
-python3 scripts/antenne_trust.py run projects/dispatch-site scripts/submit-drafts.py <scratch>/<id>.json
+python3 scripts/antenne_trust.py run projects/antenne-site scripts/submit-drafts.py --dry-run <scratch>/<id>.json
+python3 scripts/antenne_trust.py run projects/antenne-site scripts/submit-drafts.py <scratch>/<id>.json
 ```
 
 `submit.sh check` and `submit.sh send` run exactly these, with the project folder resolved as
-`projects/antenne-site` when the rename has landed and `projects/dispatch-site` while it has
+`projects/antenne-site` when the rename has landed and `projects/antenne-site` while it has
 not. Use the wrapper rather than typing these by hand: it refuses a story file that lives
 inside a repo, it stops a send that has no key before the client is reached, and it turns each
 exit code into a sentence.
