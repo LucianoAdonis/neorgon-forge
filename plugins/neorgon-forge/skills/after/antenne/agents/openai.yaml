@@ -1,0 +1,3 @@
+interface:
+  display_name: "Antenne"
+  short_description: "Judge whether the work just finished is news, then submit one story to the desk queue"

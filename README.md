@@ -56,6 +56,7 @@ flowchart LR
         debrief["/debrief<br/><i>a deck</i>"]
         writeup["/writeup<br/><i>a post</i>"]
         deckcraft["/deckcraft<br/><i>it says nothing yet</i>"]
+        antenne["/antenne<br/><i>the fleet, if it is news</i>"]
     end
 
     docket --> atlas
@@ -71,10 +72,12 @@ flowchart LR
     task == during ==> brief
     task --> debrief
     task --> writeup
+    task -. "if it is news" .-> antenne
     debrief --> deckcraft
     brief -. read by .-> debrief
     debrief --> closeout
     writeup --> closeout
+    antenne --> closeout
     closeout --> again
 
     classDef before fill:#8957e522,stroke:#8957e5
@@ -84,7 +87,7 @@ flowchart LR
     classDef exit   fill:#8b949e11,stroke:#8b949e,stroke-dasharray:3 3
     class docket,untangle,atlas,wayfind,grill,pathfinder before
     class task during
-    class debrief,writeup,closeout,deckcraft after
+    class debrief,writeup,closeout,deckcraft,antenne after
     class brief store
     class again exit
     style S1 fill:#8b949e0d,stroke:#8b949e55
@@ -123,16 +126,17 @@ flowchart LR
     q19("a word list should be flashcards") --> n18_1
     n18_0 --> n20_0["/quiz-set"]
     q20("a list should be a drillable round") --> n20_0
+    q21("did the fleet need to hear this") --> n21_0["/task"] --> n21_1["/antenne"]
 
     classDef before fill:#8957e522,stroke:#8957e5,stroke-width:1px
     classDef during fill:#1f6feb33,stroke:#1f6feb,stroke-width:1px
     classDef after fill:#2da44e22,stroke:#2da44e,stroke-width:1px
     classDef craft fill:#bf870022,stroke:#bf8700,stroke-width:1px
     classDef ask fill:#8b949e11,stroke:#8b949e,stroke-dasharray:3 3
-    class q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19,q20 ask
+    class q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19,q20,q21 ask
     class n1_0,n2_0,n3_0,n4_0,n4_1,n5_0,n6_0,n6_2 before
-    class n2_1,n3_1,n4_2,n5_1,n6_1,n7_0,n7_1,n8_0,n9_0,n11_0,n13_1,n16_0,n17_0 during
-    class n2_2,n3_2,n5_2,n8_1,n9_1,n10_0,n10_1,n11_1 after
+    class n2_1,n3_1,n4_2,n5_1,n6_1,n7_0,n7_1,n8_0,n9_0,n11_0,n13_1,n16_0,n17_0,n21_0 during
+    class n2_2,n3_2,n5_2,n8_1,n9_1,n10_0,n10_1,n11_1,n21_1 after
     class n8_2,n12_0,n12_1,n12_2,n13_0,n14_0,n15_0,n18_0,n18_1,n20_0 craft
 ```
 
@@ -166,6 +170,7 @@ sound like each other.
 
 | Skill | Use it when | Produces |
 |---|---|---|
+| **[`antenne`](docs/skills/antenne.md)** | What landed might be news the fleet wants to hear | One story in the private desk queue, or a reasoned no |
 | **[`debrief`](docs/skills/debrief.md)** | You need to present what changed | A deck, built to PDF (slides YAML, Marp, or Markdown) |
 | **[`writeup`](docs/skills/writeup.md)** | You need to publish what changed | `post/POST.md` plus diagrams that cannot drift |
 | **[`deckcraft`](docs/skills/deckcraft.md)** | A deck lists topics instead of making a claim | Assertion headings, an order for the room, a lint pass |
@@ -203,7 +208,7 @@ Refresh with `/plugin update neorgon-forge`.
 **With the skills CLI**: for one skill, or for an agent other than Claude Code:
 
 ```bash
-npx skills add LucianoAdonis/neorgon-forge           # all twenty-seven
+npx skills add LucianoAdonis/neorgon-forge           # all twenty-eight
 npx skills add LucianoAdonis/neorgon-forge -s atlas   # just one
 npx skills add LucianoAdonis/neorgon-forge -l         # list without installing
 ```

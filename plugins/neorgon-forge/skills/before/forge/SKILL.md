@@ -1,6 +1,6 @@
 ---
 name: forge
-description: Ask which forge skill fits the situation. A router over the twenty-seven, and the flows that connect them.
+description: Ask which forge skill fits the situation. A router over the twenty-eight, and the flows that connect them.
 user-invocable: true
 disable-model-invocation: true
 license: MIT
@@ -8,7 +8,7 @@ license: MIT
 
 # forge: which one of these do I want
 
-Twenty-seven skills is more than anyone holds in their head, and the ones you reach for least are
+Twenty-eight skills is more than anyone holds in their head, and the ones you reach for least are
 the ones you most need reminding of. Ask instead.
 
 They sit in four buckets by **where in the work you are**, not by topic.
@@ -39,7 +39,11 @@ always there.
    measured. That file is the reason step 5 reports rather than reconstructs.
 5. **`/debrief`** for a deck, **`/writeup`** for a post. Both read the brief. Ask for one and
    you usually want both.
-6. **`/closeout`** when the work has landed and the question is what is left. It enumerates the
+6. **`/antenne`** when what landed might be worth telling the fleet, which most days it is not.
+   It reads the repo's own log, brief and registry row, is willing to answer no and stop, and at
+   most drafts one story into Antenne's private desk queue. It never approves and never
+   publishes: a reviewer does that at the desk.
+7. **`/closeout`** when the work has landed and the question is what is left. It enumerates the
    pending items from git, the registry and the briefs, numbered with a per-item default, and
    one reply closes everything the answer does not deny: publishing always its own line.
 
@@ -127,7 +131,8 @@ The overlaps, resolved. This table is the reason to open this skill rather than 
 | `wayfind` | The question is how the whole app fits together rather than where one change goes: `/atlas` |
 | `pathfinder` | The plan itself needs arguing with rather than encoding: `/grill`. The work in the middle is the ask: `/task`, then come back for the write-back |
 | `debrief` | It is a post, not a deck: `/writeup`. It did not come from a diff: `/deckcraft` |
-| `closeout` | Choosing what to build next rather than landing what exists: that is `/docket` |
+| `closeout` | Choosing what to build next rather than landing what exists: that is `/docket`. The only thing left is a story the fleet should hear: that is `/antenne`, and closeout's own undrafted-news item submits through the same queue |
+| `antenne` | The sweep is the whole fleet since the last published story and may write several stories: that is the monorepo's `.claude/commands/newsroom.md`, which ends at the same queue. The question is what is still unlanded rather than what is worth telling: `/closeout`. The audience is a room or a reader rather than the fleet feed: `/debrief`, `/writeup`. A story is queued and needs approving: that is the desk, and no skill does it |
 | `docket` | Something is already in flight and the question is how to land it: `/closeout`. You have already chosen the work: `/task` |
 | `writeup` | It is README or docs prose: that is ordinary writing, or `/penname` for voice |
 | `deckcraft` | The deck should report what actually changed in the code: `/debrief` reads the diff |
