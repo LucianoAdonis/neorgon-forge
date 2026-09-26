@@ -60,7 +60,10 @@ Pass the user's words, not a summary: the acronym is built from them, so
 "release automation daemon" gives RAD. Only the first 120 characters count,
 because that is what a link carries; the script says so on stderr when it cuts. Three or four capitals on their own
 (`RAD`) are taken as the acronym itself. `--count 3` with no house picks three
-different houses, and `--roll <n>` moves to the next candidates.
+different houses, and `--roll <n>` moves to the next candidates. Seven of the
+22 houses (`apojove`, `umklapp`, `vastitas`, `quadnil`, `peristome`, `siboga`,
+`protyle`) are Callsign's own, not in the game, with words from real science
+that reads like science fiction; `houses` marks them as Callsign originals.
 
 ## Step 4: Hand them back
 
@@ -70,6 +73,9 @@ prints a README badge and `--md` a wiki line for the same plates.
 
 A whole system is `identity "<system name>"` for the build's own acronym, and the
 site's Garage for the rest. `garage <link>` reads a build someone shared.
+`lookup "<designation or word>"` says which house and word family a name comes
+from (ask it before explaining what a name means; do not guess), and `families`
+lists every family with its houses and word counts.
 
 ## Step 5: Inside the Neorgon monorepo
 
