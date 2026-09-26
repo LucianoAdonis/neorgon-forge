@@ -15,17 +15,21 @@ an unofficial fan tool; say so when the name is headed somewhere public.
 
 ## Step 1: Find the engine, or say you could not
 
-The engine is the site repo's command line, `tools/callsign.mjs`.
-`scripts/callsign.mjs` looks for it with `--site`, then in the working directory
-and its parents, then at `projects/callsign-site` and `callsign-site` under the
-working directory, which covers the monorepo and a standalone clone:
+The engine is the site repo's command line, `tools/callsign.mjs`, and it needs
+Node 22 LTS or later. Run this skill's script by its full path and stay in the
+user's own directory, because that is where the search starts. It looks at
+`--site` alone when given, otherwise in the working directory and each parent,
+and in `projects/callsign-site` and `callsign-site` under each of them, which
+covers the monorepo and a standalone clone:
 
 ```bash
-node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/callsign.mjs houses
+FORGE=~/.claude   # the directory containing skills/: ~/.claude after bin/install.sh, plugins/neorgon-forge in this repo
+node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON "$FORGE/skills/callsign/scripts/callsign.mjs" houses
 ```
 
-Exit 2 with "no Callsign checkout found" means nothing was generated. Do not
-invent a name in its place: offer to clone
+Exit 2 means nothing was generated: no checkout ("no Callsign checkout found"),
+one from before the command line ("git pull there"), or a Node too old to load
+it. Do not invent a name in its place: offer to clone
 `https://github.com/energon-a-secas/callsign-site`, or send the user to the site.
 
 ## Step 2: Pick the slot from what is being named
@@ -48,12 +52,13 @@ leave it unset unless the user named one or the build already has a frame house.
 ## Step 3: Forge three candidates
 
 ```bash
-node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/callsign.mjs \
+node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON "$FORGE/skills/callsign/scripts/callsign.mjs" \
   forge "<the user's own description>" --slot <slot> --count 3 --via agent --json
 ```
 
 Pass the user's words, not a summary: the acronym is built from them, so
-"release automation daemon" gives RAD. Three or four capitals on their own
+"release automation daemon" gives RAD. Only the first 120 characters count,
+because that is what a link carries; the script says so on stderr when it cuts. Three or four capitals on their own
 (`RAD`) are taken as the acronym itself. `--count 3` with no house picks three
 different houses, and `--roll <n>` moves to the next candidates.
 
