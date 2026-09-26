@@ -1,6 +1,6 @@
 ---
 name: forge
-description: Ask which forge skill fits the situation. A router over the twenty-eight, and the flows that connect them.
+description: Ask which forge skill fits the situation. A router over the twenty-nine, and the flows that connect them.
 user-invocable: true
 disable-model-invocation: true
 license: MIT
@@ -8,7 +8,7 @@ license: MIT
 
 # forge: which one of these do I want
 
-Twenty-eight skills is more than anyone holds in their head, and the ones you reach for least are
+Twenty-nine skills is more than anyone holds in their head, and the ones you reach for least are
 the ones you most need reminding of. Ask instead.
 
 They sit in four buckets by **where in the work you are**, not by topic.
@@ -103,6 +103,10 @@ These run on their own schedule and belong to no flow.
 - **`/brandmark`** puts company logos in a UI: vendored Simple Icons, letter-badge fallback,
   and an opt-in remote favicon tier, chosen by whether fetching an icon would disclose what
   the visitor holds.
+- **`/callsign`** names a project, service or tool in Armored Core VI part grammar with the
+  Callsign site's own engine: projects answer to a 3-letter acronym, tools to a weapon's name. It
+  runs the site repo's command line rather than a copy, so the names match the site and carry
+  its grammar version.
 - **`/runcible-book`** turns a subject into a Runcible Book: the ladder of chapters, a goal per
   chapter stated as something the learner can do, and the data pointers for corpora it refuses to
   invent. Its bar is that adding the Book touched the catalog and one directory and no file under
@@ -138,6 +142,7 @@ The overlaps, resolved. This table is the reason to open this skill rather than 
 | `deckcraft` | The deck should report what actually changed in the code: `/debrief` reads the diff |
 | `tabletop` | Nothing is ever printed and there is no rulebook: that is ordinary `/task` |
 | `brandmark` | The mark is the project's own rather than someone else's: that is `/sigil` for a site icon, `/mascot-forge` for a character |
+| `callsign` | It is the site's icon rather than its name: `/sigil`. It is copy in the author's voice, such as a tagline: `/penname`. It is a name inside code, a variable or a function: ordinary work, no skill |
 | `sigil` | The logo belongs to another company: `/brandmark`. It is an illustrated character: `/mascot-forge`. You are sweeping many sites that already have marks: that is a loop, not a skill |
 | `runcible-book` | The deck a chapter embeds is the ask: `/rappel-deck`, and the game round it embeds is `/quiz-set`. It is one page of copy rather than a ladder: ordinary writing |
 | `rappel-deck` | It is a graded test rather than a study aid: `/quizmaster`. It is a short round with a reason shown on a miss rather than a schedule: `/quiz-set`. The chapters around the deck are the ask: `/runcible-book` |

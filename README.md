@@ -119,6 +119,7 @@ flowchart LR
     q13("a game that also prints") --> n13_0["/tabletop"] --> n13_1["/task"]
     q14("a UI needs company logos") --> n14_0["/brandmark"]
     q14b("a site needs its own mark") --> n14b_0["/sigil"]
+    q14c("a project needs a codename") --> n14c_0["/callsign"]
     q15("the site needs a character") --> n15_0["/mascot-forge"]
     q16("that answer did not land") --> n16_0["/repitch"]
     q17("the work must move elsewhere") --> n17_0["/handoff"]
@@ -186,6 +187,7 @@ sound like each other.
 | **[`quizmaster`](docs/skills/quizmaster.md)** | Source material should become a runnable exam | Proctor-format JSON, coverage-mapped and validated |
 | **[`mascot-forge`](docs/skills/mascot-forge.md)** | A character to generate, cut out, and rig | Aligned frames plus a CSS/physics rig |
 | **[`brandmark`](docs/skills/brandmark.md)** | A UI needs recognizable company or service logos | Vendored icons, a letter fallback, and the privacy rule |
+| **[`callsign`](docs/skills/callsign.md)** | A project, service or tool needs a codename in Armored Core part grammar | Three candidates from the site's own engine, each with acronyms and a link |
 | **[`sigil`](docs/skills/sigil.md)** | A site needs its own mark: glyph, accent, favicon set | A linted glyph and six generated files, wired on every page |
 | **[`tabletop`](docs/skills/tabletop.md)** | A game must both print and run without drifting | One source for the components, and a measured balance claim |
 | **[`runcible-book`](docs/skills/runcible-book.md)** | A subject should become a Runcible Book | A manifest, a chapter file each, and one catalog line |
@@ -208,7 +210,7 @@ Refresh with `/plugin update neorgon-forge`.
 **With the skills CLI**: for one skill, or for an agent other than Claude Code:
 
 ```bash
-npx skills add LucianoAdonis/neorgon-forge           # all twenty-eight
+npx skills add LucianoAdonis/neorgon-forge           # all twenty-nine
 npx skills add LucianoAdonis/neorgon-forge -s atlas   # just one
 npx skills add LucianoAdonis/neorgon-forge -l         # list without installing
 ```

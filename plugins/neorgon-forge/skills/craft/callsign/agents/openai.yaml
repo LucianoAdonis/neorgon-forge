@@ -1,0 +1,3 @@
+interface:
+  display_name: "Callsign"
+  short_description: "Codenames for projects and services in Armored Core part grammar"
